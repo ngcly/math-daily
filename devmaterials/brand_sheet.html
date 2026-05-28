@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>每日一题 · 品牌文案</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  :root {
+    --ink:    #1a1a1a;
+    --ink2:   #3d3d3d;
+    --ink3:   #777;
+    --ink4:   #aaa;
+    --ink5:   #e4e4e4;
+    --paper:  #f7f5ef;
+    --paper2: #eeebe2;
+    --gold:   #b8960c;
+    --gold-light: #f5e99a;
+    --white:  #ffffff;
+    --serif:  'Noto Serif SC', 'STSong', Georgia, serif;
+    --sans:   'Noto Sans SC', 'PingFang SC', sans-serif;
+    --mono:   'JetBrains Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--paper);
+    font-family: var(--sans);
+    color: var(--ink);
+    padding: 0 0 80px;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    background: var(--ink);
+    padding: 64px 40px 56px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* 点阵背景 */
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(224,216,138,0.15) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  .hero-icon {
+    width: 120px;
+    height: 120px;
+    border-radius: 28px;
+    box-shadow: 0 12px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06);
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+  }
+
+  .hero-text {
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-name {
+    font-family: var(--serif);
+    font-size: 44px;
+    font-weight: 900;
+    color: var(--white);
+    letter-spacing: 4px;
+    line-height: 1;
+    margin-bottom: 14px;
+  }
+
+  .hero-tagline {
+    font-size: 18px;
+    color: var(--gold-light);
+    font-weight: 500;
+    letter-spacing: 2px;
+    font-family: var(--serif);
+  }
+
+  /* ── COPY SECTIONS ── */
+  .sections {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  .block {
+    margin-top: 40px;
+  }
+
+  .block-label {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    color: var(--ink4);
+    text-transform: uppercase;
+    font-family: var(--mono);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .block-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--ink5);
+  }
+
+  /* ── 搜索简介 ── */
+  .search-preview {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 20px 24px;
+    border: 1px solid var(--ink5);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .sp-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+
+  .sp-info { flex: 1; }
+
+  .sp-name {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+
+  .sp-desc {
+    font-size: 13px;
+    color: var(--ink3);
+    line-height: 1.4;
+  }
+
+  .sp-tag {
+    font-size: 11px;
+    background: #f0f0f0;
+    color: var(--ink3);
+    padding: 3px 8px;
+    border-radius: 6px;
+    align-self: flex-start;
+    flex-shrink: 0;
+  }
+
+  /* ── 介绍文案 ── */
+  .intro-card {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 28px;
+    border: 1px solid var(--ink5);
+    font-size: 15px;
+    line-height: 1.9;
+    color: var(--ink2);
+    font-family: var(--serif);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+
+  /* ── 详情页文案 ── */
+  .detail-card {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 28px;
+    border: 1px solid var(--ink5);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+
+  .detail-h1 {
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--ink);
+    font-family: var(--serif);
+    letter-spacing: -0.5px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .detail-section {
+    margin-bottom: 24px;
+  }
+
+  .detail-section-title {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--ink3);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-family: var(--mono);
+    margin-bottom: 10px;
+  }
+
+  .detail-body {
+    font-size: 14px;
+    line-height: 1.85;
+    color: var(--ink2);
+    font-family: var(--serif);
+  }
+
+  .detail-body strong {
+    color: var(--ink);
+    font-weight: 700;
+  }
+
+  /* 六维列表 */
+  .feature-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 12px 0;
+  }
+
+  .feature-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--paper);
+    border-radius: 10px;
+    font-size: 14px;
+    color: var(--ink2);
+  }
+
+  .feature-item-emoji { font-size: 18px; flex-shrink: 0; }
+  .feature-item-name  { font-weight: 700; color: var(--ink); }
+  .feature-item-desc  { color: var(--ink3); font-size: 13px; }
+
+  /* ── 分享文案 ── */
+  .share-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .share-card {
+    background: var(--white);
+    border-radius: 14px;
+    padding: 20px 22px;
+    border: 1px solid var(--ink5);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .share-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: var(--ink);
+  }
+
+  .share-type {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: var(--ink4);
+    font-family: var(--mono);
+    margin-bottom: 8px;
+  }
+
+  .share-text {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--ink2);
+    font-family: var(--serif);
+  }
+
+  .share-text em {
+    font-style: normal;
+    color: var(--gold);
+    font-weight: 700;
+  }
+
+  /* ── 关键词 ── */
+  .keyword-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .keyword {
+    background: var(--ink);
+    color: var(--white);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .keyword.secondary {
+    background: var(--white);
+    color: var(--ink3);
+    border: 1px solid var(--ink5);
+  }
+
+  /* ── 图标展示 ── */
+  .icon-showcase {
+    display: flex;
+    gap: 16px;
+    align-items: flex-end;
+  }
+
+  .icon-size-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .icon-showcase img {
+    border-radius: calc(var(--s) * 0.22);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  }
+
+  .icon-size-label {
+    font-size: 10px;
+    color: var(--ink4);
+    font-family: var(--mono);
+    font-weight: 600;
+  }
+
+  /* ── COPY BUTTON ── */
+  .copy-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--paper2);
+    border: 1px solid var(--ink5);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ink3);
+    cursor: pointer;
+    font-family: var(--mono);
+    float: right;
+    transition: all 0.15s;
+    margin-top: -4px;
+  }
+  .copy-btn:hover { background: var(--ink); color: var(--white); border-color: var(--ink); }
+  .copy-btn.copied { background: #2e7d32; color: white; border-color: #2e7d32; }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <img class="hero-icon" src="icon_200.png" alt="每日一题图标" onerror="this.style.background='#333';this.style.border='2px solid #555'"/>
+  <div class="hero-text">
+    <div class="hero-name">每日一题</div>
+    <div class="hero-tagline">每天一道思维题，让大脑不退化</div>
+  </div>
+</div>
+
+<div class="sections">
+
+  <!-- 搜索简介 -->
+  <div class="block">
+    <div class="block-label">微信搜索展示效果</div>
+    <div class="search-preview">
+      <img class="sp-icon" src="icon_200.png" alt="icon" onerror="this.style.background='#333'"/>
+      <div class="sp-info">
+        <div class="sp-name">每日一题</div>
+        <div class="sp-desc">每天一道思维题，让大脑不退化</div>
+      </div>
+      <div class="sp-tag">小程序</div>
+    </div>
+  </div>
+
+  <!-- 一句话简介 -->
+  <div class="block">
+    <div class="block-label">
+      一句话简介
+      <button class="copy-btn" onclick="copyText('每天一道思维题，让大脑不退化', this)">复制</button>
+    </div>
+    <div class="intro-card" style="font-size:20px;font-weight:700;letter-spacing:1px;text-align:center;padding:32px;">
+      每天一道思维题，让大脑不退化
+    </div>
+  </div>
+
+  <!-- 小程序介绍 -->
+  <div class="block">
+    <div class="block-label">
+      小程序介绍（120字）
+      <button class="copy-btn" onclick="copyText(document.getElementById('intro-text').innerText, this)">复制</button>
+    </div>
+    <div class="intro-card" id="intro-text">
+      大脑和肌肉一样，不用就会退化。<br><br>
+      每日一题不是为了让你成为数学家，而是像每天散步一样，给大脑做一次轻量的运动。<br><br>
+      每天一道精选思维题，涵盖逻辑推理、空间想象、概率直觉、博弈思维等六大类型。内置草稿纸，拿着手机就能演算，不需要纸和笔。<br><br>
+      坚持下去，你会发现自己思考问题越来越清晰。
+    </div>
+  </div>
+
+  <!-- 详情页文案 -->
+  <div class="block">
+    <div class="block-label">详情页文案（对外介绍）</div>
+    <div class="detail-card">
+      <div class="detail-h1">每日一题 — 给大脑做体操</div>
+
+      <div class="detail-section">
+        <div class="detail-body">
+          人最重要的能力是思考。但大多数人的大脑，正在悄悄退化。<br><br>
+          不是因为不够聪明，而是因为太少使用。<br><br>
+          <strong>每日一题</strong>把这件事变得简单：每天打开，做一道题，关掉。全程不超过五分钟。
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-section-title">六种思维，全面锻炼</div>
+        <div class="feature-list">
+          <div class="feature-item">
+            <span class="feature-item-emoji">🔍</span>
+            <div>
+              <span class="feature-item-name">逻辑推理</span>
+              <span class="feature-item-desc"> — 找出那个漏洞</span>
+            </div>
+          </div>
+          <div class="feature-item">
+            <span class="feature-item-emoji">📐</span>
+            <div>
+              <span class="feature-item-name">空间想象</span>
+              <span class="feature-item-desc"> — 在脑子里折纸</span>
+            </div>
+          </div>
+          <div class="feature-item">
+            <span class="feature-item-emoji">🎲</span>
+            <div>
+              <span class="feature-item-name">直觉挑战</span>
+              <span class="feature-item-desc"> — 你的直觉对吗？</span>
+            </div>
+          </div>
+          <div class="feature-item">
+            <span class="feature-item-emoji">🔢</span>
+            <div>
+              <span class="feature-item-name">抽象思维</span>
+              <span class="feature-item-desc"> — 看穿表象的规律</span>
+            </div>
+          </div>
+          <div class="feature-item">
+            <span class="feature-item-emoji">♟️</span>
+            <div>
+              <span class="feature-item-name">博弈思维</span>
+              <span class="feature-item-desc"> — 你会怎么出招？</span>
+            </div>
+          </div>
+          <div class="feature-item">
+            <span class="feature-item-emoji">📏</span>
+            <div>
+              <span class="feature-item-name">拆解估算</span>
+              <span class="feature-item-desc"> — 大胆猜，有道理地猜</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-section-title">和别的刷题 App 不一样</div>
+        <div class="detail-body">
+          大多数刷题 App 是为了考试。每日一题是为了生活。<br><br>
+          这里没有排行榜，没有积分，没有关卡。只有一道题，和你自己。<br><br>
+          内置草稿纸，支持手写演算，双指缩放。做完有解析，不只告诉你答案，还告诉你为什么你的第一反应是错的。
+        </div>
+      </div>
+
+      <div class="detail-section" style="margin-bottom:0">
+        <div class="detail-section-title">坚持的力量</div>
+        <div class="detail-body">
+          连续打卡记录让你看见自己在进步。不需要每天都答对，只需要每天都思考过。<br><br>
+          七天、三十天、一百天——每一个里程碑，都是大脑变得更清醒的证明。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 分享文案 -->
+  <div class="block">
+    <div class="block-label">朋友圈分享文案</div>
+    <div class="share-cards">
+      <div class="share-card">
+        <div class="share-type">答对时</div>
+        <div class="share-text">
+          今天这道题只有 <em>34%</em> 的人答对，我做出来了 ✅<br>
+          「[题目标题]」<br>
+          #每日一题 #思维训练
+        </div>
+        <button class="copy-btn" onclick="copyText('今天这道题只有 34% 的人答对，我做出来了 ✅\n「[题目标题]」\n#每日一题 #思维训练', this)" style="float:none;margin-top:12px">复制</button>
+      </div>
+      <div class="share-card">
+        <div class="share-type">答错时</div>
+        <div class="share-text">
+          今天被这道题难住了 🤔 解析很精彩<br>
+          「[题目标题]」<br>
+          #每日一题 来挑战一下？
+        </div>
+        <button class="copy-btn" onclick="copyText('今天被这道题难住了 🤔 解析很精彩\n「[题目标题]」\n#每日一题 来挑战一下？', this)" style="float:none;margin-top:12px">复制</button>
+      </div>
+      <div class="share-card">
+        <div class="share-type">打卡时</div>
+        <div class="share-text">
+          连续第 <em>N</em> 天做题 🔥 大脑保持运转中<br>
+          #每日一题
+        </div>
+        <button class="copy-btn" onclick="copyText('连续第 N 天做题 🔥 大脑保持运转中\n#每日一题', this)" style="float:none;margin-top:12px">复制</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 关键词 -->
+  <div class="block">
+    <div class="block-label">搜索关键词</div>
+    <div class="keyword-wrap">
+      <span class="keyword">每日一题</span>
+      <span class="keyword">思维训练</span>
+      <span class="keyword">脑力训练</span>
+      <span class="keyword">逻辑题</span>
+      <span class="keyword secondary">每天一道题</span>
+      <span class="keyword secondary">数学思维训练</span>
+      <span class="keyword secondary">成人逻辑训练</span>
+      <span class="keyword secondary">大脑锻炼小程序</span>
+    </div>
+  </div>
+
+  <!-- 图标 -->
+  <div class="block">
+    <div class="block-label">应用图标</div>
+    <div class="icon-showcase">
+      <div class="icon-size-wrap">
+        <img src="icon_200.png" width="80" height="80" style="border-radius:18px;box-shadow:0 4px 20px rgba(0,0,0,0.2)" alt="icon"/>
+        <span class="icon-size-label">200×200</span>
+      </div>
+      <div class="icon-size-wrap">
+        <img src="icon_200.png" width="60" height="60" style="border-radius:14px;box-shadow:0 4px 16px rgba(0,0,0,0.2)" alt="icon"/>
+        <span class="icon-size-label">小程序头像</span>
+      </div>
+      <div class="icon-size-wrap">
+        <img src="icon_200.png" width="40" height="40" style="border-radius:9px;box-shadow:0 2px 10px rgba(0,0,0,0.2)" alt="icon"/>
+        <span class="icon-size-label">TabBar</span>
+      </div>
+      <div class="icon-size-wrap">
+        <img src="icon_200.png" width="24" height="24" style="border-radius:5px;box-shadow:0 1px 6px rgba(0,0,0,0.2)" alt="icon"/>
+        <span class="icon-size-label">通知</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function copyText(text, btn) {
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = btn.textContent
+    btn.textContent = '✓ 已复制'
+    btn.classList.add('copied')
+    setTimeout(() => {
+      btn.textContent = orig
+      btn.classList.remove('copied')
+    }, 2000)
+  }).catch(() => {
+    // fallback
+    const ta = document.createElement('textarea')
+    ta.value = text
+    document.body.appendChild(ta)
+    ta.select()
+    document.execCommand('copy')
+    document.body.removeChild(ta)
+  })
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>每日一题 · MVP 功能清单</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap');
+
+  :root {
+    --ink: #1a1a1a;
+    --ink2: #444;
+    --ink3: #777;
+    --ink4: #aaa;
+    --ink5: #e8e8e8;
+    --paper: #f7f6f2;
+    --white: #ffffff;
+    --green: #2e7d32;
+    --green-bg: #e8f5e9;
+    --green-border: #a5d6a7;
+    --red: #c62828;
+    --red-bg: #ffebee;
+    --red-border: #ef9a9a;
+    --amber: #e65100;
+    --amber-bg: #fff3e0;
+    --amber-border: #ffcc80;
+    --blue: #1565c0;
+    --blue-bg: #e3f2fd;
+    --blue-border: #90caf9;
+    --shadow: 0 2px 12px rgba(0,0,0,0.07);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--paper);
+    font-family: 'Noto Sans SC', 'PingFang SC', -apple-system, sans-serif;
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 0 0 80px;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--ink);
+    color: white;
+    padding: 36px 32px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: -60px; right: 60px;
+    width: 240px; height: 240px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.03);
+  }
+  .h-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+  .h-title {
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+  .h-sub {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.5;
+  }
+
+  /* ── PRINCIPLE BOX ── */
+  .principle {
+    margin: 24px 24px 0;
+    background: var(--white);
+    border-radius: 16px;
+    padding: 18px 20px;
+    border-left: 4px solid var(--ink);
+    box-shadow: var(--shadow);
+  }
+  .principle-label {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: var(--ink4);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+  .principle-text {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.6;
+  }
+
+  /* ── FLOW BAR ── */
+  .flow {
+    margin: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: var(--white);
+    border-radius: 14px;
+    padding: 14px 16px;
+    box-shadow: var(--shadow);
+    overflow-x: auto;
+  }
+  .flow-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+    min-width: 64px;
+  }
+  .flow-icon {
+    width: 36px; height: 36px;
+    background: var(--ink);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+  .flow-label {
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--ink2);
+    text-align: center;
+  }
+  .flow-arrow {
+    font-size: 14px;
+    color: var(--ink5);
+    padding: 0 4px;
+    flex-shrink: 0;
+    margin-bottom: 16px;
+  }
+
+  /* ── SECTION ── */
+  .section {
+    margin: 20px 24px 0;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .section-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .section-title {
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+  }
+  .section-count {
+    margin-left: auto;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+
+  /* ── FEATURE CARD ── */
+  .feature-card {
+    background: var(--white);
+    border-radius: 14px;
+    margin-bottom: 8px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: box-shadow 0.2s, transform 0.15s;
+  }
+  .feature-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-1px);
+  }
+  .feature-card.expanded { border-color: var(--ink5); }
+
+  .card-main {
+    display: flex;
+    align-items: center;
+    padding: 14px 16px;
+    gap: 12px;
+  }
+  .card-icon {
+    font-size: 20px;
+    width: 36px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .card-info { flex: 1; }
+  .card-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+  .card-desc {
+    font-size: 11px;
+    color: var(--ink3);
+    line-height: 1.4;
+  }
+  .card-badge {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 8px;
+    flex-shrink: 0;
+  }
+  .card-toggle {
+    font-size: 12px;
+    color: var(--ink4);
+    padding-left: 8px;
+    flex-shrink: 0;
+    transition: transform 0.2s;
+  }
+  .card-toggle.open { transform: rotate(180deg); }
+
+  .card-detail {
+    display: none;
+    padding: 0 16px 14px 64px;
+    border-top: 1px solid var(--ink5);
+    margin-top: 0;
+  }
+  .card-detail.show { display: block; }
+  .detail-inner {
+    padding-top: 12px;
+  }
+  .detail-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 7px;
+    font-size: 11px;
+    color: var(--ink2);
+    line-height: 1.5;
+  }
+  .detail-row::before {
+    content: '·';
+    color: var(--ink4);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .detail-why {
+    margin-top: 10px;
+    background: var(--paper);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 10.5px;
+    color: var(--ink3);
+    line-height: 1.6;
+  }
+  .detail-why strong { color: var(--ink); font-weight: 700; }
+
+  /* Status colors */
+  .do .section-dot { background: var(--green); }
+  .do .section-title { color: var(--green); }
+  .do .section-count { background: var(--green-bg); color: var(--green); }
+  .do .card-badge { background: var(--green-bg); color: var(--green); }
+  .do .feature-card:hover { border-color: var(--green-border); }
+
+  .no .section-dot { background: var(--red); }
+  .no .section-title { color: var(--red); }
+  .no .section-count { background: var(--red-bg); color: var(--red); }
+  .no .card-badge { background: var(--red-bg); color: var(--red); }
+  .no .feature-card:hover { border-color: var(--red-border); }
+
+  .later .section-dot { background: var(--amber); }
+  .later .section-title { color: var(--amber); }
+  .later .section-count { background: var(--amber-bg); color: var(--amber); }
+  .later .card-badge { background: var(--amber-bg); color: var(--amber); }
+  .later .feature-card:hover { border-color: var(--amber-border); }
+
+  /* ── TIMELINE ── */
+  .timeline {
+    margin: 20px 24px 0;
+    background: var(--white);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+  }
+  .tl-title {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--ink);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .tl-phase {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 16px;
+    position: relative;
+  }
+  .tl-phase:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 36px;
+    bottom: -16px;
+    width: 2px;
+    background: var(--ink5);
+  }
+  .tl-dot {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 800;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+  .tl-content { flex: 1; }
+  .tl-phase-name {
+    font-size: 12px;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+  .tl-phase-weeks {
+    font-size: 10px;
+    color: var(--ink4);
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .tl-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  .tl-item {
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 8px;
+    font-weight: 600;
+  }
+
+  /* ── SUMMARY STATS ── */
+  .stats-bar {
+    margin: 20px 24px 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+  }
+  .stat-card {
+    background: var(--white);
+    border-radius: 14px;
+    padding: 14px 12px;
+    text-align: center;
+    box-shadow: var(--shadow);
+  }
+  .stat-num {
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--ink);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .stat-label {
+    font-size: 9.5px;
+    color: var(--ink4);
+    font-weight: 600;
+  }
+
+  /* ── RISK BOX ── */
+  .risk-box {
+    margin: 20px 24px 0;
+    background: var(--white);
+    border-radius: 16px;
+    padding: 18px 20px;
+    box-shadow: var(--shadow);
+  }
+  .risk-title {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--ink);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .risk-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 11px;
+    line-height: 1.6;
+  }
+  .risk-num {
+    width: 20px; height: 20px;
+    background: var(--ink);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 800;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .risk-text { color: var(--ink2); }
+  .risk-text strong { color: var(--ink); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="h-eyebrow">每日一题 · 微信小程序</div>
+  <div class="h-title">MVP 功能清单</div>
+  <div class="h-sub">第一版只做一件事：让用户完整体验核心闭环</div>
+</div>
+
+<!-- CORE FLOW -->
+<div class="flow">
+  <div class="flow-step">
+    <div class="flow-icon">📋</div>
+    <div class="flow-label">看题目</div>
+  </div>
+  <div class="flow-arrow">›</div>
+  <div class="flow-step">
+    <div class="flow-icon">✏️</div>
+    <div class="flow-label">草稿演算</div>
+  </div>
+  <div class="flow-arrow">›</div>
+  <div class="flow-step">
+    <div class="flow-icon">📤</div>
+    <div class="flow-label">提交答案</div>
+  </div>
+  <div class="flow-arrow">›</div>
+  <div class="flow-step">
+    <div class="flow-icon">💡</div>
+    <div class="flow-label">看解析</div>
+  </div>
+  <div class="flow-arrow">›</div>
+  <div class="flow-step">
+    <div class="flow-icon">📤</div>
+    <div class="flow-label">分享</div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat-card">
+    <div class="stat-num">11</div>
+    <div class="stat-label">必做功能</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num" style="color:var(--red)">10</div>
+    <div class="stat-label">砍掉功能</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num" style="color:var(--amber)">7</div>
+    <div class="stat-label">二期再做</div>
+  </div>
+</div>
+
+<!-- ══ 必须做 ══ -->
+<div class="section do">
+  <div class="section-header">
+    <div class="section-dot"></div>
+    <div class="section-title">✅ 第一版必须做</div>
+    <div class="section-count">11 项</div>
+  </div>
+
+  <div class="feature-card" onclick="toggle(this)">
+    <div class="card-main">
+      <div class="card-icon">📋</div>
+      <div class="card-info">
+        <div class="card-name">今日题目展示</div>
+        <div class="card-desc">每天一道，自动更新，核心页面</div>
+      </div>
+      <div class="card-badge">核心</div>
+      <div class="card-toggle">▾</div>
+    </div>
+    <div class="card-detail">
+      <div class="detail-inner">
+        <div class="detail-row">题目卡片：标题、分类标签、题目正文</div>
+        <div class="detail-row">支持文字题和图形题（图片展示即可）</div>
+        <div class="detail-row">每天北京时间 00:00 自动切换新题</div>
+        <div class="detail-why"><strong>为什么必须做：</strong>这就是产品本身，没有这个什么都没有。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-card" onclick="toggle(this)">
+    <div class="card-main">
+      <div class="card-icon">✏️</div>
+      <div class="card-info">
+        <div class="card-name">草稿纸（手写画布）</div>
+        <div class="card-desc">Canvas 手写、橡皮、撤销、双指缩放</div>
+      </div>
+      <div class="card-badge">核心</div>
+      <div class="card-toggle">▾</div>
+    </div>
+    <div class="card-detail">
+      <div class="detail-inner">
+        <div class="detail-row">贝塞尔曲线平滑笔迹，延迟 &lt;16ms</div>
+        <div class="detail-row">橡皮擦、撤销/重做、清空</div>
+        <div class="detail-row">双指缩放平移，画布为屏幕 3 倍大</div>
+        <div class="detail-row">悬浮题目卡片，随时可收起</div>
+        <div class="detail-row">草稿本地自动保存，关闭不丢失</div>
+        <div class="detail-why"><strong>为什么必须做：</strong>这是本产品最大的差异化，没有草稿纸用户需要拿着手机看题、拿着纸笔演算，体验断裂。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-card" onclick="toggle(this)">
+    <div class="card-main">
+      <div class="card-icon">📤</div>
+      <div class="card-info">
+        <div class="card-name">提交答案</div>
+        <div class="card-desc">选择题 or 填空，提交后不可修改</div>
+      </div>
+      <div class="card-badge">核心</div>
+      <div class="card-toggle">▾</div>
+    </div>
+    <div class="card-detail">
+      <div class="detail-inner">
+        <div class="detail-row">MVP 阶段统一用选择题（4 选 1），降低开发复杂度</div>
+        <div class="detail-row">提交后进入解析页，不允许返回修改</div>
+        <div class="detail-row">记录用户选项和用时</div>
+        <div class="detail-why"><strong>为什么选择题：</strong>填空题需要做数学公式识别或文字匹配，容易出答案判断错误的 bug，MVP 阶段先用选择题验证体验，二期再扩展。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-card" onclick="toggle(this)">
+    <div class="card-main">
+      <div class="card-icon">💡</div>
+      <div class="card-info">
+        <div class="card-name">解析页</div>
+        <div class="card-desc">解题思路、正确率数据、啊哈时刻</div>
+      </div>
+      <div class="card-badge">核心</div>
+      <div class="card-toggle">▾</div>
+    </div>
+    <div class="card-detail">
+      <div class="detail-inner">
+        <div class="detail-row">答对/答错反馈（绿色/红色，动画克制）</div>
+        <div class="detail-row">三个数据：全局正确率、你的用时、平均用时</div>
+        <div class="detail-row">解题思路（分步骤，150 字内）</div>
+        <div class="detail-row">一句"啊哈时刻"：让人拍大腿的核心洞察</div>
+        <div class="detail-why"><strong>为什么必须做：</strong>解析质量决定用户第二天还会不会回来。没有好解析，做对了没成就感，做错了不知道哪里错，用户流失。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-card" onclick="toggle(this)">
+    <div class="card-main">
+      <div class="card-icon">🔥</div>
+      <div class="card-info">
+        <div class="card-name">连续打卡 Streak</div>
+        <div class="card-desc">连续天数显示，断签归零</div>
+      </div>
+      <div class="card-badge">必要</div>
+      <div class="card-toggle">▾</div>
+    </div>
+    <div class="card-detail">
+      <div class="detail-inner">
+        <div class="detail-row">首页右上角显示当前连续天数</div>
+        <div class="detail-row">断签归零，但每月给一次"补签机会"</div>
+        <div class="detail-row">不需要复杂动画，数字就够了</div>
+        <div class="detail-why"><strong>为什么必须做：</strong>这是习惯养成产品留存的核心机制。Duolingo 的数据表明 Streak 功能使次日留存提升 40%+。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-card" onclick="toggle(this)">
+    <div class="card-main">
+      <div class="card-icon">🔔</div>
+      <div class="card-info">
+        <div class="card-name">每日推送通知</div>
+        <div class="card-desc">固定时间提醒，文案有温度</div>
+      </div>
+      <div class="card-badge">必要</div>
+      <div class="card-toggle">▾</div>
+    </div>
+    <div class="card-detail">
+      <div class="detail-inner">
+        <div class="detail-row">用户设定提醒时间（默认早上 8:00）</div>
+        <div class="detail-row">推送文案不说"来做题了"，说"今天的题关于……"</div>
+        <div class="detail-row">微信小程序订阅消息实现（需用户授权）</div>
+        <div class="detail-why"><strong>为什么必须做：</strong>没有提醒，用户根本想不起来打开。这是习惯养成的触发器，不可缺少。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-card" onclick="toggle(this)">
+    <div class="card-main">
+      <div class="card-icon">📅</div>
+      <div class="card-info">
+        <div class="card-name">历史记录（日历视图）</div>
+        <div class="card-desc">打卡日历 + 可回看历史题目</div>
+      </div>
+      <div class="card-badge">必要</div>
+      <div class="card-toggle">▾</div>
+    </div>
+    <div class="card-detail">
+      <div class="detail-inner">
+        <div class="detail-row">月历视图，打卡日显示绿点</div>
+        <div class="detail-row">点击某天可回看题目、自己的答案、解析</div>
+        <div class="detail-row">三个统计：连续天数、本月完成、正确率</div>
+        <div class="detail-why"><strong>为什么必须做：</strong>日历是"看见自己坚持"的载体，满格的绿点会让用户舍不得断。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-card" onclick="toggle(this)">
+    <div class="card-main">
+      <div class="card-icon">🌐</div>
+      <div class="card-info">
+        <div class="card-name">分享到朋友圈 / 好友</div>
+        <div class="card-desc">解析页一键生成分享图</div>
+      </div>
+      <div class="card-badge">必要</div>
+      <div class="card-toggle">▾</div>
+    </div>
+    <div class="card-detail">
+      <div class="detail-inner">
+        <div class="detail-row">分享图：题目 + 用户草稿截图 + 是否答对</div>
+        <div class="detail-row">文案模板："我做对了这道只有 34% 人能答对的题"</div>
+        <div class="detail-row">分享图底部带小程序码，形成拉新闭环</div>
+        <div class="detail-why"><strong>为什么必须做：</strong>微信生态里分享是最低成本的拉新方式，草稿截图有个人印记，分享欲最强。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-card" onclick="toggle(this)">
+    <div class="card-main">
+      <div class="card-icon">⚙️</div>
+      <div class="card-info">
+        <div class="card-name">基础设置</div>
+        <div class="card-desc">提醒时间、题目偏好</div>
+      </div>
+      <div class="card-badge">必要</div>
+      <div class="card-toggle">▾</div>
+    </div>
+    <div class="card-detail">
+      <div class="detail-inner">
+        <div class="detail-row">每日提醒时间选择</div>
+        <div class="detail-row">题目类型偏好（可多选，影响出题优先级）</div>
+        <div class="detail-row">难度偏好：轻松 / 适中 / 烧脑</div>
+        <div class="detail-why"><strong>为什么必须做：</strong>提醒时间是留存关键，没法设置就无法适应不同用户的生活节奏。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-card" onclick="toggle(this)">
+    <div class="card-main">
+      <div class="card-icon">🗄️</div>
+      <div class="card-info">
+        <div class="card-name">题库后台管理</div>
+        <div class="card-desc">运营侧：录题、排期、上线</div>
+      </div>
+      <div class="card-badge">必要</div>
+      <div class="card-toggle">▾</div>
+    </div>
+    <div class="card-detail">
+      <div class="detail-inner">
+        <div class="detail-row">录入题目：标题、分类、难度、选项、解析</div>
+        <div class="detail-row">排期日历：设定哪天出哪道题</div>
+        <div class="detail-row">MVP 阶段用简单 CMS 或 Notion + API 即可，不需要复杂后台</div>
+        <div class="detail-why"><strong>为什么必须做：</strong>没有运营工具，每次改题都要改代码，不可持续。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-card" onclick="toggle(this)">
+    <div class="card-main">
+      <div class="card-icon">📊</div>
+      <div class="card-info">
+        <div class="card-name">基础数据埋点</div>
+        <div class="card-desc">完成率、用时、分享率</div>
+      </div>
+      <div class="card-badge">必要</div>
+      <div class="card-toggle">▾</div>
+    </div>
+    <div class="card-detail">
+      <div class="detail-inner">
+        <div class="detail-row">每道题的完成率、平均用时、正确率</div>
+        <div class="detail-row">用户留存：次日、7日、30日</div>
+        <div class="detail-row">分享转化：分享次数 → 新用户</div>
+        <div class="detail-why"><strong>为什么必须做：</strong>不埋点就不知道哪道题太难、哪个环节用户流失，无法迭代。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 第二期 ══ -->
+<div class="section later">
+  <div class="section-header">
+    <div class="section-dot"></div>
+    <div class="section-title">⏳ 第二期再做</div>
+    <div class="section-count">7 项</div>
+  </div>
+
+  <div class="feature-card" onclick="toggle(this)">
+    <div class="card-main">
+      <div class="card-icon">🖊️</div>
+      <div class="card-info">
+        <div class="card-name">填空题 / 简答题</div>
+        <div class="card-desc">需要文字判题逻辑，MVP 先用选择题</div>
+      </div>
+      <div class="card-badge">二期</div>
+      <div class="card-toggle">▾</div>
+    </div>
+    <div class="card-detail">
+      <div class="detail-inner">
+        <div class="detail-row">需要处理数字格式匹配（1/2 和 0.5 是同一个答案）</div>
+        <div class="detail-row">简答题需要人工或 AI 审核，运营成本高</div>
+        <div class="detail-why"><strong>为什么推迟：</strong>选择题能完整跑通闭环，填空题增加大量边界情况，MVP 阶段性价比低。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-card" onclick="toggle(this)">
+    <div class="card-main">
+      <div class="card-icon">👥</div>
+      <div class="card-info">
+        <div class="card-name">好友挑战 / 比较</div>
+        <div class="card-desc">看好友今天做了没、谁用时更短</div>
+      </div>
+      <div class="card-badge">二期</div>
+      <div class="card-toggle">▾</div>
+    </div>
+    <div class="card-detail">
+      <div class="detail-inner">
+        <div class="detail-row">需要好友关系链，依赖微信开放能力</div>
+        <div class="detail-row">用户基数小时社交功能体验差（没有好友也在用）</div>
+        <div class="detail-why"><strong>为什么推迟：</strong>用户破万之前，大多数人找不到好友对比，功能形同虚设。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-card" onclick="toggle(this)">
+    <div class="card-main">
+      <div class="card-icon">🏆</div>
+      <div class="card-info">
+        <div class="card-name">成就徽章系统</div>
+        <div class="card-desc">7天、30天、100天连续等里程碑</div>
+      </div>
+      <div class="card-badge">二期</div>
+      <div class="card-toggle">▾</div>
+    </div>
+    <div class="card-detail">
+      <div class="detail-inner">
+        <div class="detail-row">7 / 30 / 100 天连续打卡徽章</div>
+        <div class="detail-row">各分类专项徽章（逻辑达人、概率高手等）</div>
+        <div class="detail-why"><strong>为什么推迟：</strong>徽章需要设计资源，且需要用户积累足够数据才有意义。先让用户养成习惯，再给荣誉感。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-card" onclick="toggle(this)">
+    <div class="card-main">
+      <div class="card-icon">🎨</div>
+      <div class="card-info">
+        <div class="card-name">草稿纸颜色 / 笔刷扩展</div>
+        <div class="card-desc">更多颜色、荧光笔、不同纸张背景</div>
+      </div>
+      <div class="card-badge">二期</div>
+      <div class="card-toggle">▾</div>
+    </div>
+    <div class="card-detail">
+      <div class="detail-inner">
+        <div class="detail-row">多色笔、荧光笔标注重点</div>
+        <div class="detail-row">方格纸、点阵纸等背景切换</div>
+        <div class="detail-why"><strong>为什么推迟：</strong>黑色 + 红色两色足够 MVP 使用，扩展颜色是体验优化而非必要功能。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-card" onclick="toggle(this)">
+    <div class="card-main">
+      <div class="card-icon">📮</div>
+      <div class="card-info">
+        <div class="card-name">用户投稿题目</div>
+        <div class="card-desc">社区共创题库，投票筛选</div>
+      </div>
+      <div class="card-badge">二期</div>
+      <div class="card-toggle">▾</div>
+    </div>
+    <div class="card-detail">
+      <div class="detail-inner">
+        <div class="detail-row">用户提交题目 → 运营审核 → 社区投票 → 入库</div>
+        <div class="detail-row">需要审核机制防止垃圾内容</div>
+        <div class="detail-why"><strong>为什么推迟：</strong>用户破万之前，投稿量不足，审核成本高，内容质量难保证。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-card" onclick="toggle(this)">
+    <div class="card-main">
+      <div class="card-icon">📈</div>
+      <div class="card-info">
+        <div class="card-name">能力雷达图</div>
+        <div class="card-desc">六维思维能力可视化分析</div>
+      </div>
+      <div class="card-badge">二期</div>
+      <div class="card-toggle">▾</div>
+    </div>
+    <div class="card-detail">
+      <div class="detail-inner">
+        <div class="detail-row">基于历史答题数据生成六维雷达图</div>
+        <div class="detail-row">显示各类型正确率和薄弱项</div>
+        <div class="detail-why"><strong>为什么推迟：</strong>需要至少 30 道题的数据才有统计意义，新用户看到没有数据的空雷达图体验很差。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-card" onclick="toggle(this)">
+    <div class="card-main">
+      <div class="card-icon">📱</div>
+      <div class="card-info">
+        <div class="card-name">每周总结推送</div>
+        <div class="card-desc">周报：本周思考时长、最难的一题</div>
+      </div>
+      <div class="card-badge">二期</div>
+      <div class="card-toggle">▾</div>
+    </div>
+    <div class="card-detail">
+      <div class="detail-inner">
+        <div class="detail-row">每周日推送：本周完成几题、思考总时长</div>
+        <div class="detail-row">高亮本周最难或最精彩的一道题</div>
+        <div class="detail-why"><strong>为什么推迟：</strong>需要一周数据积累，且消息模板设计需要时间打磨，不影响 MVP 核心体验。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 坚决不做 ══ -->
+<div class="section no">
+  <div class="section-header">
+    <div class="section-dot"></div>
+    <div class="section-title">❌ 第一版坚决不做</div>
+    <div class="section-count">10 项</div>
+  </div>
+
+  <div class="feature-card" onclick="toggle(this)">
+    <div class="card-main">
+      <div class="card-icon">🔐</div>
+      <div class="card-info">
+        <div class="card-name">用户注册 / 登录体系</div>
+        <div class="card-desc">直接用微信 openId 静默识别</div>
+      </div>
+      <div class="card-badge">不做</div>
+      <div class="card-toggle">▾</div>
+    </div>
+    <div class="card-detail">
+      <div class="detail-inner">
+        <div class="detail-row">微信小程序有 openId，无需用户注册即可识别身份</div>
+        <div class="detail-row">注册流程是用户流失的最大杀手</div>
+        <div class="detail-why"><strong>为什么不做：</strong>要求注册的小程序，50% 用户在注册步骤流失。微信生态完全不需要这个。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-card" onclick="toggle(this)">
+    <div class="card-main">
+      <div class="card-icon">💬</div>
+      <div class="card-info">
+        <div class="card-name">评论 / 讨论区</div>
+        <div class="card-desc">用户评论题目和解析</div>
+      </div>
+      <div class="card-badge">不做</div>
+      <div class="card-toggle">▾</div>
+    </div>
+    <div class="card-detail">
+      <div class="detail-inner">
+        <div class="detail-row">评论区会成为答案剧透区，破坏独立思考体验</div>
+        <div class="detail-row">内容审核成本高，涉及违规风险</div>
+        <div class="detail-why"><strong>为什么不做：</strong>核心体验是独立思考，不是讨论。讨论区会让用户变懒，看答案而不是自己想。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-card" onclick="toggle(this)">
+    <div class="card-main">
+      <div class="card-icon">🛒</div>
+      <div class="card-info">
+        <div class="card-name">付费订阅 / 会员体系</div>
+        <div class="card-desc">高级题库、去广告等付费功能</div>
+      </div>
+      <div class="card-badge">不做</div>
+      <div class="card-toggle">▾</div>
+    </div>
+    <div class="card-detail">
+      <div class="detail-inner">
+        <div class="detail-row">MVP 阶段用户量太少，付费转化不足以支撑开发成本</div>
+        <div class="detail-row">付费墙会严重阻碍冷启动期的口碑传播</div>
+        <div class="detail-why"><strong>为什么不做：</strong>先把产品做好，用户留住；商业化是验证完核心价值后的事。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-card" onclick="toggle(this)">
+    <div class="card-main">
+      <div class="card-icon">🏅</div>
+      <div class="card-info">
+        <div class="card-name">积分商城 / 兑换体系</div>
+        <div class="card-desc">答题得积分，积分兑换奖励</div>
+      </div>
+      <div class="card-badge">不做</div>
+      <div class="card-toggle">▾</div>
+    </div>
+    <div class="card-detail">
+      <div class="detail-inner">
+        <div class="detail-row">破坏"纯粹思考"的产品气质，让用户为积分而做题</div>
+        <div class="detail-row">积分体系开发复杂，且需要奖励资源支撑</div>
+        <div class="detail-why"><strong>为什么不做：</strong>外部激励会挤出内部动机。用户应该因为喜欢思考而来，不是为了积分。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-card" onclick="toggle(this)">
+    <div class="card-main">
+      <div class="card-icon">📚</div>
+      <div class="card-info">
+        <div class="card-name">自选题库刷题</div>
+        <div class="card-desc">用户自主选择题目刷</div>
+      </div>
+      <div class="card-badge">不做</div>
+      <div class="card-toggle">▾</div>
+    </div>
+    <div class="card-detail">
+      <div class="detail-inner">
+        <div class="detail-row">违背"每日一题"的产品定位，变成刷题App</div>
+        <div class="detail-row">选择困难导致用户反而不做题</div>
+        <div class="detail-why"><strong>为什么不做：</strong>"今天该做哪道题"不应该是用户的负担，每天一道是产品帮用户做的决定。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-card" onclick="toggle(this)">
+    <div class="card-main">
+      <div class="card-icon">📣</div>
+      <div class="card-info">
+        <div class="card-name">广告系统</div>
+        <div class="card-desc">Banner 广告、激励视频等</div>
+      </div>
+      <div class="card-badge">不做</div>
+      <div class="card-toggle">▾</div>
+    </div>
+    <div class="card-detail">
+      <div class="detail-inner">
+        <div class="detail-row">思考场景中插广告是极差体验</div>
+        <div class="detail-row">MVP 阶段用户量不足，广告收入可忽略不计</div>
+        <div class="detail-why"><strong>为什么不做：</strong>广告会摧毁产品的高质感，且 MVP 阶段广告收入微乎其微，得不偿失。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-card" onclick="toggle(this)">
+    <div class="card-main">
+      <div class="card-icon">🤖</div>
+      <div class="card-info">
+        <div class="card-name">AI 智能出题（个性化）</div>
+        <div class="card-desc">根据用户水平实时推荐题目</div>
+      </div>
+      <div class="card-badge">不做</div>
+      <div class="card-toggle">▾</div>
+    </div>
+    <div class="card-detail">
+      <div class="detail-inner">
+        <div class="detail-row">需要足够的用户行为数据才能训练推荐模型</div>
+        <div class="detail-row">冷启动期数据不足，推荐质量差反而伤害体验</div>
+        <div class="detail-why"><strong>为什么不做：</strong>算法推荐是数据驱动的，没有数据的推荐比人工排期还差。先积累数据，再做个性化。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-card" onclick="toggle(this)">
+    <div class="card-main">
+      <div class="card-icon">🌍</div>
+      <div class="card-info">
+        <div class="card-name">多语言 / 国际化</div>
+        <div class="card-desc">英文版、繁体版</div>
+      </div>
+      <div class="card-badge">不做</div>
+      <div class="card-toggle">▾</div>
+    </div>
+    <div class="card-detail">
+      <div class="detail-inner">
+        <div class="detail-row">微信小程序主要用户在国内，海外微信用户有限</div>
+        <div class="detail-row">国际化需要翻译所有题目和解析，成本极高</div>
+        <div class="detail-why"><strong>为什么不做：</strong>在中文市场还没做好之前，国际化是资源浪费。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-card" onclick="toggle(this)">
+    <div class="card-main">
+      <div class="card-icon">📹</div>
+      <div class="card-info">
+        <div class="card-name">视频解析</div>
+        <div class="card-desc">用视频讲解解题过程</div>
+      </div>
+      <div class="card-badge">不做</div>
+      <div class="card-toggle">▾</div>
+    </div>
+    <div class="card-detail">
+      <div class="detail-inner">
+        <div class="detail-row">视频制作成本极高，每道题需要单独录制</div>
+        <div class="detail-row">文字解析 150 字足够，视频是过度投入</div>
+        <div class="detail-why"><strong>为什么不做：</strong>文字解析做好了比视频更快、更聚焦。视频是内容升级，不是 MVP 必需品。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-card" onclick="toggle(this)">
+    <div class="card-main">
+      <div class="card-icon">🌙</div>
+      <div class="card-info">
+        <div class="card-name">深色模式</div>
+        <div class="card-desc">夜间护眼主题</div>
+      </div>
+      <div class="card-badge">不做</div>
+      <div class="card-toggle">▾</div>
+    </div>
+    <div class="card-detail">
+      <div class="detail-inner">
+        <div class="detail-row">草稿纸白底是核心体验，深色模式需要重新设计画布</div>
+        <div class="detail-row">开发和测试成本加倍</div>
+        <div class="detail-why"><strong>为什么不做：</strong>做题习惯应该在有光线的环境下，深色模式不是核心需求，不影响留存。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TIMELINE -->
+<div class="timeline">
+  <div class="tl-title">🗓 开发节奏建议</div>
+
+  <div class="tl-phase">
+    <div class="tl-dot" style="background:var(--green-bg);color:var(--green)">1</div>
+    <div class="tl-content">
+      <div class="tl-phase-name" style="color:var(--green)">第 1-2 周：地基</div>
+      <div class="tl-phase-weeks">数据结构 + 后台接口 + 题库录入工具</div>
+      <div class="tl-items">
+        <div class="tl-item" style="background:var(--green-bg);color:var(--green)">题目数据结构设计</div>
+        <div class="tl-item" style="background:var(--green-bg);color:var(--green)">Notion / CMS 题库工具搭建</div>
+        <div class="tl-item" style="background:var(--green-bg);color:var(--green)">录入首批 40 道题</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tl-phase">
+    <div class="tl-dot" style="background:var(--blue-bg);color:var(--blue)">2</div>
+    <div class="tl-content">
+      <div class="tl-phase-name" style="color:var(--blue)">第 3-4 周：核心功能</div>
+      <div class="tl-phase-weeks">草稿纸 + 题目展示 + 提交判题</div>
+      <div class="tl-items">
+        <div class="tl-item" style="background:var(--blue-bg);color:var(--blue)">Canvas 草稿纸</div>
+        <div class="tl-item" style="background:var(--blue-bg);color:var(--blue)">今日题目页</div>
+        <div class="tl-item" style="background:var(--blue-bg);color:var(--blue)">提交 + 解析页</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tl-phase">
+    <div class="tl-dot" style="background:var(--amber-bg);color:var(--amber)">3</div>
+    <div class="tl-content">
+      <div class="tl-phase-name" style="color:var(--amber)">第 5 周：习惯机制</div>
+      <div class="tl-phase-weeks">打卡 + 推送 + 历史记录</div>
+      <div class="tl-items">
+        <div class="tl-item" style="background:var(--amber-bg);color:var(--amber)">Streak 连续打卡</div>
+        <div class="tl-item" style="background:var(--amber-bg);color:var(--amber)">订阅消息推送</div>
+        <div class="tl-item" style="background:var(--amber-bg);color:var(--amber)">日历历史记录</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tl-phase">
+    <div class="tl-dot" style="background:var(--red-bg);color:var(--red)">4</div>
+    <div class="tl-content">
+      <div class="tl-phase-name" style="color:var(--red)">第 6 周：传播 + 上线</div>
+      <div class="tl-phase-weeks">分享图 + 埋点 + 内测</div>
+      <div class="tl-items">
+        <div class="tl-item" style="background:var(--red-bg);color:var(--red)">分享图生成</div>
+        <div class="tl-item" style="background:var(--red-bg);color:var(--red)">数据埋点</div>
+        <div class="tl-item" style="background:var(--red-bg);color:var(--red)">内测 20 人</div>
+        <div class="tl-item" style="background:var(--red-bg);color:var(--red)">正式上线</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RISK -->
+<div class="risk-box">
+  <div class="risk-title">⚠️ 三个最容易踩的坑</div>
+  <div class="risk-item">
+    <div class="risk-num">1</div>
+    <div class="risk-text"><strong>草稿纸拖慢整个进度。</strong>建议第 3 周单独开一个草稿纸 Demo 项目先跑通，不要和其他页面混在一起开发，调试起来会很痛苦。</div>
+  </div>
+  <div class="risk-item">
+    <div class="risk-num">2</div>
+    <div class="risk-text"><strong>题目录入低估工作量。</strong>40 道题听起来不多，但每道题都要有选项、解析、分类、难度，用 AI 辅助也需要 1-2 天认真打磨。先把题库搞定，再开发功能。</div>
+  </div>
+  <div class="risk-item">
+    <div class="risk-num">3</div>
+    <div class="risk-text"><strong>上线前找真实用户内测。</strong>至少找 10-20 个不了解这个产品的人试用，看他们在哪里卡住，草稿纸体验是否流畅。开发者自己测不出真实问题。</div>
+  </div>
+</div>
+
+<script>
+function toggle(card) {
+  const detail = card.querySelector('.card-detail');
+  const toggle = card.querySelector('.card-toggle');
+  const isOpen = detail.classList.contains('show');
+
+  // Close all
+  document.querySelectorAll('.card-detail').forEach(d => d.classList.remove('show'));
+  document.querySelectorAll('.card-toggle').forEach(t => t.classList.remove('open'));
+  document.querySelectorAll('.feature-card').forEach(c => c.classList.remove('expanded'));
+
+  if (!isOpen) {
+    detail.classList.add('show');
+    toggle.classList.add('open');
+    card.classList.add('expanded');
+  }
+}
+</script>
+
+</body>
+</html>

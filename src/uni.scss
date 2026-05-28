@@ -1,0 +1,60 @@
+// ─────────────────────────────────────
+// 每日一题 · 全局设计 Token
+// ─────────────────────────────────────
+
+// 颜色 — 值由 App.vue 中的 CSS 自定义属性决定，随系统深色/浅色模式自动切换
+$ink:          var(--ink);
+$ink-2:        var(--ink-2);
+$ink-3:        var(--ink-3);
+$ink-4:        var(--ink-4);
+$ink-5:        var(--ink-5);
+
+$paper:        var(--paper);
+$paper-2:      var(--paper-2);
+$white:        var(--white);
+
+$green:        var(--green);
+$green-light:  var(--green-light);
+$green-border: var(--green-border);
+
+$red:          var(--red);
+$red-light:    var(--red-light);
+
+$amber:        var(--amber);
+$amber-light:  var(--amber-light);
+
+$yellow:       var(--yellow);
+$yellow-border:var(--yellow-border);
+
+$wechat:       #07c160;
+
+// 字体
+$font-sans:    'PingFang SC', -apple-system, sans-serif;
+$font-mono:    'Menlo', 'Courier New', monospace;
+
+// 圆角
+$radius-sm:    8rpx;
+$radius-md:    16rpx;
+$radius-lg:    24rpx;
+$radius-xl:    32rpx;
+$radius-full:  9999rpx;
+
+// 阴影
+$shadow-sm:    0 2rpx 12rpx rgba(0,0,0,0.06);
+$shadow-md:    0 4rpx 24rpx rgba(0,0,0,0.10);
+$shadow-lg:    0 8rpx 40rpx rgba(0,0,0,0.14);
+
+// 间距
+$space-xs:     8rpx;
+$space-sm:     16rpx;
+$space-md:     24rpx;
+$space-lg:     32rpx;
+$space-xl:     48rpx;
+
+// 动画
+$ease-out:     cubic-bezier(0.25, 0.46, 0.45, 0.94);
+$duration-fast:150ms;
+$duration-mid: 250ms;
+
+// CSS 规则已迁移至 App.vue <style> 块（tag/属性选择器不能放组件级 WXSS）
+// uni.scss 只保留 SCSS 变量，由 vite-plugin-uni 自动注入，不输出任何 CSS

@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "解析",
+  "navigationBarBackgroundColor": "@navDark",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "@bgWhite",
+  "usingComponents": {
+    "result-banner": "../../components/ResultBanner/index"
+  }
+}

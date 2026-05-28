@@ -1,0 +1,11 @@
+{
+  "navigationBarTitleText": "草稿纸",
+  "navigationBarBackgroundColor": "@navDark",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "@bgYellow",
+  "disableScroll": true,
+  "usingComponents": {
+    "sketch-pad": "../../components/SketchPad/index",
+    "answer-input": "../../components/AnswerInput/index"
+  }
+}

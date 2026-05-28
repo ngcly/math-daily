@@ -1,0 +1,86 @@
+{
+  "darkmode": true,
+  "themeLocation": "theme.json",
+  "pages": [
+    {
+      "path": "pages/index/index",
+      "style": {
+        "navigationBarTitleText": "脑生锈",
+        "navigationBarBackgroundColor": "@navDark",
+        "navigationBarTextStyle": "white",
+        "backgroundColor": "@bgPaper"
+      }
+    },
+    {
+      "path": "pages/draft/index",
+      "style": {
+        "navigationBarTitleText": "草稿纸",
+        "navigationBarBackgroundColor": "@navDark",
+        "navigationBarTextStyle": "white",
+        "backgroundColor": "@bgYellow",
+        "disableScroll": true
+      }
+    },
+    {
+      "path": "pages/result/index",
+      "style": {
+        "navigationBarTitleText": "解析",
+        "navigationBarBackgroundColor": "@navDark",
+        "navigationBarTextStyle": "white",
+        "backgroundColor": "@bgWhite"
+      }
+    },
+    {
+      "path": "pages/history/index",
+      "style": {
+        "navigationBarTitleText": "我的记录",
+        "navigationBarBackgroundColor": "@navDark",
+        "navigationBarTextStyle": "white",
+        "backgroundColor": "@bgPaper"
+      }
+    },
+    {
+      "path": "pages/settings/index",
+      "style": {
+        "navigationBarTitleText": "设置",
+        "navigationBarBackgroundColor": "@navDark",
+        "navigationBarTextStyle": "white",
+        "backgroundColor": "@bgPaper"
+      }
+    }
+  ],
+  "tabBar": {
+    "color": "@tabFg",
+    "selectedColor": "@tabActive",
+    "backgroundColor": "@tabBg",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "今日题",
+        "iconPath": "static/icons/home.png",
+        "selectedIconPath": "@iconHomeActive"
+      },
+      {
+        "pagePath": "pages/history/index",
+        "text": "历史",
+        "iconPath": "static/icons/history.png",
+        "selectedIconPath": "@iconHistoryActive"
+      },
+      {
+        "pagePath": "pages/settings/index",
+        "text": "设置",
+        "iconPath": "static/icons/settings.png",
+        "selectedIconPath": "@iconSettingsActive"
+      }
+    ]
+  },
+  "globalStyle": {
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "脑生锈",
+    "navigationBarBackgroundColor": "@navDark",
+    "backgroundColor": "@bgPaper",
+    "navigationStyle": "default"
+  },
+  "uniIdRouter": {}
+}

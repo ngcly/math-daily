@@ -1,0 +1,28 @@
+{
+  "name": "math-daily",
+  "version": "1.0.0",
+  "description": "每日一题 · 锻炼大脑的数学小程序",
+  "scripts": {
+    "dev:mp-weixin": "uni -p mp-weixin",
+    "build:mp-weixin": "uni build -p mp-weixin",
+    "dev:app": "uni -p app",
+    "sync-notion": "node scripts/syncFromNotion.js"
+  },
+  "dependencies": {
+    "@dcloudio/uni-app": "3.0.0-alpha-5010120260525001",
+    "@dcloudio/uni-mp-weixin": "3.0.0-alpha-5010120260525001",
+    "vue": "^3.4.21",
+    "pinia": "^2.1.7",
+    "pinia-plugin-unistorage": "^0.1.0"
+  },
+  "devDependencies": {
+    "@dcloudio/types": "3.4.31",
+    "@dcloudio/vite-plugin-uni": "3.0.0-alpha-5010120260525001",
+    "typescript": "^5.0.0",
+    "vite": "^5.2.8",
+    "sass": "^1.69.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

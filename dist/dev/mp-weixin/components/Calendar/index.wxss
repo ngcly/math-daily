@@ -1,0 +1,113 @@
+.calendar {
+  background: var(--white);
+  border-radius: 24rpx;
+  padding: 24rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
+}
+.calendar__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24rpx;
+}
+.calendar__nav {
+  width: 64rpx;
+  height: 64rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8rpx;
+  background: var(--paper);
+}
+.calendar__nav:active {
+  background: var(--ink-5);
+}
+.calendar__nav-icon {
+  font-size: 36rpx;
+  color: var(--ink-3);
+  line-height: 1;
+}
+.calendar__month-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4rpx;
+}
+.calendar__month {
+  font-size: 28rpx;
+  font-weight: 800;
+  color: var(--ink);
+}
+.calendar__rate {
+  font-size: 20rpx;
+  color: var(--ink-4);
+  font-weight: 500;
+}
+.calendar__weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  margin-bottom: 8rpx;
+}
+.calendar__wd {
+  font-size: 20rpx;
+  color: var(--ink-4);
+  font-weight: 700;
+  padding: 4rpx 0;
+}
+.calendar__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4rpx;
+}
+.calendar__cell {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8rpx;
+  position: relative;
+  gap: 3rpx;
+  transition: background 150ms;
+}
+.calendar__cell--done {
+  background: var(--green-light);
+}
+.calendar__cell--today {
+  background: var(--ink);
+}
+.calendar__cell--future {
+  opacity: 0.3;
+}
+.calendar__cell--tappable:active {
+  opacity: 0.7;
+}
+.calendar__cell--empty {
+  pointer-events: none;
+}
+.calendar__day {
+  font-size: 22rpx;
+  font-weight: 700;
+  color: var(--ink-2);
+}
+.calendar__cell--today .calendar__day {
+  color: var(--white);
+}
+.calendar__cell--done .calendar__day {
+  color: var(--green);
+}
+.calendar__cell--future .calendar__day {
+  color: var(--ink-4);
+}
+.calendar__dot {
+  width: 8rpx;
+  height: 8rpx;
+  border-radius: 50%;
+}
+.calendar__dot--green {
+  background: var(--green);
+}
+.calendar__dot--red {
+  background: var(--red);
+}

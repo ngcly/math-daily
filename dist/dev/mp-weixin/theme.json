@@ -1,0 +1,30 @@
+{
+  "light": {
+    "navDark": "#1a1a1a",
+    "navPaper": "#f5f4f0",
+    "navWhite": "#ffffff",
+    "bgPaper": "#f5f4f0",
+    "bgWhite": "#ffffff",
+    "bgYellow": "#fffef5",
+    "tabBg": "#ffffff",
+    "tabFg": "#aaaaaa",
+    "tabActive": "#1a1a1a",
+    "iconHomeActive": "static/icons/home-active.png",
+    "iconHistoryActive": "static/icons/history-active.png",
+    "iconSettingsActive": "static/icons/settings-active.png"
+  },
+  "dark": {
+    "navDark": "#000000",
+    "navPaper": "#111111",
+    "navWhite": "#1a1a1a",
+    "bgPaper": "#111111",
+    "bgWhite": "#1a1a1a",
+    "bgYellow": "#1c1900",
+    "tabBg": "#1a1a1a",
+    "tabFg": "#606060",
+    "tabActive": "#f0f0f0",
+    "iconHomeActive": "static/icons/home-active-dark.png",
+    "iconHistoryActive": "static/icons/history-active-dark.png",
+    "iconSettingsActive": "static/icons/settings-active-dark.png"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "我的记录",
+  "navigationBarBackgroundColor": "@navDark",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "@bgPaper",
+  "usingComponents": {
+    "calendar": "../../components/Calendar/index"
+  }
+}

@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>每日一题 · 小程序原型</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --ink: #1a1a1a;
+    --ink2: #444;
+    --ink3: #888;
+    --ink4: #bbb;
+    --ink5: #e8e8e8;
+    --paper: #fafaf8;
+    --paper2: #f3f1ec;
+    --green: #2e7d32;
+    --green-light: #e8f5e9;
+    --green-mid: #a5d6a7;
+    --wechat: #07c160;
+    --amber: #e65100;
+    --amber-light: #fff3e0;
+    --red: #c62828;
+    --yellow: #fffde7;
+    --yellow-border: #e0d88a;
+    --shadow: 0 2px 16px rgba(0,0,0,0.08);
+    --shadow-lg: 0 8px 40px rgba(0,0,0,0.14);
+  }
+
+  body {
+    background: #ebebeb;
+    font-family: 'Noto Sans SC', 'PingFang SC', -apple-system, sans-serif;
+    min-height: 100vh;
+    padding: 32px 20px 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── PAGE HEADER ── */
+  .page-header {
+    text-align: center;
+    margin-bottom: 36px;
+  }
+  .page-header h1 {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: #888;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .page-header p {
+    font-size: 11px;
+    color: #bbb;
+    letter-spacing: 1px;
+  }
+
+  /* ── SCREENS LAYOUT ── */
+  .screens-row {
+    display: flex;
+    gap: 0;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .screen-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .screen-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #999;
+    letter-spacing: 1px;
+    text-align: center;
+  }
+
+  /* ── CONNECTOR ── */
+  .connector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 12px;
+    padding-top: 80px;
+    gap: 4px;
+  }
+  .connector-line {
+    width: 32px;
+    height: 1px;
+    background: #ccc;
+  }
+  .connector-arrow {
+    font-size: 16px;
+    color: #ccc;
+    line-height: 1;
+  }
+  .connector-label {
+    font-size: 9px;
+    color: #bbb;
+    white-space: nowrap;
+    text-align: center;
+    margin-top: 2px;
+  }
+
+  /* ── PHONE SHELL ── */
+  .phone {
+    width: 215px;
+    background: #222;
+    border-radius: 40px;
+    padding: 10px;
+    box-shadow: var(--shadow-lg), inset 0 0 0 1px #333;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .phone::before {
+    content: '';
+    position: absolute;
+    top: 10px; left: 50%; transform: translateX(-50%);
+    width: 56px; height: 6px;
+    background: #333;
+    border-radius: 3px;
+    z-index: 20;
+  }
+
+  .phone-inner {
+    background: var(--paper);
+    border-radius: 32px;
+    overflow: hidden;
+    height: 440px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── STATUS BAR ── */
+  .status-bar {
+    padding: 12px 16px 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 9px;
+    color: var(--ink3);
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  /* ── BOTTOM NAV ── */
+  .bottom-nav {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 52px;
+    background: white;
+    border-top: 1px solid var(--ink5);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding-bottom: 4px;
+    border-radius: 0 0 32px 32px;
+  }
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    font-size: 8px;
+    color: var(--ink4);
+    font-weight: 500;
+  }
+  .nav-item.active { color: var(--ink); }
+  .nav-icon { font-size: 18px; line-height: 1; }
+
+  /* ══════════════════════════════════
+     SCREEN 1: 今日一题
+  ══════════════════════════════════ */
+  .s1 { background: var(--paper); }
+
+  .s1-header {
+    padding: 2px 16px 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .app-title {
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--ink);
+    letter-spacing: -0.5px;
+  }
+  .streak-pill {
+    background: var(--amber-light);
+    border: 1.5px solid #ffcc80;
+    border-radius: 20px;
+    padding: 4px 9px;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--amber);
+  }
+
+  .s1-date {
+    padding: 0 16px 10px;
+    font-size: 9px;
+    color: var(--ink4);
+    letter-spacing: 0.5px;
+  }
+
+  /* Question card */
+  .q-card {
+    margin: 0 14px 10px;
+    background: white;
+    border-radius: 18px;
+    padding: 14px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--ink5);
+    flex-shrink: 0;
+  }
+  .q-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--green-light);
+    color: var(--green);
+    font-size: 9px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 10px;
+    margin-bottom: 9px;
+  }
+  .q-body {
+    font-size: 11.5px;
+    color: var(--ink);
+    line-height: 1.65;
+  }
+  .q-em {
+    background: var(--yellow);
+    border-bottom: 2px solid var(--yellow-border);
+    padding: 0 2px;
+    border-radius: 2px;
+    font-weight: 700;
+  }
+
+  /* Tab bar */
+  .tab-bar {
+    margin: 0 14px 10px;
+    background: var(--ink5);
+    border-radius: 12px;
+    padding: 3px;
+    display: flex;
+    gap: 2px;
+    flex-shrink: 0;
+  }
+  .tab {
+    flex: 1;
+    text-align: center;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 6px 0;
+    border-radius: 10px;
+    color: var(--ink3);
+    letter-spacing: 0.3px;
+  }
+  .tab.active {
+    background: white;
+    color: var(--ink);
+    box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+  }
+
+  /* Draft preview */
+  .draft-preview {
+    margin: 0 14px 10px;
+    background: var(--yellow);
+    border-radius: 14px;
+    border: 1.5px dashed var(--yellow-border);
+    height: 118px;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .draft-tools {
+    position: absolute;
+    top: 8px; right: 8px;
+    display: flex;
+    gap: 5px;
+  }
+  .d-btn {
+    width: 24px; height: 24px;
+    background: white;
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  }
+  .draft-hint {
+    position: absolute;
+    bottom: 7px; left: 0; right: 0;
+    text-align: center;
+    font-size: 8px;
+    color: #c8bc6a;
+  }
+
+  /* Submit button */
+  .submit {
+    margin: 0 14px;
+    background: var(--ink);
+    color: white;
+    border-radius: 14px;
+    text-align: center;
+    padding: 12px 0;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    flex-shrink: 0;
+  }
+
+
+  /* ══════════════════════════════════
+     SCREEN 2: 草稿纸
+  ══════════════════════════════════ */
+  .s2 { background: var(--yellow); }
+
+  .s2-toolbar {
+    background: white;
+    border-bottom: 1px solid var(--ink5);
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .t-btn {
+    width: 30px; height: 30px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    background: var(--paper2);
+    color: var(--ink2);
+    flex-shrink: 0;
+  }
+  .t-btn.on { background: var(--ink); color: white; }
+  .t-sep { width: 1px; height: 22px; background: var(--ink5); margin: 0 2px; flex-shrink: 0; }
+  .pen-sizes { display: flex; align-items: center; gap: 5px; padding: 0 2px; }
+  .ps { background: var(--ink2); border-radius: 50%; flex-shrink: 0; }
+
+  .s2-canvas {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .float-q {
+    position: absolute;
+    bottom: 60px; left: 10px; right: 10px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.14);
+    padding: 10px 12px;
+    border: 1px solid var(--ink5);
+  }
+  .fq-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+  }
+  .fq-label { font-size: 9px; font-weight: 700; color: var(--ink3); }
+  .fq-collapse {
+    font-size: 8px;
+    background: var(--paper2);
+    color: var(--ink3);
+    padding: 2px 6px;
+    border-radius: 6px;
+  }
+  .fq-text { font-size: 10px; color: var(--ink2); line-height: 1.55; }
+
+
+  /* ══════════════════════════════════
+     SCREEN 3: 解析
+  ══════════════════════════════════ */
+  .s3 { background: white; }
+
+  .result-banner {
+    margin: 4px 14px 8px;
+    background: linear-gradient(130deg, #e8f5e9, #f9fbe7);
+    border: 1px solid var(--green-mid);
+    border-radius: 16px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  .r-icon { font-size: 26px; }
+  .r-main { font-size: 14px; font-weight: 800; color: #1b5e20; }
+  .r-sub { font-size: 9px; color: #558b2f; margin-top: 2px; }
+
+  .stat-chips {
+    display: flex;
+    margin: 0 14px 8px;
+    gap: 7px;
+    flex-shrink: 0;
+  }
+  .chip {
+    flex: 1;
+    background: var(--paper);
+    border-radius: 12px;
+    padding: 8px 6px;
+    text-align: center;
+    border: 1px solid var(--ink5);
+  }
+  .chip-num { font-size: 14px; font-weight: 800; color: var(--ink); }
+  .chip-label { font-size: 8px; color: var(--ink4); margin-top: 1px; font-weight: 500; }
+
+  .s3-section { padding: 0 14px 5px; font-size: 10px; font-weight: 800; color: var(--ink); flex-shrink: 0; }
+
+  .analysis {
+    margin: 0 14px 8px;
+    background: var(--paper);
+    border-radius: 14px;
+    padding: 11px 13px;
+    border-left: 3px solid var(--ink);
+    flex-shrink: 0;
+  }
+  .analysis p { font-size: 10px; color: var(--ink2); line-height: 1.7; }
+  .analysis strong { color: var(--ink); }
+
+  .alt-row {
+    margin: 0 14px 8px;
+    border: 1.5px dashed var(--ink5);
+    border-radius: 12px;
+    padding: 9px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .alt-text { font-size: 10px; color: var(--ink3); }
+  .alt-arr { font-size: 13px; color: var(--ink4); }
+
+  .share-btn {
+    margin: 0 14px;
+    background: var(--wechat);
+    color: white;
+    border-radius: 14px;
+    padding: 11px 0;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+
+  /* ══════════════════════════════════
+     SCREEN 4: 历史记录
+  ══════════════════════════════════ */
+  .s4 { background: var(--paper); }
+
+  .s4-title {
+    padding: 2px 16px 12px;
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--ink);
+    flex-shrink: 0;
+  }
+
+  .cal-card {
+    margin: 0 14px 10px;
+    background: white;
+    border-radius: 18px;
+    padding: 12px;
+    box-shadow: var(--shadow);
+    flex-shrink: 0;
+  }
+  .cal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .cal-nav { color: var(--ink4); font-size: 13px; }
+  .cal-wd {
+    display: grid;
+    grid-template-columns: repeat(7,1fr);
+    text-align: center;
+    font-size: 7.5px;
+    color: var(--ink4);
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7,1fr);
+    gap: 2px;
+    text-align: center;
+  }
+  .cd {
+    font-size: 8.5px;
+    padding: 3px 1px;
+    border-radius: 6px;
+    color: var(--ink2);
+    font-weight: 500;
+  }
+  .cd.done { background: var(--green-light); color: var(--green); font-weight: 700; }
+  .cd.today { background: var(--ink); color: white; font-weight: 800; border-radius: 8px; }
+  .cd.off { color: var(--ink5); }
+
+  .stat-row4 {
+    display: flex;
+    margin: 0 14px 10px;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .sc {
+    flex: 1;
+    background: white;
+    border-radius: 14px;
+    padding: 9px 6px;
+    text-align: center;
+    box-shadow: var(--shadow);
+  }
+  .sc-num { font-size: 15px; font-weight: 800; color: var(--ink); }
+  .sc-label { font-size: 7.5px; color: var(--ink4); margin-top: 2px; font-weight: 500; }
+
+  .hist-list { margin: 0 14px; overflow: hidden; }
+  .hist-item {
+    background: white;
+    border-radius: 12px;
+    padding: 9px 11px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+  }
+  .hi-date { font-size: 8px; color: var(--ink4); text-align: center; line-height: 1.3; min-width: 22px; font-weight: 600; }
+  .hi-info { flex: 1; }
+  .hi-title { font-size: 10px; color: var(--ink); font-weight: 600; }
+  .hi-meta { font-size: 8px; color: var(--ink4); margin-top: 2px; }
+  .hi-icon { font-size: 14px; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>每日一题 · 微信小程序</h1>
+  <p>界面原型 · 4 个核心页面</p>
+</div>
+
+<div class="screens-row">
+
+  <!-- ══ S1: 今日一题 ══ -->
+  <div class="screen-col">
+    <div class="screen-label">① 今日一题</div>
+    <div class="phone">
+      <div class="phone-inner s1">
+        <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+        <div class="s1-header">
+          <div class="app-title">每日一题</div>
+          <div class="streak-pill">🔥 12天连续</div>
+        </div>
+        <div class="s1-date">2026年5月26日 · 星期二</div>
+
+        <div class="q-card">
+          <div class="q-tag">🔍 逻辑推理</div>
+          <div class="q-body">
+            一个房间里有 3 盏灯，门外有 3 个开关，每个开关各控制一盏灯。<br><br>
+            你只能进房间<span class="q-em">一次</span>，如何确定哪个开关对应哪盏灯？
+          </div>
+        </div>
+
+        <div class="tab-bar">
+          <div class="tab active">题目</div>
+          <div class="tab">✏️ 草稿纸</div>
+          <div class="tab">提交</div>
+        </div>
+
+        <div class="draft-preview">
+          <svg width="100%" height="100%">
+            <defs>
+              <pattern id="lined" width="100%" height="18" patternUnits="userSpaceOnUse">
+                <line x1="0" y1="17" x2="100%" y2="17" stroke="#e0d88a" stroke-width="0.6"/>
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#lined)"/>
+            <path d="M18 28 Q32 20 48 26 Q58 30 62 24" stroke="#444" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+            <path d="M18 46 L36 46" stroke="#444" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+            <path d="M44 39 L44 53" stroke="#444" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+            <path d="M56 43 Q68 36 80 44 Q86 50 76 54" stroke="#444" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+            <path d="M18 65 Q42 58 64 63" stroke="#444" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+            <text x="16" y="90" font-size="8" fill="#b8ad60" font-family="sans-serif">↕ 双指可缩放 · 画布为屏幕3倍大</text>
+          </svg>
+          <div class="draft-tools">
+            <div class="d-btn">✏️</div>
+            <div class="d-btn">⌫</div>
+            <div class="d-btn">↩</div>
+          </div>
+        </div>
+
+        <div class="submit">提 交 答 案</div>
+
+        <div class="bottom-nav">
+          <div class="nav-item active"><div class="nav-icon">📝</div><span>今日题</span></div>
+          <div class="nav-item"><div class="nav-icon">📅</div><span>历史</span></div>
+          <div class="nav-item"><div class="nav-icon">⚙️</div><span>设置</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="connector">
+    <div class="connector-label">切换到</div>
+    <div class="connector-arrow">→</div>
+    <div class="connector-label">草稿纸</div>
+  </div>
+
+  <!-- ══ S2: 草稿纸 ══ -->
+  <div class="screen-col">
+    <div class="screen-label">② 草稿纸</div>
+    <div class="phone">
+      <div class="phone-inner s2">
+        <div class="status-bar" style="background:white"><span>9:44</span><span>●●●</span></div>
+
+        <div class="s2-toolbar">
+          <div class="t-btn on">✏️</div>
+          <div class="pen-sizes">
+            <div class="ps" style="width:4px;height:4px;opacity:0.3"></div>
+            <div class="ps" style="width:6px;height:6px;opacity:0.6"></div>
+            <div class="ps" style="width:9px;height:9px"></div>
+          </div>
+          <div class="t-sep"></div>
+          <div class="t-btn">⬜</div>
+          <div class="t-btn" style="font-size:12px;color:#c62828">●</div>
+          <div class="t-sep"></div>
+          <div class="t-btn">◻</div>
+          <div class="t-btn">↩</div>
+          <div class="t-btn">🗑</div>
+        </div>
+
+        <div class="s2-canvas">
+          <svg width="100%" height="100%">
+            <defs>
+              <pattern id="dotgrid" width="18" height="18" patternUnits="userSpaceOnUse">
+                <circle cx="9" cy="9" r="0.8" fill="#d4cc80" opacity="0.6"/>
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#dotgrid)"/>
+
+            <!-- Handwriting simulation -->
+            <text x="14" y="30" font-size="10" fill="#333" font-family="serif" font-weight="bold">思路：</text>
+            <path d="M14 45 L44 45" stroke="#333" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <path d="M29 37 L29 53" stroke="#333" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <text x="52" y="49" font-size="9" fill="#333" font-family="serif">= 开关A</text>
+
+            <path d="M14 68 Q28 58 44 65 Q56 70 52 78" stroke="#333" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+            <path d="M72 62 L128 62" stroke="#333" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-dasharray="5,3"/>
+            <text x="132" y="66" font-size="8.5" fill="#555" font-family="serif">开10分钟</text>
+
+            <path d="M14 92 Q24 84 38 88" stroke="#c62828" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <text x="48" y="96" font-size="8.5" fill="#c62828" font-family="serif">关掉 → 进门</text>
+
+            <line x1="14" y1="108" x2="188" y2="108" stroke="#d4cc80" stroke-width="1"/>
+
+            <text x="14" y="124" font-size="9" fill="#333" font-family="serif">亮灯 = B（现在开着）</text>
+            <text x="14" y="140" font-size="9" fill="#333" font-family="serif">热灯 = A（刚关10min）</text>
+            <text x="14" y="156" font-size="9" fill="#888" font-family="serif">暗且凉 = C（没动过）</text>
+
+            <!-- Check mark -->
+            <circle cx="178" cy="138" r="10" fill="#e8f5e9" stroke="#a5d6a7" stroke-width="1.5"/>
+            <path d="M173 138 L177 142 L183 134" stroke="#2e7d32" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+
+          <!-- Floating question -->
+          <div class="float-q">
+            <div class="fq-top">
+              <div class="fq-label">📌 题目</div>
+              <div class="fq-collapse">收起 ↑</div>
+            </div>
+            <div class="fq-text">3盏灯，3个开关，只能进房间<strong>一次</strong>，如何确定对应关系？</div>
+          </div>
+        </div>
+
+        <div class="tab-bar" style="margin:8px 12px;background:#e0d88a">
+          <div class="tab" style="font-size:9px;color:#a0940a">← 滑动返回题目</div>
+          <div class="tab active" style="font-size:9px">草稿纸</div>
+          <div class="tab" style="font-size:9px;color:#a0940a">提交 →</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="connector">
+    <div class="connector-label">提交后</div>
+    <div class="connector-arrow">→</div>
+    <div class="connector-label">查看解析</div>
+  </div>
+
+  <!-- ══ S3: 解析 ══ -->
+  <div class="screen-col">
+    <div class="screen-label">③ 解析页</div>
+    <div class="phone">
+      <div class="phone-inner s3">
+        <div class="status-bar"><span>9:47</span><span>●●●</span></div>
+
+        <div class="result-banner">
+          <div class="r-icon">🎉</div>
+          <div>
+            <div class="r-main">回答正确！</div>
+            <div class="r-sub">用时 3分42秒 · 思路很清晰</div>
+          </div>
+        </div>
+
+        <div class="stat-chips">
+          <div class="chip">
+            <div class="chip-num" style="color:#c62828">34%</div>
+            <div class="chip-label">的人答对了</div>
+          </div>
+          <div class="chip">
+            <div class="chip-num">3'42"</div>
+            <div class="chip-label">你的用时</div>
+          </div>
+          <div class="chip">
+            <div class="chip-num" style="color:#e65100">4'10"</div>
+            <div class="chip-label">平均用时</div>
+          </div>
+        </div>
+
+        <div class="s3-section">💡 解题思路</div>
+        <div class="analysis">
+          <p>关键在于<strong>利用灯泡的热量</strong>作为第三个信息维度。<br><br>
+          先开A等<strong>10分钟</strong>，关掉A再开B，进房间后：<br>
+          • <strong>亮灯</strong> = 开关B<br>
+          • <strong>暗但发热</strong> = 开关A<br>
+          • <strong>暗且凉</strong> = 开关C</p>
+        </div>
+
+        <div class="alt-row">
+          <div class="alt-text">💭 还有另一种思路…</div>
+          <div class="alt-arr">›</div>
+        </div>
+
+        <div class="share-btn">
+          <span>分享我的解题过程</span>
+        </div>
+
+        <div class="bottom-nav">
+          <div class="nav-item active"><div class="nav-icon">📝</div><span>今日题</span></div>
+          <div class="nav-item"><div class="nav-icon">📅</div><span>历史</span></div>
+          <div class="nav-item"><div class="nav-icon">⚙️</div><span>设置</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="connector">
+    <div class="connector-label">查看</div>
+    <div class="connector-arrow">→</div>
+    <div class="connector-label">历史记录</div>
+  </div>
+
+  <!-- ══ S4: 历史 ══ -->
+  <div class="screen-col">
+    <div class="screen-label">④ 历史记录</div>
+    <div class="phone">
+      <div class="phone-inner s4">
+        <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+        <div class="s4-title">我的记录</div>
+
+        <div class="cal-card">
+          <div class="cal-header">
+            <span>2026 年 5 月</span>
+            <span class="cal-nav">‹ ›</span>
+          </div>
+          <div class="cal-wd">
+            <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+          </div>
+          <div class="cal-grid">
+            <div class="cd off">-</div><div class="cd off">-</div><div class="cd off">-</div><div class="cd off">-</div><div class="cd off">-</div><div class="cd done">1</div><div class="cd done">2</div>
+            <div class="cd done">3</div><div class="cd done">4</div><div class="cd done">5</div><div class="cd done">6</div><div class="cd done">7</div><div class="cd done">8</div><div class="cd done">9</div>
+            <div class="cd done">10</div><div class="cd done">11</div><div class="cd done">12</div><div class="cd done">13</div><div class="cd done">14</div><div class="cd done">15</div><div class="cd done">16</div>
+            <div class="cd done">17</div><div class="cd done">18</div><div class="cd done">19</div><div class="cd done">20</div><div class="cd done">21</div><div class="cd done">22</div><div class="cd done">23</div>
+            <div class="cd done">24</div><div class="cd done">25</div><div class="cd today">26</div>
+          </div>
+        </div>
+
+        <div class="stat-row4">
+          <div class="sc">
+            <div class="sc-num">🔥 12</div>
+            <div class="sc-label">连续天数</div>
+          </div>
+          <div class="sc">
+            <div class="sc-num">26</div>
+            <div class="sc-label">本月完成</div>
+          </div>
+          <div class="sc">
+            <div class="sc-num">72%</div>
+            <div class="sc-label">正确率</div>
+          </div>
+        </div>
+
+        <div class="hist-list">
+          <div class="hist-item">
+            <div class="hi-date">5/26</div>
+            <div class="hi-info">
+              <div class="hi-title">三盏灯与三个开关</div>
+              <div class="hi-meta">逻辑推理 · 3分42秒</div>
+            </div>
+            <div class="hi-icon">✅</div>
+          </div>
+          <div class="hist-item">
+            <div class="hi-date">5/25</div>
+            <div class="hi-info">
+              <div class="hi-title">台球三角形摆放问题</div>
+              <div class="hi-meta">数字规律 · 2分10秒</div>
+            </div>
+            <div class="hi-icon">✅</div>
+          </div>
+          <div class="hist-item">
+            <div class="hi-date">5/24</div>
+            <div class="hi-info">
+              <div class="hi-title">生日悖论</div>
+              <div class="hi-meta">概率直觉 · 6分01秒</div>
+            </div>
+            <div class="hi-icon">❌</div>
+          </div>
+        </div>
+
+        <div class="bottom-nav">
+          <div class="nav-item"><div class="nav-icon">📝</div><span>今日题</span></div>
+          <div class="nav-item active"><div class="nav-icon">📅</div><span>历史</span></div>
+          <div class="nav-item"><div class="nav-icon">⚙️</div><span>设置</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

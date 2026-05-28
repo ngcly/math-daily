@@ -1,0 +1,38 @@
+{
+  "name": "别让你的脑生锈",
+  "appid": "wxb69e7943c7c13395",
+  "description": "每天一道思维题，让大脑不退化",
+  "versionName": "1.0.0",
+  "versionCode": "100",
+  "transformPx": false,
+  "mp-weixin": {
+    "appid": "wxb69e7943c7c13395",
+    "lazyCodeLoading": "requiredComponents",
+    "setting": {
+      "urlCheck": false,
+      "es6": true,
+      "postcss": true,
+      "minified": true
+    },
+    "usingComponents": true,
+    "requiredPrivateInfos": ["getLocation"],
+    "permission": {},
+    "cloudfunctionRoot": "../../../cloudfunctions/",
+    "plugins": {}
+  },
+  "quickapp": {},
+  "app-plus": {
+    "usingComponents": true,
+    "nvueStyleCompiler": "uni-compiler",
+    "splashscreen": {
+      "alwaysShowBeforeRender": true,
+      "waiting": true,
+      "autoclose": true,
+      "delay": 0
+    },
+    "distribute": {
+      "android": {},
+      "ios": {}
+    }
+  }
+}
