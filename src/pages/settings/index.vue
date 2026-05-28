@@ -4,13 +4,18 @@ import { onShow } from '@dcloudio/uni-app'
 import { useUserStore } from '@/store/user'
 import { useThemeStore } from '@/store/theme'
 import { useDraftStore } from '@/store/draft'
+import { syncNativeTabBarTheme } from '@/utils/theme'
+import { requestDailySubscribe, showSubscribeStatusToast } from '@/utils/subscribe'
 import type { Category, Difficulty } from '@/types'
 
 const userStore  = useUserStore()
 const themeStore = useThemeStore()
 const draftStore = useDraftStore()
 
-onShow(() => { themeStore.setCurrentTab(2) })
+onShow(() => {
+  themeStore.setCurrentTab(2)
+  syncNativeTabBarTheme(themeStore.isDark)
+})
 const profile    = computed(() => userStore.profile)
 
 
@@ -55,20 +60,12 @@ function setDifficulty(v: Difficulty | null) {
 }
 
 // ── 订阅推送 ─────────────────────────────────────────
-function requestSubscribe() {
-  const templateId = 'KiJLSpuOmVhQ5RJh5LqkQbMrfWYqkUVIHj2C1Dy4k78'
-  wx.requestSubscribeMessage({
-    tmplIds: [templateId],
-    success: (res: any) => {
-      if (res[templateId] === 'accept') {
-        userStore.updatePrefs({ subscribed: true })
-        uni.showToast({ title: '订阅成功 🔔', icon: 'none' })
-      } else if (res[templateId] === 'reject') {
-        userStore.updatePrefs({ subscribed: false })
-        uni.showToast({ title: '已取消订阅', icon: 'none' })
-      }
-    },
-  })
+async function requestSubscribe() {
+  const status = await requestDailySubscribe()
+  if (status === 'accept') {
+    await userStore.updatePrefs({ subscribed: true })
+  }
+  showSubscribeStatusToast(status, '订阅成功 🔔')
 }
 
 // ── Streak 补签 ──────────────────────────────────────
@@ -89,6 +86,7 @@ const THEMES = [
 
 function setTheme(v: 'system' | 'light' | 'dark') {
   themeStore.setPreference(v)
+  syncNativeTabBarTheme(themeStore.isDark)
 }
 
 // ── 清除草稿缓存 ──────────────────────────────────────

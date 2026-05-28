@@ -7,38 +7,40 @@
     "pages/settings/index"
   ],
   "window": {
-    "navigationBarTextStyle": "black",
-    "navigationBarTitleText": "每日一题",
-    "navigationBarBackgroundColor": "#f5f4f0",
-    "backgroundColor": "#f5f4f0",
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "脑生锈",
+    "navigationBarBackgroundColor": "@navDark",
+    "backgroundColor": "@bgPaper",
     "navigationStyle": "default"
   },
   "tabBar": {
-    "color": "#aaaaaa",
-    "selectedColor": "#1a1a1a",
-    "backgroundColor": "#ffffff",
-    "borderStyle": "white",
+    "color": "@tabFg",
+    "selectedColor": "@tabActive",
+    "backgroundColor": "@tabBg",
+    "borderStyle": "black",
     "list": [
       {
         "pagePath": "pages/index/index",
         "text": "今日题",
         "iconPath": "static/icons/home.png",
-        "selectedIconPath": "static/icons/home-active.png"
+        "selectedIconPath": "@iconHomeActive"
       },
       {
         "pagePath": "pages/history/index",
         "text": "历史",
         "iconPath": "static/icons/history.png",
-        "selectedIconPath": "static/icons/history-active.png"
+        "selectedIconPath": "@iconHistoryActive"
       },
       {
         "pagePath": "pages/settings/index",
         "text": "设置",
         "iconPath": "static/icons/settings.png",
-        "selectedIconPath": "static/icons/settings-active.png"
+        "selectedIconPath": "@iconSettingsActive"
       }
     ]
   },
+  "themeLocation": "theme.json",
+  "darkmode": true,
   "lazyCodeLoading": "requiredComponents",
   "requiredPrivateInfos": [
     "getLocation"

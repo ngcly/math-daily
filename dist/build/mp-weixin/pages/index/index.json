@@ -1,7 +1,7 @@
 {
-  "navigationBarTitleText": "每日一题",
-  "navigationBarBackgroundColor": "#1a1a1a",
+  "navigationBarTitleText": "脑生锈",
+  "navigationBarBackgroundColor": "@navDark",
   "navigationBarTextStyle": "white",
-  "backgroundColor": "#f5f4f0",
+  "backgroundColor": "@bgPaper",
   "usingComponents": {}
 }

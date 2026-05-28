@@ -5,6 +5,7 @@ import { useQuestionStore } from '@/store/question'
 import { useUserStore } from '@/store/user'
 import { useThemeStore } from '@/store/theme'
 import { today, formatDisplayDate } from '@/utils/date'
+import { syncNativeTabBarTheme } from '@/utils/theme'
 import type { Category } from '@/types'
 
 const questionStore = useQuestionStore()
@@ -40,6 +41,7 @@ function loadRecentDims() {
 // 每次切回首页刷新（提交后数据即时可见）
 onShow(() => {
   themeStore.setCurrentTab(0)
+  syncNativeTabBarTheme(themeStore.isDark)
   loadRecentDims()
 })
 
@@ -59,10 +61,9 @@ function goToHistory() {
   uni.switchTab({ url: '/pages/history/index' })
 }
 
-// 快捷操作主按钮
-function handleMainBtn() {
-  if (answered.value) goToResult()
-  else uni.navigateTo({ url: `/pages/draft/index?id=${question.value?._id}&submit=1` })
+function goToSubmit() {
+  if (!question.value) return
+  uni.navigateTo({ url: `/pages/draft/index?id=${question.value._id}&submit=1` })
 }
 </script>
 
@@ -128,21 +129,29 @@ function handleMainBtn() {
         />
       </view>
 
-      <!-- 快捷操作行 -->
-      <view class="quick-actions">
-        <view class="quick-btn quick-btn--ghost" @tap="goToDraft">
-          <text class="quick-btn__text">✏️ {{ answered ? '回顾草稿' : '打开草稿纸' }}</text>
-        </view>
-        <view class="quick-btn quick-btn--primary" @tap="handleMainBtn">
-          <text class="quick-btn__text">{{ answered ? '查看解析 →' : '提交答案' }}</text>
-        </view>
-      </view>
-
-      <!-- 草稿纸预览区（点击跳转） -->
-      <view class="draft-preview" @tap="goToDraft">
+      <!-- 演算草稿入口 -->
+      <view
+        class="draft-preview"
+        :class="{ 'draft-preview--done': answered }"
+        @tap="answered ? goToResult() : goToDraft()"
+      >
         <text class="draft-preview__hint">
-          {{ answered ? '✏️ 回顾演算草稿 →' : '✏️ 点击开始演算 →' }}
+          {{ answered ? '查看解析 →' : '✏️ 点击开始演算 →' }}
         </text>
+        <view
+          v-if="answered"
+          class="draft-preview__secondary"
+          @tap.stop="goToDraft"
+        >
+          <text>回顾草稿</text>
+        </view>
+        <view
+          v-else
+          class="draft-preview__secondary"
+          @tap.stop="goToSubmit"
+        >
+          <text>已有思路？直接填写答案</text>
+        </view>
       </view>
 
 
@@ -278,59 +287,46 @@ function handleMainBtn() {
   }
 }
 
-// ── 快捷操作行 ─────────────────────────────────
-.quick-actions {
-  display: flex;
-  gap: $space-sm;
-  margin-bottom: $space-md;
-}
-
-.quick-btn {
-  flex: 1;
-  height: 88rpx;
-  border-radius: $radius-md;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: opacity $duration-fast;
-
-  &:active { opacity: 0.75; }
-
-  &--ghost {
-    background: $white;
-    border: 2rpx solid $ink-5;
-    box-shadow: $shadow-sm;
-  }
-
-  &--primary {
-    background: $ink;
-  }
-
-  &__text {
-    font-size: 26rpx;
-    font-weight: 700;
-    color: $ink-2;
-  }
-}
-
-.quick-btn--primary .quick-btn__text {
-  color: $white;
-}
-
-// ── 草稿预览 ───────────────────────────────────
+// ── 演算草稿入口 ───────────────────────────────
 .draft-preview {
-  height: 200rpx;
+  min-height: 200rpx;
   background: $yellow;
   border-radius: $radius-md;
   border: 3rpx dashed $yellow-border;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 18rpx;
   margin-bottom: $space-md;
+  transition: opacity $duration-fast;
+
+  &:active { opacity: 0.82; }
+
+  &--done {
+    background: $white;
+    border-style: solid;
+    border-color: $green-border;
+  }
 
   &__hint {
-    font-size: 26rpx;
+    font-size: 28rpx;
+    font-weight: 700;
     color: var(--draft-hint);
+  }
+
+  &__secondary {
+    min-height: 42rpx;
+    padding: 0 20rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $ink-3;
+    font-size: 24rpx;
+    font-weight: 600;
+    transition: opacity $duration-fast;
+
+    &:active { opacity: 0.65; }
   }
 }
 

@@ -6,6 +6,7 @@ import { useQuestionStore } from '@/store/question'
 import { useUserStore } from '@/store/user'
 import { useDraftStore } from '@/store/draft'
 import { useThemeStore } from '@/store/theme'
+import { requestDailySubscribe, showSubscribeStatusToast } from '@/utils/subscribe'
 
 const questionStore = useQuestionStore()
 const userStore     = useUserStore()
@@ -112,17 +113,12 @@ onShareTimeline(() => ({
 }))
 
 // ── 订阅明日提醒 ──────────────────────────────────────
-function requestSubscribe() {
-  const templateId = 'KiJLSpuOmVhQ5RJh5LqkQbMrfWYqkUVIHj2C1Dy4k78'
-  wx.requestSubscribeMessage({
-    tmplIds: [templateId],
-    success: (res) => {
-      if (res[templateId] === 'accept') {
-        userStore.updatePrefs({ subscribed: true })
-        uni.showToast({ title: '明天准时提醒你 🔔', icon: 'none' })
-      }
-    },
-  })
+async function requestSubscribe() {
+  const status = await requestDailySubscribe()
+  if (status === 'accept') {
+    await userStore.updatePrefs({ subscribed: true })
+  }
+  showSubscribeStatusToast(status, '明天准时提醒你 🔔')
 }
 
 // ── 返回首页 ─────────────────────────────────────────

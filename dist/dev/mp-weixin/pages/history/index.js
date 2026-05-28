@@ -4,6 +4,7 @@ const store_user = require("../../store/user.js");
 const store_theme = require("../../store/theme.js");
 const api_cloud = require("../../api/cloud.js");
 const utils_date = require("../../utils/date.js");
+const utils_theme = require("../../utils/theme.js");
 if (!Math) {
   Calendar();
 }
@@ -27,6 +28,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     common_vendor.onMounted(() => loadRecords());
     common_vendor.onShow(() => {
       themeStore.setCurrentTab(1);
+      utils_theme.syncNativeTabBarTheme(themeStore.isDark);
     });
     async function loadRecords() {
       loading.value = true;

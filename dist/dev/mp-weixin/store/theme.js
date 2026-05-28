@@ -1,11 +1,16 @@
 "use strict";
 const common_vendor = require("../common/vendor.js");
+const utils_theme = require("../utils/theme.js");
 const useThemeStore = common_vendor.defineStore("theme", {
   state: () => ({
     preference: common_vendor.index.getStorageSync("theme_pref") || "system",
-    _systemIsDark: (common_vendor.index.getSystemInfoSync().theme ?? "light") === "dark",
+    _systemIsDark: utils_theme.getSystemIsDark(),
     currentTabIndex: 0
   }),
+  unistorage: {
+    paths: ["preference"]
+    // _systemIsDark 和 currentTabIndex 不缓存，每次从系统重新读
+  },
   getters: {
     isDark(state) {
       if (state.preference === "dark")

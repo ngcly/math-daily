@@ -64,7 +64,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     return (_ctx, _cache) => {
       var _a, _b, _c;
       return common_vendor.e({
-        a: common_vendor.sr(sketchPadRef, "680a0755-0", {
+        a: common_vendor.sr(sketchPadRef, "a67f3e04-0", {
           "k": "sketchPadRef"
         }),
         b: common_vendor.p({

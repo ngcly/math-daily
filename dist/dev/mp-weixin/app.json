@@ -40,6 +40,7 @@
     ]
   },
   "themeLocation": "theme.json",
+  "darkmode": true,
   "lazyCodeLoading": "requiredComponents",
   "requiredPrivateInfos": [
     "getLocation"

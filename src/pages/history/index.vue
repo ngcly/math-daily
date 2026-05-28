@@ -7,6 +7,7 @@ import { useThemeStore } from '@/store/theme'
 import { getUserHistory } from '@/api/cloud'
 import type { UserRecord } from '@/types'
 import { formatDuration } from '@/utils/date'
+import { syncNativeTabBarTheme } from '@/utils/theme'
 
 const userStore  = useUserStore()
 const themeStore = useThemeStore()
@@ -29,7 +30,10 @@ const correctRate  = computed(() =>
 )
 
 onMounted(() => loadRecords())
-onShow(() => { themeStore.setCurrentTab(1) })
+onShow(() => {
+  themeStore.setCurrentTab(1)
+  syncNativeTabBarTheme(themeStore.isDark)
+})
 
 async function loadRecords() {
   loading.value = true

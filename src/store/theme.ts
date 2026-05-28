@@ -1,13 +1,17 @@
 import { defineStore } from 'pinia'
+import { getSystemIsDark } from '@/utils/theme'
 
 export type ThemePref = 'system' | 'light' | 'dark'
 
 export const useThemeStore = defineStore('theme', {
   state: () => ({
     preference: (uni.getStorageSync('theme_pref') || 'system') as ThemePref,
-    _systemIsDark: (uni.getSystemInfoSync().theme ?? 'light') === 'dark',
+    _systemIsDark: getSystemIsDark(),
     currentTabIndex: 0,
   }),
+  unistorage: {
+    paths: ['preference'], // _systemIsDark 和 currentTabIndex 不缓存，每次从系统重新读
+  },
   getters: {
     isDark(state): boolean {
       if (state.preference === 'dark') return true

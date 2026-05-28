@@ -4,6 +4,7 @@ const store_question = require("../../store/question.js");
 const store_user = require("../../store/user.js");
 const store_draft = require("../../store/draft.js");
 const store_theme = require("../../store/theme.js");
+const utils_subscribe = require("../../utils/subscribe.js");
 if (!Math) {
   ResultBanner();
 }
@@ -100,17 +101,12 @@ ${miniLink.value}` : "\n微信搜索小程序「别让你的脑生锈」";
       title: answerCopy.value.split("\n")[0] || "别让你的脑生锈 · 训练你的大脑",
       query: ""
     }));
-    function requestSubscribe() {
-      const templateId = "KiJLSpuOmVhQ5RJh5LqkQbMrfWYqkUVIHj2C1Dy4k78";
-      common_vendor.wx$1.requestSubscribeMessage({
-        tmplIds: [templateId],
-        success: (res) => {
-          if (res[templateId] === "accept") {
-            userStore.updatePrefs({ subscribed: true });
-            common_vendor.index.showToast({ title: "明天准时提醒你 🔔", icon: "none" });
-          }
-        }
-      });
+    async function requestSubscribe() {
+      const status = await utils_subscribe.requestDailySubscribe();
+      if (status === "accept") {
+        await userStore.updatePrefs({ subscribed: true });
+      }
+      utils_subscribe.showSubscribeStatusToast(status, "明天准时提醒你 🔔");
     }
     function goHome() {
       common_vendor.index.switchTab({ url: "/pages/index/index" });

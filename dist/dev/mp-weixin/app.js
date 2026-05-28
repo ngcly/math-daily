@@ -4,6 +4,7 @@ const common_vendor = require("./common/vendor.js");
 const store_user = require("./store/user.js");
 const store_question = require("./store/question.js");
 const store_theme = require("./store/theme.js");
+const utils_theme = require("./utils/theme.js");
 if (!Math) {
   "./pages/index/index.js";
   "./pages/draft/index.js";
@@ -23,16 +24,18 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         env: "cloud1-d4g6o6y529c3db4b2",
         traceUser: true
       });
-      const sysInfo = common_vendor.wx$1.getSystemInfoSync();
-      themeStore.setSystemTheme(sysInfo.theme === "dark");
+      themeStore.setSystemTheme(utils_theme.getSystemIsDark());
+      utils_theme.syncNativeTabBarTheme(themeStore.isDark);
       userStore.init();
       questionStore.loadToday();
       (_b = (_a = common_vendor.wx$1).onThemeChange) == null ? void 0 : _b.call(_a, (res) => {
         themeStore.setSystemTheme(res.theme === "dark");
+        utils_theme.syncNativeTabBarTheme(themeStore.isDark);
       });
     });
     common_vendor.onShow(() => {
       userStore.checkStreak();
+      utils_theme.syncNativeTabBarTheme(themeStore.isDark);
     });
     return (_ctx, _cache) => {
       return {};

@@ -1,8 +1,17 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, onUnmounted } from 'vue'
 import { useThemeStore } from '@/store/theme'
 
 const themeStore = useThemeStore()
+
+// wx.onThemeChange 在 custom-tab-bar 里比 Pinia 响应式更可靠
+let themeChangeOff: (() => void) | null = null
+onMounted(() => {
+  const handler = (res: { theme: string }) => themeStore.setSystemTheme(res.theme === 'dark')
+  wx.onThemeChange?.(handler)
+  themeChangeOff = () => wx.offThemeChange?.(handler)
+})
+onUnmounted(() => themeChangeOff?.())
 
 const TABS = [
   {
@@ -29,6 +38,7 @@ const TABS = [
 ]
 
 const selected = computed(() => themeStore.currentTabIndex)
+const isDark = computed(() => themeStore.isDark)
 
 function switchTab(path: string) {
   uni.switchTab({ url: path })
@@ -36,25 +46,26 @@ function switchTab(path: string) {
 </script>
 
 <template>
-  <view class="tab-bar" :class="themeStore.themeClass">
+  <view class="tab-bar" :class="{ 'tab-bar--dark': isDark }">
     <view
       v-for="(tab, i) in TABS"
       :key="tab.path"
       class="tab-bar__item"
       @tap="switchTab(tab.path)"
     >
-      <!-- 非激活：单图标，深浅色均兼容 -->
       <image
         v-if="selected !== i"
         class="tab-bar__icon"
+        :class="{ 'tab-bar__icon--inactive-dark': isDark }"
         :src="tab.icon"
         mode="aspectFit"
       />
-      <!-- 激活：同时渲染深/浅两版，用 CSS 按模式显示其中一个，不依赖 JS 主题检测 -->
-      <view v-else class="tab-bar__icon-box">
-        <image class="tab-bar__icon tab-bar__icon--lt" :src="tab.activeIcon"     mode="aspectFit" />
-        <image class="tab-bar__icon tab-bar__icon--dk" :src="tab.activeIconDark" mode="aspectFit" />
-      </view>
+      <image
+        v-else
+        class="tab-bar__icon"
+        :src="isDark ? tab.activeIconDark : tab.activeIcon"
+        mode="aspectFit"
+      />
       <text class="tab-bar__label" :class="{ 'tab-bar__label--active': selected === i }">
         {{ tab.text }}
       </text>
@@ -70,10 +81,15 @@ function switchTab(path: string) {
   left: 0;
   right: 0;
   display: flex;
-  background: $white;
-  border-top: 1rpx solid $ink-5;
+  background: #ffffff;
+  border-top: 1rpx solid #e4e4e4;
   padding-bottom: env(safe-area-inset-bottom);
   z-index: 999;
+
+  &--dark {
+    background: #1a1a1a;
+    border-top-color: #2e2e2e;
+  }
 
   &__item {
     flex: 1;
@@ -89,40 +105,17 @@ function switchTab(path: string) {
   &__icon {
     width: 48rpx;
     height: 48rpx;
-  }
-
-  &__icon-box {
-    width: 48rpx;
-    height: 48rpx;
+    &--inactive-dark { filter: brightness(0) invert(0.4); }
   }
 
   &__label {
     font-size: 20rpx;
-    color: $ink-4;
+    color: #aaaaaa;
     font-weight: 500;
-    &--active { color: $ink; font-weight: 700; }
+    &--active { color: #1a1a1a; font-weight: 700; }
   }
 }
 
-// ── 激活图标深/浅版切换（不依赖 JS isDark，全部 CSS 完成）────
-// 默认：显示浅色版，隐藏深色版
-.tab-bar__icon--dk { display: none; }
-
-// 手动深色模式：themeClass='theme-dark' → .theme-dark 加在 .tab-bar 上
-.theme-dark .tab-bar__icon--lt { display: none; }
-.theme-dark .tab-bar__icon--dk { display: block; }
-
-// 系统深色模式（auto 偏好时 themeClass=''，.tab-bar 无显式类名）
-// 背景/文字/图标全部通过 @media 处理；
-// :not(.theme-light) 确保用户手动选浅色时不被此规则覆盖
-@media (prefers-color-scheme: dark) {
-  .tab-bar:not(.theme-light) {
-    background: #1a1a1a;
-    border-top-color: #2e2e2e;
-  }
-  .tab-bar:not(.theme-light) .tab-bar__label         { color: #606060; }
-  .tab-bar:not(.theme-light) .tab-bar__label--active  { color: #f0f0f0; }
-  .tab-bar:not(.theme-light) .tab-bar__icon--lt { display: none; }
-  .tab-bar:not(.theme-light) .tab-bar__icon--dk { display: block; }
-}
+.tab-bar--dark .tab-bar__label         { color: #606060; }
+.tab-bar--dark .tab-bar__label--active  { color: #f0f0f0; }
 </style>

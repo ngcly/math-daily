@@ -1,8 +1,8 @@
 {
   "navigationBarTitleText": "草稿纸",
-  "navigationBarBackgroundColor": "#ffffff",
-  "navigationBarTextStyle": "black",
-  "backgroundColor": "#fffef5",
+  "navigationBarBackgroundColor": "@navDark",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "@bgYellow",
   "disableScroll": true,
   "usingComponents": {
     "sketch-pad": "../../components/SketchPad/index",

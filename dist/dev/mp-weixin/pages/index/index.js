@@ -4,6 +4,7 @@ const store_question = require("../../store/question.js");
 const store_user = require("../../store/user.js");
 const store_theme = require("../../store/theme.js");
 const utils_date = require("../../utils/date.js");
+const utils_theme = require("../../utils/theme.js");
 const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   __name: "index",
   setup(__props) {
@@ -33,6 +34,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     }
     common_vendor.onShow(() => {
       themeStore.setCurrentTab(0);
+      utils_theme.syncNativeTabBarTheme(themeStore.isDark);
       loadRecentDims();
     });
     function goToDraft() {
@@ -46,12 +48,10 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     function goToHistory() {
       common_vendor.index.switchTab({ url: "/pages/history/index" });
     }
-    function handleMainBtn() {
-      var _a;
-      if (answered.value)
-        goToResult();
-      else
-        common_vendor.index.navigateTo({ url: `/pages/draft/index?id=${(_a = question.value) == null ? void 0 : _a._id}&submit=1` });
+    function goToSubmit() {
+      if (!question.value)
+        return;
+      common_vendor.index.navigateTo({ url: `/pages/draft/index?id=${question.value._id}&submit=1` });
     }
     return (_ctx, _cache) => {
       return common_vendor.e({
@@ -79,12 +79,15 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       }, question.value.image_url ? {
         n: question.value.image_url
       } : {}, {
-        o: common_vendor.t(answered.value ? "回顾草稿" : "打开草稿纸"),
-        p: common_vendor.o(goToDraft, "5b"),
-        q: common_vendor.t(answered.value ? "查看解析 →" : "提交答案"),
-        r: common_vendor.o(handleMainBtn, "58"),
-        s: common_vendor.t(answered.value ? "✏️ 回顾演算草稿 →" : "✏️ 点击开始演算 →"),
-        t: common_vendor.o(goToDraft, "35"),
+        o: common_vendor.t(answered.value ? "查看解析 →" : "✏️ 点击开始演算 →"),
+        p: answered.value
+      }, answered.value ? {
+        q: common_vendor.o(goToDraft, "24")
+      } : {
+        r: common_vendor.o(goToSubmit, "c3")
+      }, {
+        s: answered.value ? 1 : "",
+        t: common_vendor.o(($event) => answered.value ? goToResult() : goToDraft(), "ee"),
         v: streak.value > 0
       }, streak.value > 0 ? {
         w: common_vendor.t(streak.value)

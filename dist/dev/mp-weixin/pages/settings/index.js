@@ -3,6 +3,8 @@ const common_vendor = require("../../common/vendor.js");
 const store_user = require("../../store/user.js");
 const store_theme = require("../../store/theme.js");
 const store_draft = require("../../store/draft.js");
+const utils_theme = require("../../utils/theme.js");
+const utils_subscribe = require("../../utils/subscribe.js");
 const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   __name: "index",
   setup(__props) {
@@ -12,6 +14,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const draftStore = store_draft.useDraftStore();
     common_vendor.onShow(() => {
       themeStore.setCurrentTab(2);
+      utils_theme.syncNativeTabBarTheme(themeStore.isDark);
     });
     const profile = common_vendor.computed(() => userStore.profile);
     const remindTime = common_vendor.ref(((_a = profile.value) == null ? void 0 : _a.remind_time) ?? "08:00");
@@ -53,20 +56,12 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       selectedDiff.value = v;
       userStore.updatePrefs({ pref_difficulty: v });
     }
-    function requestSubscribe() {
-      const templateId = "KiJLSpuOmVhQ5RJh5LqkQbMrfWYqkUVIHj2C1Dy4k78";
-      common_vendor.wx$1.requestSubscribeMessage({
-        tmplIds: [templateId],
-        success: (res) => {
-          if (res[templateId] === "accept") {
-            userStore.updatePrefs({ subscribed: true });
-            common_vendor.index.showToast({ title: "订阅成功 🔔", icon: "none" });
-          } else if (res[templateId] === "reject") {
-            userStore.updatePrefs({ subscribed: false });
-            common_vendor.index.showToast({ title: "已取消订阅", icon: "none" });
-          }
-        }
-      });
+    async function requestSubscribe() {
+      const status = await utils_subscribe.requestDailySubscribe();
+      if (status === "accept") {
+        await userStore.updatePrefs({ subscribed: true });
+      }
+      utils_subscribe.showSubscribeStatusToast(status, "订阅成功 🔔");
     }
     const pendingRescueDate = common_vendor.computed(() => userStore.pendingRescueDate);
     const canRescue = common_vendor.computed(() => !!pendingRescueDate.value);
@@ -82,6 +77,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     ];
     function setTheme(v) {
       themeStore.setPreference(v);
+      utils_theme.syncNativeTabBarTheme(themeStore.isDark);
     }
     function clearDrafts() {
       common_vendor.index.showModal({

@@ -3,6 +3,7 @@ import { onLaunch, onShow } from '@dcloudio/uni-app'
 import { useUserStore } from '@/store/user'
 import { useQuestionStore } from '@/store/question'
 import { useThemeStore } from '@/store/theme'
+import { getSystemIsDark, syncNativeTabBarTheme } from '@/utils/theme'
 
 const userStore     = useUserStore()
 const questionStore = useQuestionStore()
@@ -14,19 +15,21 @@ onLaunch(() => {
     traceUser: true,
   })
 
-  const sysInfo = wx.getSystemInfoSync() as any
-  themeStore.setSystemTheme(sysInfo.theme === 'dark')
+  themeStore.setSystemTheme(getSystemIsDark())
+  syncNativeTabBarTheme(themeStore.isDark)
 
   userStore.init()
   questionStore.loadToday()
 
   wx.onThemeChange?.((res: { theme: string }) => {
     themeStore.setSystemTheme(res.theme === 'dark')
+    syncNativeTabBarTheme(themeStore.isDark)
   })
 })
 
 onShow(() => {
   userStore.checkStreak()
+  syncNativeTabBarTheme(themeStore.isDark)
 })
 </script>
 
