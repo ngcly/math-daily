@@ -66,6 +66,17 @@
         "backgroundColorTop": "@bgPaper",
         "backgroundColorBottom": "@bgPaper"
       }
+    },
+    {
+      "path": "pages/feedback/index",
+      "style": {
+        "navigationBarTitleText": "意见反馈",
+        "navigationBarBackgroundColor": "#1a1a1a",
+        "navigationBarTextStyle": "white",
+        "backgroundColor": "@bgPaper",
+        "backgroundColorTop": "@bgPaper",
+        "backgroundColorBottom": "@bgPaper"
+      }
     }
   ],
   "tabBar": {

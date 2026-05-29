@@ -19,6 +19,7 @@ function logEvent(event, data = {}) {
   callCloud("logEvent", { event, data }).catch(() => {
   });
 }
+const submitFeedback = (category, content) => callCloud("submitFeedback", { category, content });
 exports.getHistoryDetail = getHistoryDetail;
 exports.getQuestionByDate = getQuestionByDate;
 exports.getTodayQuestion = getTodayQuestion;
@@ -26,4 +27,5 @@ exports.getUserHistory = getUserHistory;
 exports.initUser = initUser;
 exports.logEvent = logEvent;
 exports.submitAnswer = submitAnswer;
+exports.submitFeedback = submitFeedback;
 exports.updateSettings = updateSettings;

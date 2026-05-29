@@ -92,6 +92,11 @@ function goRescue() {
   uni.navigateTo({ url: `/pages/draft/index?rescue_date=${pendingRescueDate.value}` })
 }
 
+// ── 意见反馈 ─────────────────────────────────────────
+function goFeedback() {
+  uni.navigateTo({ url: '/pages/feedback/index' })
+}
+
 // ── 清除草稿缓存 ──────────────────────────────────────
 function clearDrafts() {
   uni.showModal({
@@ -210,6 +215,12 @@ function clearDrafts() {
         <view class="section-card__row">
           <text class="section-card__label">开发者</text>
           <text class="section-card__value">独立开发 · 用爱维护</text>
+        </view>
+
+        <view class="section-card__row section-card__row--btn">
+          <view class="outline-btn" @tap="goFeedback">
+            <text>意见反馈</text>
+          </view>
         </view>
 
         <view class="section-card__row section-card__row--btn">

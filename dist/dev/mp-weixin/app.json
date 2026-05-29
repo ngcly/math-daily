@@ -5,7 +5,8 @@
     "pages/result/index",
     "pages/review/index",
     "pages/history/index",
-    "pages/settings/index"
+    "pages/settings/index",
+    "pages/feedback/index"
   ],
   "window": {
     "navigationBarTextStyle": "white",

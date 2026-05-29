@@ -57,3 +57,13 @@ export const updateSettings = (settings: Partial<UserProfile>) =>
 export function logEvent(event: string, data: Record<string, unknown> = {}): void {
   callCloud<void>('logEvent', { event, data }).catch(() => {})
 }
+
+// ─────────────────────────────────────
+// 用户反馈
+// ─────────────────────────────────────
+
+export type FeedbackCategory = 'bug' | 'content' | 'feature' | 'other'
+
+/** 提交用户反馈 */
+export const submitFeedback = (category: FeedbackCategory, content: string) =>
+  callCloud<void>('submitFeedback', { category, content })

@@ -80,6 +80,9 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         return;
       common_vendor.index.navigateTo({ url: `/pages/draft/index?rescue_date=${pendingRescueDate.value}` });
     }
+    function goFeedback() {
+      common_vendor.index.navigateTo({ url: "/pages/feedback/index" });
+    }
     function clearDrafts() {
       common_vendor.index.showModal({
         title: "清除草稿缓存",
@@ -114,7 +117,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         m: common_vendor.t(canRescue.value ? `补签 ${pendingRescueDate.value}` : "暂无可补签的日期"),
         n: !canRescue.value ? 1 : "",
         o: common_vendor.o(goRescue, "cd"),
-        p: common_vendor.o(clearDrafts, "10")
+        p: common_vendor.o(goFeedback, "ea"),
+        q: common_vendor.o(clearDrafts, "e6")
       });
     };
   }
