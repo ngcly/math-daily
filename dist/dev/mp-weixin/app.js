@@ -5,6 +5,8 @@ const store_user = require("./store/user.js");
 const store_question = require("./store/question.js");
 const store_theme = require("./store/theme.js");
 const utils_theme = require("./utils/theme.js");
+const api_cloud = require("./api/cloud.js");
+const utils_date = require("./utils/date.js");
 if (!Math) {
   "./pages/index/index.js";
   "./pages/draft/index.js";
@@ -19,8 +21,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const userStore = store_user.useUserStore();
     const questionStore = store_question.useQuestionStore();
     const themeStore = store_theme.useThemeStore();
-    common_vendor.onLaunch(() => {
-      var _a, _b;
+    common_vendor.onLaunch((options) => {
+      var _a, _b, _c;
       common_vendor.wx$1.cloud.init({
         env: "cloud1-d4g6o6y529c3db4b2",
         traceUser: true
@@ -31,6 +33,18 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       (_b = (_a = common_vendor.wx$1).onThemeChange) == null ? void 0 : _b.call(_a, (res) => {
         themeStore.setSystemTheme(res.theme === "dark");
       });
+      const todayStr = utils_date.today();
+      const lastOpenDate = common_vendor.index.getStorageSync("last_open_date") || "";
+      if (lastOpenDate !== todayStr) {
+        api_cloud.logEvent("app_open", {
+          scene: (options == null ? void 0 : options.scene) ?? null,
+          ref: ((_c = options == null ? void 0 : options.query) == null ? void 0 : _c.ref) ?? null
+        });
+        try {
+          common_vendor.index.setStorageSync("last_open_date", todayStr);
+        } catch {
+        }
+      }
     });
     common_vendor.onShow(() => {
       userStore.checkStreak();

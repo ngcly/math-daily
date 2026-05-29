@@ -9,6 +9,8 @@ const db = cloud.database()
 
 // 允许前端写入的白名单字段，防止意外覆盖 _id / created_at
 const ALLOWED_FIELDS = [
+  'nickname',
+  'avatar_url',
   'streak',
   'streak_rescue',
   'remind_time',

@@ -32,6 +32,9 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         questionId.value = ((_a = questionStore.rescueQuestion) == null ? void 0 : _a._id) || "";
       } else {
         questionId.value = (options == null ? void 0 : options.id) || ((_b = question.value) == null ? void 0 : _b._id) || "";
+        if ((options == null ? void 0 : options.submit) === "1") {
+          answerVisible.value = true;
+        }
       }
     });
     async function rescueSubmitFn(payload) {

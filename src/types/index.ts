@@ -49,8 +49,9 @@ export interface Question {
 
   // 全局统计（答题后更新）
   stats: {
-    total: number
-    correct: number
+    total:      number
+    correct:    number
+    total_time?: number  // 所有用时之和（秒），avg = total_time / total
   }
 
   // 题目主题短语（导入时写入）
@@ -83,7 +84,7 @@ export interface SubmitResult {
   aha_moment: string
   alt_solution?: string
   trap?: string               // 大多数人会犯的错误
-  stats: { total: number; correct: number }
+  stats: { total: number; correct: number; total_time?: number }
   ai_feedback?: string        // 终极形态：AI 批改，MVP 留空
 }
 
@@ -93,6 +94,8 @@ export interface SubmitResult {
 
 export interface UserProfile {
   _id: string                 // = openId
+  nickname?: string           // 用户昵称（微信键盘填写）
+  avatar_url?: string         // 头像云文件 ID（cloud://...）
   remind_time: string         // "08:00"
   subscribed: boolean
   streak: number

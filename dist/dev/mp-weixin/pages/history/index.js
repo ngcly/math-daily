@@ -28,7 +28,9 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     );
     common_vendor.onShow(() => {
       themeStore.setCurrentTab(1);
-      if (loadedYear.value !== viewYear.value || loadedMonth.value !== viewMonth.value) {
+      const n = /* @__PURE__ */ new Date();
+      const isCurrentMonth = viewYear.value === n.getFullYear() && viewMonth.value === n.getMonth() + 1;
+      if (isCurrentMonth || loadedYear.value !== viewYear.value || loadedMonth.value !== viewMonth.value) {
         loadRecords();
       }
     });

@@ -48,3 +48,12 @@ export const getHistoryDetail = (date: string) =>
 /** 更新用户设置 */
 export const updateSettings = (settings: Partial<UserProfile>) =>
   callCloud<void>('updateSettings', settings as unknown as Record<string, unknown>)
+
+// ─────────────────────────────────────
+// 埋点
+// ─────────────────────────────────────
+
+/** 行为事件埋点（fire-and-forget，失败静默丢弃） */
+export function logEvent(event: string, data: Record<string, unknown> = {}): void {
+  callCloud<void>('logEvent', { event, data }).catch(() => {})
+}

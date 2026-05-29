@@ -21,9 +21,12 @@ const emit = defineEmits<{
 
 const todayStr = today()
 
-// 该月天数 & 第一天是星期几（0=日 ~ 6=六）
-const totalDays   = computed(() => daysInMonth(props.year, props.month))
-const startWeekday = computed(() => firstDayOfMonth(props.year, props.month).getDay())
+// 该月天数 & 第一天在周一起始行中的偏移（0=周一 … 6=周日）
+const totalDays    = computed(() => daysInMonth(props.year, props.month))
+const startWeekday = computed(() => {
+  const dow = firstDayOfMonth(props.year, props.month).getDay()  // 0=Sun
+  return (dow + 6) % 7  // Mon=0, Tue=1, …, Sun=6
+})
 
 // 已完成日期 Set（快速查找）
 const doneDates = computed(() => {
@@ -108,7 +111,7 @@ function onDayTap(cell: CalDay) {
 
     <!-- 星期标题 -->
     <view class="calendar__weekdays">
-      <text v-for="w in ['日','一','二','三','四','五','六']" :key="w" class="calendar__wd">
+      <text v-for="w in ['一','二','三','四','五','六','日']" :key="w" class="calendar__wd">
         {{ w }}
       </text>
     </view>

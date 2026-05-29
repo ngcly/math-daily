@@ -18,6 +18,8 @@ exports.main = async () => {
     // 用户不存在，首次创建
     const newProfile = {
       _id:              OPENID,
+      nickname:         '',
+      avatar_url:       '',
       remind_time:      '08:00',
       subscribed:       false,
       streak:           0,

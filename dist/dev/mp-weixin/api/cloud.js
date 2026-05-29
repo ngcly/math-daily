@@ -15,10 +15,15 @@ const initUser = () => callCloud("initUser");
 const getUserHistory = (params) => callCloud("getUserHistory", params);
 const getHistoryDetail = (date) => callCloud("getHistoryDetail", { date });
 const updateSettings = (settings) => callCloud("updateSettings", settings);
+function logEvent(event, data = {}) {
+  callCloud("logEvent", { event, data }).catch(() => {
+  });
+}
 exports.getHistoryDetail = getHistoryDetail;
 exports.getQuestionByDate = getQuestionByDate;
 exports.getTodayQuestion = getTodayQuestion;
 exports.getUserHistory = getUserHistory;
 exports.initUser = initUser;
+exports.logEvent = logEvent;
 exports.submitAnswer = submitAnswer;
 exports.updateSettings = updateSettings;

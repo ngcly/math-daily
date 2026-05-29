@@ -4,12 +4,14 @@ import { useUserStore } from '@/store/user'
 import { useQuestionStore } from '@/store/question'
 import { useThemeStore } from '@/store/theme'
 import { getSystemIsDark } from '@/utils/theme'
+import { logEvent } from '@/api/cloud'
+import { today } from '@/utils/date'
 
 const userStore     = useUserStore()
 const questionStore = useQuestionStore()
 const themeStore    = useThemeStore()
 
-onLaunch(() => {
+onLaunch((options) => {
   wx.cloud.init({
     env: 'cloud1-d4g6o6y529c3db4b2',
     traceUser: true,
@@ -23,6 +25,18 @@ onLaunch(() => {
   wx.onThemeChange?.((res: { theme: string }) => {
     themeStore.setSystemTheme(res.theme === 'dark')
   })
+
+  // DAU 打点：每用户每天只记录一次，避免重复计数
+  // ref 参数：从分享链接进入时携带分享者 openId，用于分享→新用户转化分析
+  const todayStr = today()
+  const lastOpenDate = uni.getStorageSync('last_open_date') || ''
+  if (lastOpenDate !== todayStr) {
+    logEvent('app_open', {
+      scene: (options as any)?.scene ?? null,
+      ref:   (options as any)?.query?.ref  ?? null,
+    })
+    try { uni.setStorageSync('last_open_date', todayStr) } catch {}
+  }
 })
 
 onShow(() => {

@@ -6,15 +6,15 @@ import { useQuestionStore } from '@/store/question'
 import { useUserStore } from '@/store/user'
 import { useThemeStore } from '@/store/theme'
 import { requestDailySubscribe, showSubscribeStatusToast } from '@/utils/subscribe'
+import { logEvent } from '@/api/cloud'
 
 const questionStore = useQuestionStore()
 const userStore     = useUserStore()
 const themeStore    = useThemeStore()
 
-const question   = computed(() => questionStore.todayQuestion)
-const result     = computed(() => questionStore.submitResult)
-const isAnswered = computed(() => questionStore.isAnswered)
-const streak     = computed(() => userStore.streak)
+const question = computed(() => questionStore.todayQuestion)
+const result   = computed(() => questionStore.submitResult)
+const streak   = computed(() => userStore.streak)
 
 // 从 record 里拿用时（store 里记录了提交时的用时）
 const timeSpent = ref(0)
@@ -57,6 +57,7 @@ function copyText(text: string) {
 }
 
 function shareToTimeline() {
+  logEvent('share', { question_id: question.value?._id, type: 'timeline_copy' })
   uni.setClipboardData({
     data: answerCopy.value,
     success: () => uni.showModal({
@@ -91,23 +92,30 @@ onShow(() => {
 // ── 微信原生分享 ───────────────────────────────────────
 // 分享给朋友（配合 <button open-type="share"> 触发）
 onShareAppMessage(() => {
+  logEvent('share', { question_id: question.value?._id, type: 'friend' })
   const correct = result.value?.is_correct
   const title = question.value
     ? (correct
         ? `我答对了今日脑力题：${question.value.title} 🎉`
         : `今日脑力挑战：${question.value.title}，你能做到吗？`)
     : '别让你的脑生锈 · 训练你的大脑'
+  // ref 参数：新用户从此链接进入时，App.vue 的 app_open 事件可记录来源
+  const ref = userStore.profile?._id || ''
   return {
     title,
-    path: '/pages/index/index',
+    path: ref ? `/pages/index/index?ref=${ref}` : '/pages/index/index',
   }
 })
 
 // 分享到朋友圈
-onShareTimeline(() => ({
-  title: answerCopy.value.split('\n')[0] || '别让你的脑生锈 · 训练你的大脑',
-  query: '',
-}))
+onShareTimeline(() => {
+  logEvent('share', { question_id: question.value?._id, type: 'timeline' })
+  const ref = userStore.profile?._id || ''
+  return {
+    title: answerCopy.value.split('\n')[0] || '别让你的脑生锈 · 训练你的大脑',
+    query: ref ? `ref=${ref}` : '',
+  }
+})
 
 // ── 订阅明日提醒 ──────────────────────────────────────
 async function requestSubscribe() {

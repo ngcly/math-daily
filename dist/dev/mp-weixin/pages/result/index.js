@@ -4,6 +4,7 @@ const store_question = require("../../store/question.js");
 const store_user = require("../../store/user.js");
 const store_theme = require("../../store/theme.js");
 const utils_subscribe = require("../../utils/subscribe.js");
+const api_cloud = require("../../api/cloud.js");
 if (!Math) {
   ResultBanner();
 }
@@ -16,7 +17,6 @@ const _sfc_defineComponent = common_vendor.defineComponent({
     store_theme.useThemeStore();
     const question = common_vendor.computed(() => questionStore.todayQuestion);
     const result = common_vendor.computed(() => questionStore.submitResult);
-    common_vendor.computed(() => questionStore.isAnswered);
     const streak = common_vendor.computed(() => userStore.streak);
     const timeSpent = common_vendor.ref(0);
     const altExpanded = common_vendor.ref(false);
@@ -58,6 +58,8 @@ ${miniLink.value}` : "\n微信搜索小程序「别让你的脑生锈」";
       });
     }
     function shareToTimeline() {
+      var _a;
+      api_cloud.logEvent("share", { question_id: (_a = question.value) == null ? void 0 : _a._id, type: "timeline_copy" });
       common_vendor.index.setClipboardData({
         data: answerCopy.value,
         success: () => common_vendor.index.showModal({
@@ -87,18 +89,25 @@ ${miniLink.value}` : "\n微信搜索小程序「别让你的脑生锈」";
       });
     });
     common_vendor.onShareAppMessage(() => {
-      var _a;
-      const correct = (_a = result.value) == null ? void 0 : _a.is_correct;
+      var _a, _b, _c;
+      api_cloud.logEvent("share", { question_id: (_a = question.value) == null ? void 0 : _a._id, type: "friend" });
+      const correct = (_b = result.value) == null ? void 0 : _b.is_correct;
       const title = question.value ? correct ? `我答对了今日脑力题：${question.value.title} 🎉` : `今日脑力挑战：${question.value.title}，你能做到吗？` : "别让你的脑生锈 · 训练你的大脑";
+      const ref2 = ((_c = userStore.profile) == null ? void 0 : _c._id) || "";
       return {
         title,
-        path: "/pages/index/index"
+        path: ref2 ? `/pages/index/index?ref=${ref2}` : "/pages/index/index"
       };
     });
-    common_vendor.onShareTimeline(() => ({
-      title: answerCopy.value.split("\n")[0] || "别让你的脑生锈 · 训练你的大脑",
-      query: ""
-    }));
+    common_vendor.onShareTimeline(() => {
+      var _a, _b;
+      api_cloud.logEvent("share", { question_id: (_a = question.value) == null ? void 0 : _a._id, type: "timeline" });
+      const ref2 = ((_b = userStore.profile) == null ? void 0 : _b._id) || "";
+      return {
+        title: answerCopy.value.split("\n")[0] || "别让你的脑生锈 · 训练你的大脑",
+        query: ref2 ? `ref=${ref2}` : ""
+      };
+    });
     async function requestSubscribe() {
       const status = await utils_subscribe.requestDailySubscribe();
       if (status === "accept") {

@@ -33,8 +33,10 @@ const correctRate  = computed(() =>
 
 onShow(() => {
   themeStore.setCurrentTab(1)
-  // 只在年月切换或首次加载时请求，从回顾页返回时不重复拉取
-  if (loadedYear.value !== viewYear.value || loadedMonth.value !== viewMonth.value) {
+  const n = new Date()
+  const isCurrentMonth = viewYear.value === n.getFullYear() && viewMonth.value === n.getMonth() + 1
+  // 当前月始终刷新（用户可能刚提交了答案）；历史月只在首次加载或切换时请求
+  if (isCurrentMonth || loadedYear.value !== viewYear.value || loadedMonth.value !== viewMonth.value) {
     loadRecords()
   }
 })

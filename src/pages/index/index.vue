@@ -73,8 +73,11 @@ const weekDays = computed(() => {
 })
 
 // ── 社交热度数据 ────────────────────────────────────────
+// 答题后优先用 submitResult.stats（含本次提交），否则用题目缓存里的 stats
 const socialStats = computed(() => {
-  const s = question.value?.stats
+  const s = (answered.value && questionStore.submitResult?.stats)
+    ? questionStore.submitResult.stats
+    : question.value?.stats
   if (!s || s.total === 0) return null
   return {
     total: s.total,

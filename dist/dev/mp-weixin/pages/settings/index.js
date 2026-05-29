@@ -11,6 +11,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const themeStore = store_theme.useThemeStore();
     const draftStore = store_draft.useDraftStore();
     const profile = common_vendor.computed(() => userStore.profile);
+    const avatarUrl = common_vendor.ref("");
+    const nickname = common_vendor.ref("");
     const REMIND_HOURS = Array.from(
       { length: 24 },
       (_, i) => `${String(i).padStart(2, "0")}:00`
@@ -20,11 +22,45 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     common_vendor.onShow(() => {
       themeStore.setCurrentTab(2);
       if (profile.value) {
+        avatarUrl.value = profile.value.avatar_url || "";
+        nickname.value = profile.value.nickname || "";
         remindTime.value = profile.value.remind_time;
         const idx = REMIND_HOURS.indexOf(profile.value.remind_time);
         remindIndex.value = idx >= 0 ? idx : 8;
       }
     });
+    async function onChooseAvatar(e) {
+      const tempPath = e.detail.avatarUrl;
+      if (!tempPath || !profile.value)
+        return;
+      common_vendor.index.showLoading({ title: "保存中..." });
+      try {
+        const fileID = await new Promise((resolve, reject) => {
+          common_vendor.wx$1.cloud.uploadFile({
+            cloudPath: `avatars/${profile.value._id}.jpg`,
+            filePath: tempPath,
+            success: (res) => resolve(res.fileID),
+            fail: reject
+          });
+        });
+        avatarUrl.value = fileID;
+        await userStore.updatePrefs({ avatar_url: fileID });
+        common_vendor.index.showToast({ title: "头像已更新", icon: "success" });
+      } catch {
+        common_vendor.index.showToast({ title: "头像保存失败，请重试", icon: "none" });
+      } finally {
+        common_vendor.index.hideLoading();
+      }
+    }
+    async function onNicknameBlur(e) {
+      var _a;
+      const name = (e.detail.value ?? "").trim();
+      if (!name || name === ((_a = profile.value) == null ? void 0 : _a.nickname))
+        return;
+      nickname.value = name;
+      await userStore.updatePrefs({ nickname: name });
+      common_vendor.index.showToast({ title: "昵称已保存", icon: "success" });
+    }
     function onRemindChange(e) {
       remindIndex.value = e.detail.value;
       remindTime.value = REMIND_HOURS[e.detail.value];
@@ -60,19 +96,26 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     }
     return (_ctx, _cache) => {
       var _a, _b;
-      return {
-        a: common_vendor.t(remindTime.value),
-        b: common_vendor.unref(REMIND_HOURS),
-        c: remindIndex.value,
-        d: common_vendor.o(onRemindChange, "ba"),
-        e: common_vendor.o(requestSubscribe, "1c"),
-        f: common_vendor.t(((_a = profile.value) == null ? void 0 : _a.streak) ?? 0),
-        g: common_vendor.t(((_b = profile.value) == null ? void 0 : _b.streak_rescue) ?? 0),
-        h: common_vendor.t(canRescue.value ? `补签 ${pendingRescueDate.value}` : "暂无可补签的日期"),
-        i: !canRescue.value ? 1 : "",
-        j: common_vendor.o(goRescue, "b6"),
-        k: common_vendor.o(clearDrafts, "cf")
-      };
+      return common_vendor.e({
+        a: avatarUrl.value
+      }, avatarUrl.value ? {
+        b: avatarUrl.value
+      } : {}, {
+        c: common_vendor.o(onChooseAvatar, "87"),
+        d: nickname.value,
+        e: common_vendor.o(onNicknameBlur, "46"),
+        f: common_vendor.t(remindTime.value),
+        g: common_vendor.unref(REMIND_HOURS),
+        h: remindIndex.value,
+        i: common_vendor.o(onRemindChange, "4a"),
+        j: common_vendor.o(requestSubscribe, "1a"),
+        k: common_vendor.t(((_a = profile.value) == null ? void 0 : _a.streak) ?? 0),
+        l: common_vendor.t(((_b = profile.value) == null ? void 0 : _b.streak_rescue) ?? 0),
+        m: common_vendor.t(canRescue.value ? `补签 ${pendingRescueDate.value}` : "暂无可补签的日期"),
+        n: !canRescue.value ? 1 : "",
+        o: common_vendor.o(goRescue, "cd"),
+        p: common_vendor.o(clearDrafts, "10")
+      });
     };
   }
 });

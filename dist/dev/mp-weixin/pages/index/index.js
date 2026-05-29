@@ -63,8 +63,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       });
     });
     const socialStats = common_vendor.computed(() => {
-      var _a;
-      const s = (_a = question.value) == null ? void 0 : _a.stats;
+      var _a, _b;
+      const s = answered.value && ((_a = questionStore.submitResult) == null ? void 0 : _a.stats) ? questionStore.submitResult.stats : (_b = question.value) == null ? void 0 : _b.stats;
       if (!s || s.total === 0)
         return null;
       return {

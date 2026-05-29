@@ -110,6 +110,8 @@ export const useUserStore = defineStore('user', () => {
 
   /** 更新设置 */
   async function updatePrefs(prefs: {
+    nickname?: string
+    avatar_url?: string
     remind_time?: string
     pref_categories?: Category[]
     pref_difficulty?: Difficulty | null

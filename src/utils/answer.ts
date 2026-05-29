@@ -17,7 +17,9 @@ export function normalizeAnswer(raw: string): string {
   // 分数转小数（1/8 → 0.125），保留6位精度
   const fractionMatch = s.match(/^(-?\d+)\s*[/／]\s*(\d+)$/)
   if (fractionMatch) {
-    const val = parseInt(fractionMatch[1]) / parseInt(fractionMatch[2])
+    const denom = parseInt(fractionMatch[2])
+    if (denom === 0) return s
+    const val = parseInt(fractionMatch[1]) / denom
     return String(Math.round(val * 1e6) / 1e6)
   }
 

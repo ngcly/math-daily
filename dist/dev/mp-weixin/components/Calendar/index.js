@@ -14,7 +14,10 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const emit = __emit;
     const todayStr = utils_date.today();
     const totalDays = common_vendor.computed(() => utils_date.daysInMonth(props.year, props.month));
-    const startWeekday = common_vendor.computed(() => utils_date.firstDayOfMonth(props.year, props.month).getDay());
+    const startWeekday = common_vendor.computed(() => {
+      const dow = utils_date.firstDayOfMonth(props.year, props.month).getDay();
+      return (dow + 6) % 7;
+    });
     const doneDates = common_vendor.computed(() => {
       const set = /* @__PURE__ */ new Set();
       props.records.forEach((r) => set.add(r.date));
@@ -63,7 +66,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         b: common_vendor.t(monthLabel.value),
         c: common_vendor.t(completionRate.value),
         d: common_vendor.o(($event) => emit("nextMonth"), "7c"),
-        e: common_vendor.f(["日", "一", "二", "三", "四", "五", "六"], (w, k0, i0) => {
+        e: common_vendor.f(["一", "二", "三", "四", "五", "六", "日"], (w, k0, i0) => {
           return {
             a: common_vendor.t(w),
             b: w

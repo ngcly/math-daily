@@ -20,7 +20,9 @@ function normalizeAnswer(raw = '') {
 
   const frac = s.match(/^(-?\d+)\s*[/／]\s*(\d+)$/)
   if (frac) {
-    const val = parseInt(frac[1]) / parseInt(frac[2])
+    const denom = parseInt(frac[2])
+    if (denom === 0) return s
+    const val = parseInt(frac[1]) / denom
     return String(Math.round(val * 1e6) / 1e6)
   }
 
@@ -87,7 +89,10 @@ exports.main = async (event, context) => {
   })
 
   // 5. 更新题目全局统计（原子操作）
-  const statsUpdate = { 'stats.total': _.inc(1) }
+  const statsUpdate = {
+    'stats.total':      _.inc(1),
+    'stats.total_time': _.inc(time_spent || 0),  // 累计用时，用于计算平均用时
+  }
   if (is_correct) statsUpdate['stats.correct'] = _.inc(1)
   await db.collection('questions').doc(question_id).update({ data: statsUpdate })
 

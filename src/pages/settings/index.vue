@@ -5,13 +5,16 @@ import { useUserStore } from '@/store/user'
 import { useThemeStore } from '@/store/theme'
 import { useDraftStore } from '@/store/draft'
 import { requestDailySubscribe, showSubscribeStatusToast } from '@/utils/subscribe'
-import type { Difficulty } from '@/types'
 
 const userStore  = useUserStore()
 const themeStore = useThemeStore()
 const draftStore = useDraftStore()
 
 const profile    = computed(() => userStore.profile)
+
+// ── 用户资料 ─────────────────────────────────────────
+const avatarUrl = ref('')
+const nickname  = ref('')
 
 // ── 提醒时间 ─────────────────────────────────────────
 const REMIND_HOURS = Array.from({ length: 24 }, (_, i) =>
@@ -22,13 +25,48 @@ const remindIndex = ref(8)
 
 onShow(() => {
   themeStore.setCurrentTab(2)
-  // 每次进入页面时从 profile 同步，避免 profile 尚未加载时默认值覆盖真实设置
   if (profile.value) {
-    remindTime.value = profile.value.remind_time
+    avatarUrl.value   = profile.value.avatar_url  || ''
+    nickname.value    = profile.value.nickname    || ''
+    remindTime.value  = profile.value.remind_time
     const idx = REMIND_HOURS.indexOf(profile.value.remind_time)
     remindIndex.value = idx >= 0 ? idx : 8
   }
 })
+
+// 选择头像后上传到云存储并保存文件 ID
+async function onChooseAvatar(e: any) {
+  const tempPath = e.detail.avatarUrl
+  if (!tempPath || !profile.value) return
+
+  uni.showLoading({ title: '保存中...' })
+  try {
+    const fileID = await new Promise<string>((resolve, reject) => {
+      wx.cloud.uploadFile({
+        cloudPath: `avatars/${profile.value!._id}.jpg`,
+        filePath:  tempPath,
+        success:   (res: any) => resolve(res.fileID),
+        fail:      reject,
+      })
+    })
+    avatarUrl.value = fileID
+    await userStore.updatePrefs({ avatar_url: fileID })
+    uni.showToast({ title: '头像已更新', icon: 'success' })
+  } catch {
+    uni.showToast({ title: '头像保存失败，请重试', icon: 'none' })
+  } finally {
+    uni.hideLoading()
+  }
+}
+
+// 昵称失焦后保存（仅值变化时才写云端）
+async function onNicknameBlur(e: any) {
+  const name = (e.detail.value ?? '').trim()
+  if (!name || name === profile.value?.nickname) return
+  nickname.value = name
+  await userStore.updatePrefs({ nickname: name })
+  uni.showToast({ title: '昵称已保存', icon: 'success' })
+}
 
 function onRemindChange(e: any) {
   remindIndex.value = e.detail.value
@@ -75,6 +113,44 @@ function clearDrafts() {
     <view class="content">
 
       <text class="page-title">设置</text>
+
+      <!-- ── 用户资料 ── -->
+      <view class="section-card">
+        <text class="section-card__title">👤 我的资料</text>
+
+        <!-- 头像（button 包裹触发微信选图） -->
+        <view class="profile-avatar-row">
+          <button
+            class="avatar-btn"
+            open-type="chooseAvatar"
+            @chooseavatar="onChooseAvatar"
+          >
+            <image
+              v-if="avatarUrl"
+              class="avatar-img"
+              :src="avatarUrl"
+              mode="aspectFill"
+            />
+            <view v-else class="avatar-placeholder">
+              <text class="avatar-placeholder__icon">👤</text>
+            </view>
+            <text class="avatar-hint">点击更换头像</text>
+          </button>
+        </view>
+
+        <!-- 昵称（type="nickname" 唤起微信昵称键盘） -->
+        <view class="section-card__row">
+          <text class="section-card__label">昵称</text>
+          <input
+            class="nickname-input"
+            type="nickname"
+            :value="nickname"
+            placeholder="点击填写昵称"
+            placeholder-class="nickname-input__placeholder"
+            @blur="onNicknameBlur"
+          />
+        </view>
+      </view>
 
       <!-- ── 每日提醒 ── -->
       <view class="section-card">
@@ -202,6 +278,7 @@ function clearDrafts() {
   &__label {
     font-size: 28rpx;
     color: $ink-2;
+    flex-shrink: 0;
   }
 
   &__value {
@@ -215,6 +292,66 @@ function clearDrafts() {
   &--about .section-card__title { color: $ink-3; }
 }
 
+// ── 用户资料 ────────────────────────────────
+.profile-avatar-row {
+  display: flex;
+  justify-content: center;
+  padding: $space-sm 0 $space-md;
+}
+
+.avatar-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+  background: transparent;
+  border: none;
+  padding: 0;
+  line-height: 1;
+
+  // 去掉微信默认按钮高亮和边框
+  &::after { display: none; }
+  &:active { opacity: 0.75; }
+}
+
+.avatar-img {
+  width: 128rpx;
+  height: 128rpx;
+  border-radius: 50%;
+  border: 3rpx solid $ink-5;
+}
+
+.avatar-placeholder {
+  width: 128rpx;
+  height: 128rpx;
+  border-radius: 50%;
+  background: $paper;
+  border: 3rpx dashed $ink-5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &__icon { font-size: 52rpx; line-height: 1; }
+}
+
+.avatar-hint {
+  font-size: 20rpx;
+  color: $ink-4;
+  font-weight: 500;
+}
+
+.nickname-input {
+  flex: 1;
+  text-align: right;
+  font-size: 28rpx;
+  color: $ink;
+  font-weight: 600;
+  min-height: 44rpx;
+
+  &__placeholder { color: $ink-4; font-weight: 400; }
+}
+
+// ── 关于 ────────────────────────────────────
 .about-footer {
   display: flex;
   flex-direction: column;

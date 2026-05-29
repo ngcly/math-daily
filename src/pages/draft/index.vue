@@ -39,6 +39,10 @@ onLoad(async (options) => {
     questionId.value = questionStore.rescueQuestion?._id || ''
   } else {
     questionId.value = options?.id || question.value?._id || ''
+    // submit=1：从首页"直接填写答案"入口进来，自动打开答题抽屉
+    if (options?.submit === '1') {
+      answerVisible.value = true
+    }
   }
 })
 
