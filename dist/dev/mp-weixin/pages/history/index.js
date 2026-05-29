@@ -19,6 +19,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const viewMonth = common_vendor.ref(now.getMonth() + 1);
     const records = common_vendor.ref([]);
     const loading = common_vendor.ref(false);
+    const loadedYear = common_vendor.ref(0);
+    const loadedMonth = common_vendor.ref(0);
     const totalDone = common_vendor.computed(() => records.value.length);
     const totalCorrect = common_vendor.computed(() => records.value.filter((r) => r.is_correct).length);
     const correctRate = common_vendor.computed(
@@ -26,12 +28,16 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     );
     common_vendor.onShow(() => {
       themeStore.setCurrentTab(1);
-      loadRecords();
+      if (loadedYear.value !== viewYear.value || loadedMonth.value !== viewMonth.value) {
+        loadRecords();
+      }
     });
     async function loadRecords() {
       loading.value = true;
       try {
         records.value = await api_cloud.getUserHistory({ year: viewYear.value, month: viewMonth.value });
+        loadedYear.value = viewYear.value;
+        loadedMonth.value = viewMonth.value;
       } catch {
         common_vendor.index.showToast({ title: "加载失败", icon: "none" });
       } finally {

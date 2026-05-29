@@ -164,7 +164,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       }
     }
     function onTouchEnd(e) {
-      if (touches_length(e) === 0 && currentStroke) {
+      if (touchesLength(e) === 0 && currentStroke) {
         if (currentStroke.points.length > 1) {
           strokes.value.push(currentStroke);
           redoStack.value = [];
@@ -175,11 +175,11 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         currentStroke = null;
         redrawAll();
       }
-      if (touches_length(e) < 2) {
+      if (touchesLength(e) < 2) {
         lastPinch = null;
       }
     }
-    function touches_length(e) {
+    function touchesLength(e) {
       var _a;
       return ((_a = e.touches) == null ? void 0 : _a.length) ?? 0;
     }

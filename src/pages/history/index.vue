@@ -18,8 +18,11 @@ const viewYear  = ref(now.getFullYear())
 const viewMonth = ref(now.getMonth() + 1)
 
 // 当月答题记录
-const records  = ref<UserRecord[]>([])
-const loading  = ref(false)
+const records    = ref<UserRecord[]>([])
+const loading    = ref(false)
+// 记录最近一次加载对应的年月，避免 onShow 每次重复请求
+const loadedYear  = ref(0)
+const loadedMonth = ref(0)
 
 // 汇总统计
 const totalDone    = computed(() => records.value.length)
@@ -30,13 +33,18 @@ const correctRate  = computed(() =>
 
 onShow(() => {
   themeStore.setCurrentTab(1)
-  loadRecords()
+  // 只在年月切换或首次加载时请求，从回顾页返回时不重复拉取
+  if (loadedYear.value !== viewYear.value || loadedMonth.value !== viewMonth.value) {
+    loadRecords()
+  }
 })
 
 async function loadRecords() {
   loading.value = true
   try {
     records.value = await getUserHistory({ year: viewYear.value, month: viewMonth.value })
+    loadedYear.value  = viewYear.value
+    loadedMonth.value = viewMonth.value
   } catch {
     uni.showToast({ title: '加载失败', icon: 'none' })
   } finally {

@@ -11,18 +11,24 @@ const userStore  = useUserStore()
 const themeStore = useThemeStore()
 const draftStore = useDraftStore()
 
-onShow(() => {
-  themeStore.setCurrentTab(2)
-})
 const profile    = computed(() => userStore.profile)
 
-
 // ── 提醒时间 ─────────────────────────────────────────
-const remindTime = ref(profile.value?.remind_time ?? '08:00')
 const REMIND_HOURS = Array.from({ length: 24 }, (_, i) =>
   `${String(i).padStart(2, '0')}:00`
 )
-const remindIndex = ref(REMIND_HOURS.indexOf(remindTime.value))
+const remindTime  = ref('08:00')
+const remindIndex = ref(8)
+
+onShow(() => {
+  themeStore.setCurrentTab(2)
+  // 每次进入页面时从 profile 同步，避免 profile 尚未加载时默认值覆盖真实设置
+  if (profile.value) {
+    remindTime.value = profile.value.remind_time
+    const idx = REMIND_HOURS.indexOf(profile.value.remind_time)
+    remindIndex.value = idx >= 0 ? idx : 8
+  }
+})
 
 function onRemindChange(e: any) {
   remindIndex.value = e.detail.value

@@ -70,9 +70,8 @@ function shareToTimeline() {
 
 
 onShow(() => {
-  // 未作答且无结果（用户直接进入此页）→ 跳回首页
-  // 注意：submitResult 已持久化，重启 app 后 result.value 仍有值
-  if (!result.value && !isAnswered.value) {
+  // 无结果时跳回首页（submitResult 已持久化，重启后仍有值，此处只兜底）
+  if (!result.value) {
     uni.switchTab({ url: '/pages/index/index' })
     return
   }
@@ -216,9 +215,9 @@ function goHome() {
 
     </view>
 
-    <!-- 异常：无结果 -->
+    <!-- 异常：无结果（onShow guard 未拦截的边界情况） -->
     <view v-else class="empty">
-      <text>加载中...</text>
+      <text>暂无数据</text>
     </view>
 
   </scroll-view>

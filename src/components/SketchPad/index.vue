@@ -254,7 +254,7 @@ function onTouchMove(e: TouchEvent) {
 }
 
 function onTouchEnd(e: TouchEvent) {
-  if (touches_length(e) === 0 && currentStroke) {
+  if (touchesLength(e) === 0 && currentStroke) {
     // 笔迹结束：加入 strokes，清空 redoStack
     if (currentStroke.points.length > 1) {
       strokes.value.push(currentStroke)
@@ -268,13 +268,12 @@ function onTouchEnd(e: TouchEvent) {
     redrawAll()
   }
 
-  if (touches_length(e) < 2) {
+  if (touchesLength(e) < 2) {
     lastPinch = null
   }
 }
 
-// 兼容处理：e.touches 在 touchend 时为空，用 changedTouches 判断
-function touches_length(e: TouchEvent): number {
+function touchesLength(e: TouchEvent): number {
   return e.touches?.length ?? 0
 }
 

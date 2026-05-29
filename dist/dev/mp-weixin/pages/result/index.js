@@ -16,7 +16,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
     store_theme.useThemeStore();
     const question = common_vendor.computed(() => questionStore.todayQuestion);
     const result = common_vendor.computed(() => questionStore.submitResult);
-    const isAnswered = common_vendor.computed(() => questionStore.isAnswered);
+    common_vendor.computed(() => questionStore.isAnswered);
     const streak = common_vendor.computed(() => userStore.streak);
     const timeSpent = common_vendor.ref(0);
     const altExpanded = common_vendor.ref(false);
@@ -70,7 +70,7 @@ ${miniLink.value}` : "\n微信搜索小程序「别让你的脑生锈」";
     }
     common_vendor.onShow(() => {
       var _a, _b;
-      if (!result.value && !isAnswered.value) {
+      if (!result.value) {
         common_vendor.index.switchTab({ url: "/pages/index/index" });
         return;
       }

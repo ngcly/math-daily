@@ -34,6 +34,11 @@ exports.main = async (event, context) => {
   const { OPENID } = cloud.getWXContext()
   const { question_id, date, selected, fill_answer, time_spent, user_thought } = event
 
+  // 0. 基本参数校验
+  if (!question_id || !date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return { code: 400, message: '参数错误', data: null }
+  }
+
   // 1. 防重复提交
   const existing = await db.collection('user_records')
     .where({ openid: OPENID, date })
@@ -45,6 +50,11 @@ exports.main = async (event, context) => {
   // 2. 读取题目（含 answer）
   const qRes = await db.collection('questions').doc(question_id).get()
   const q = qRes.data
+
+  // 日期与题目必须匹配，防止跳过补签机制提交任意历史日期
+  if (q.date !== date) {
+    return { code: 400, message: '日期与题目不匹配', data: null }
+  }
 
   // 3. 判题
   let is_correct = false

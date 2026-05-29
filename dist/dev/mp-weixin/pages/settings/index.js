@@ -7,20 +7,24 @@ const utils_subscribe = require("../../utils/subscribe.js");
 const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   __name: "index",
   setup(__props) {
-    var _a;
     const userStore = store_user.useUserStore();
     const themeStore = store_theme.useThemeStore();
     const draftStore = store_draft.useDraftStore();
-    common_vendor.onShow(() => {
-      themeStore.setCurrentTab(2);
-    });
     const profile = common_vendor.computed(() => userStore.profile);
-    const remindTime = common_vendor.ref(((_a = profile.value) == null ? void 0 : _a.remind_time) ?? "08:00");
     const REMIND_HOURS = Array.from(
       { length: 24 },
       (_, i) => `${String(i).padStart(2, "0")}:00`
     );
-    const remindIndex = common_vendor.ref(REMIND_HOURS.indexOf(remindTime.value));
+    const remindTime = common_vendor.ref("08:00");
+    const remindIndex = common_vendor.ref(8);
+    common_vendor.onShow(() => {
+      themeStore.setCurrentTab(2);
+      if (profile.value) {
+        remindTime.value = profile.value.remind_time;
+        const idx = REMIND_HOURS.indexOf(profile.value.remind_time);
+        remindIndex.value = idx >= 0 ? idx : 8;
+      }
+    });
     function onRemindChange(e) {
       remindIndex.value = e.detail.value;
       remindTime.value = REMIND_HOURS[e.detail.value];
@@ -55,14 +59,14 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       });
     }
     return (_ctx, _cache) => {
-      var _a2, _b;
+      var _a, _b;
       return {
         a: common_vendor.t(remindTime.value),
         b: common_vendor.unref(REMIND_HOURS),
         c: remindIndex.value,
         d: common_vendor.o(onRemindChange, "ba"),
         e: common_vendor.o(requestSubscribe, "1c"),
-        f: common_vendor.t(((_a2 = profile.value) == null ? void 0 : _a2.streak) ?? 0),
+        f: common_vendor.t(((_a = profile.value) == null ? void 0 : _a.streak) ?? 0),
         g: common_vendor.t(((_b = profile.value) == null ? void 0 : _b.streak_rescue) ?? 0),
         h: common_vendor.t(canRescue.value ? `补签 ${pendingRescueDate.value}` : "暂无可补签的日期"),
         i: !canRescue.value ? 1 : "",

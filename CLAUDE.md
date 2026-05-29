@@ -34,47 +34,59 @@ The dcloudio packages use a **`vue3` dist-tag** for their Vue 3 builds. The `"*"
 ### Frontend (`src/`)
 
 **State management** (Pinia + `pinia-plugin-unistorage` for wx.Storage auto-persistence):
-- `store/user.ts` — `UserProfile`, streak logic, cross-day detection, debounced cloud sync
-- `store/question.ts` — today's question, submit flow, cross-day answered guard (persists `hasSubmitted` + `submittedDate`)
-- `store/draft.ts` — stroke data CRUD in wx.Storage; auto-cleans drafts older than 30 days
+- `store/user.ts` — `UserProfile`, streak logic, cross-day detection, debounced cloud sync. `checkStreak()` is called both in `App.vue onShow` AND at the end of `init()` to handle the async race where `onShow` fires before `initUser` completes.
+- `store/question.ts` — today's question, submit flow, cross-day answered guard (persists `hasSubmitted` + `submittedDate`). Uses stale-while-revalidate: serves local cache immediately, refreshes in background.
+- `store/draft.ts` — stroke data CRUD in `uni.Storage` (always use `uni.*` not `wx.*` for consistency); auto-cleans drafts older than 30 entries.
+- `store/theme.ts` — system dark/light mode detection, current tab index for custom tab bar.
 
 **Pages** (routed via `src/pages.json`, 3-tab tabBar):
-- `pages/index/` — home, today's question card + streak pill
-- `pages/draft/` — full-screen `SketchPad` + floating question card + slide-up answer drawer
-- `pages/result/` — post-submit: `ResultBanner`, solution, aha-moment, share button
-- `pages/history/` — `Calendar` component with monthly answer history
-- `pages/settings/` — reminder time, category/difficulty prefs, streak rescue
+- `pages/index/` — home, today's question card + streak pill + weekly strip
+- `pages/draft/` — full-screen `SketchPad` + floating question card + slide-up answer drawer. Also handles rescue mode (`?rescue_date=YYYY-MM-DD`).
+- `pages/result/` — post-submit: `ResultBanner`, solution, aha-moment, share button, subscribe prompt
+- `pages/history/` — `Calendar` component with monthly answer history; list items tap to `pages/review/`
+- `pages/review/` — history replay: loads question + solution via `getHistoryDetail`, shows the user's past answer alongside the full solution breakdown. Reuses `ResultBanner` with a synthetic `SubmitResult`.
+- `pages/settings/` — reminder time, streak rescue entry point
 
 **Key components:**
-- `components/SketchPad/` — Canvas 2D with Bézier smoothing, pinch-zoom/pan, undo/redo, dot-grid background. Uses incremental `drawLatestSegment` during `touchmove` and full `redrawAll` only on touch end for performance.
+- `components/SketchPad/` — Canvas 2D with Bézier smoothing, pinch-zoom/pan, undo/redo, dot-grid background. Uses incremental `drawLatestSegment` during `touchmove` and full `redrawAll` only on touch end and on eraser `touchstart`.
 - `components/AnswerInput/` — polymorphic: renders 4-option choice cards OR free-form number/text input based on `question.type`
-- `components/Calendar/` — monthly grid; green dot = correct, red dot = wrong
+- `components/Calendar/` — monthly grid; green dot = correct, red dot = wrong; emits `dayClick` which history page wires to review navigation
+- `components/ResultBanner/` — correct/wrong banner + stats (global correct rate, time spent, total submissions)
+- `custom-tab-bar/` — custom tab bar that reads dark mode from `themeStore` and swaps icon variants
 
-**API layer** (`src/api/cloud.ts`): thin wrappers over `wx.cloud.callFunction` for all 5 cloud functions.
+**API layer** (`src/api/cloud.ts`): thin wrappers over `wx.cloud.callFunction` for all cloud functions. All calls go through `callCloud<T>()` which throws on non-zero `result.code`.
 
 **Utilities:**
-- `utils/date.ts` — `today()`, `formatDisplayDate()`, `isConsecutiveDay()`, `formatDuration()`, `daysInMonth()`
+- `utils/date.ts` — `dateToStr(d)`, `today()`, `formatDisplayDate()`, `isConsecutiveDay()`, `formatDuration()`, `daysInMonth()`, `firstDayOfMonth()`. Always use `dateToStr()` for `Date → 'YYYY-MM-DD'` conversion — do not inline the format string.
 - `utils/answer.ts` — `normalizeAnswer()` + `checkFillAnswer()` handling %, fractions, units
+- `utils/category.ts` — `CATEGORY_SUBTITLE` map (Category → short description string)
+- `utils/subscribe.ts` — `requestDailySubscribe()`, `showSubscribeStatusToast()`, exports `DAILY_SUBSCRIBE_TEMPLATE_ID`
+- `utils/theme.ts` — `getSystemIsDark()` with fallback chain for WeChat API version differences
 
-**Types:** All TypeScript interfaces (`Question`, `UserProfile`, `UserRecord`, `Stroke`, …) are in `src/types/index.ts`.
+**Types:** All TypeScript interfaces (`Question`, `UserProfile`, `UserRecord`, `HistoryDetail`, `Stroke`, …) are in `src/types/index.ts`.
 
-**Global design tokens** (colors, spacing, typography, shadows, radii, transitions) live in `src/uni.scss`.
+**Global design tokens** (colors, spacing, typography, shadows, radii, transitions) live in `src/uni.scss`. Dark mode overrides via CSS `@media (prefers-color-scheme: dark)` on `page` selector in `App.vue`.
 
 ### Backend (`cloudfunctions/`)
 
 | Function | Purpose |
 |---|---|
 | `getTodayQuestion` | Fetches today's question — **never** includes the `answer` field |
+| `getQuestionByDate` | Fetches a question by date (rescue flow) — same field exclusions as above |
 | `submitAnswer` | Grades answer server-side, writes `user_records`, atomically increments `questions.stats`, returns solution |
 | `initUser` | Silent login — finds or creates `user_profiles` doc by openId |
-| `getUserHistory` | Returns one month of `user_records` for the calendar |
+| `getUserHistory` | Returns one month of `user_records` for the calendar; uses proper month-end date calculation |
+| `getHistoryDetail` | History replay — verifies the user has a `user_records` entry for that date, then returns the full question (with solution fields) + the record + `correct_answer`. Safe to return answer because submission already exists. |
+| `updateSettings` | Updates whitelisted fields on `user_profiles` (streak, remind_time, prefs, subscribed) |
 | `sendDailyPush` | Cron (hourly): batch-sends WeChat Subscription Messages to users whose `remind_time` matches current hour |
 
 Cloud database collections: `questions` (read: all, write: creator), `user_records` (read+write: creator), `user_profiles` (read+write: creator).
 
 ### Key Design Decisions
 
-- **Answer security**: `answer` is never returned by `getTodayQuestion`; only returned as `correct_answer` post-submission by `submitAnswer`.
-- **Streak rescue**: 1 rescue per month per user (`user_profiles.streak_rescue`); streak gaps are detected on app `onShow`.
-- **Draft persistence**: Strokes serialized to wx.Storage as `draft_{questionId}`; max 30 drafts retained.
+- **Answer security**: `answer` is never returned by `getTodayQuestion` or `getQuestionByDate`. `submitAnswer` returns it as `correct_answer` post-grading. `getHistoryDetail` also returns `correct_answer` — this is safe because the user's record proves they already submitted.
+- **Streak rescue**: 1 rescue per month per user (`user_profiles.streak_rescue`); streak gaps are detected in `checkStreak()` which runs in both `App.vue onShow` AND after `initUser` resolves (to handle the async race on first launch).
+- **Draft persistence**: Strokes serialized to `uni.Storage` as `draft_{questionId}`; max 30 drafts retained. Always use `uni.*` storage APIs (not `wx.*`) for consistency with the rest of the codebase.
+- **History replay**: `getHistoryDetail` is a security-gated endpoint — it checks `user_records` before returning solutions, preventing users from fetching answers without submitting.
 - **WeChat AppID**: The placeholder `__YOUR_APPID__` in `src/manifest.json` must be replaced with a real AppID before building.
+- **Template ID**: `DAILY_SUBSCRIBE_TEMPLATE_ID` in `src/utils/subscribe.ts` and `TEMPLATE_ID` in `cloudfunctions/sendDailyPush/index.js` must be kept in sync — they are separate copies of the same value.
