@@ -1,12 +1,15 @@
 /**
+ * Date 对象转 "YYYY-MM-DD" 字符串
+ */
+export function dateToStr(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+/**
  * 获取今天的日期字符串 "2026-05-26"
  */
 export function today(): string {
-  const d = new Date()
-  const y = d.getFullYear()
-  const m = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  return `${y}-${m}-${day}`
+  return dateToStr(new Date())
 }
 
 /**

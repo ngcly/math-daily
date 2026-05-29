@@ -23,16 +23,14 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const canUndo = common_vendor.ref(false);
     const canRedo = common_vendor.ref(false);
     const PEN_WIDTHS = [2, 4, 7];
-    const COLORS = common_vendor.computed(
-      () => themeStore.isDark ? ["#e0e0e0", "#ef5350"] : ["#333333", "#e53935"]
-    );
-    const DEFAULT_COLORS = [["#333333", "#e53935"], ["#e0e0e0", "#ef5350"]];
+    const LIGHT_COLORS = ["#333333", "#e53935"];
+    const DARK_COLORS = ["#e0e0e0", "#ef5350"];
+    const COLORS = common_vendor.computed(() => themeStore.isDark ? DARK_COLORS : LIGHT_COLORS);
     common_vendor.watch(() => themeStore.isDark, (dark) => {
-      const from = dark ? DEFAULT_COLORS[0] : DEFAULT_COLORS[1];
-      const to = dark ? DEFAULT_COLORS[1] : DEFAULT_COLORS[0];
-      if (from.includes(activeColor.value)) {
-        activeColor.value = to[from.indexOf(activeColor.value)];
-      }
+      const prevColors = dark ? LIGHT_COLORS : DARK_COLORS;
+      const idx = prevColors.indexOf(activeColor.value);
+      if (idx !== -1)
+        activeColor.value = COLORS.value[idx];
       redrawAll();
     });
     const strokes = common_vendor.ref([]);
@@ -131,6 +129,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         if (activeTool.value === "eraser") {
           currentStroke = null;
           eraseAt(pt);
+          redrawAll();
         } else {
           currentStroke = {
             color: activeColor.value,

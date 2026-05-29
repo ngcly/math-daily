@@ -16,7 +16,7 @@ export const useDraftStore = defineStore('draft', () => {
   /** 加载指定题目的草稿 */
   function load(questionId: string) {
     currentQId.value = questionId
-    const raw = wx.getStorageSync(`${STORAGE_PREFIX}${questionId}`)
+    const raw = uni.getStorageSync(`${STORAGE_PREFIX}${questionId}`)
     if (raw) {
       try {
         const data: DraftData = JSON.parse(raw)
@@ -36,7 +36,7 @@ export const useDraftStore = defineStore('draft', () => {
     strokes.value = data.strokes
     isDirty.value = false
     try {
-      wx.setStorageSync(`${STORAGE_PREFIX}${questionId}`, JSON.stringify(data))
+      uni.setStorageSync(`${STORAGE_PREFIX}${questionId}`, JSON.stringify(data))
     } catch (e) {
       console.warn('[DraftStore] save failed', e)
     }
@@ -46,18 +46,18 @@ export const useDraftStore = defineStore('draft', () => {
   function clear(questionId: string) {
     strokes.value = []
     isDirty.value = false
-    wx.removeStorageSync(`${STORAGE_PREFIX}${questionId}`)
+    uni.removeStorageSync(`${STORAGE_PREFIX}${questionId}`)
   }
 
   /** 清理过期草稿（按 savedAt 保留最近 MAX_STORED_DRAFTS 条） */
   function cleanup() {
     try {
-      const info = wx.getStorageInfoSync()
+      const info = uni.getStorageInfoSync()
       const draftKeys = info.keys.filter(k => k.startsWith(STORAGE_PREFIX))
 
       const draftsWithTime = draftKeys.map(k => {
         try {
-          const data: DraftData = JSON.parse(wx.getStorageSync(k))
+          const data: DraftData = JSON.parse(uni.getStorageSync(k))
           return { key: k, savedAt: data?.savedAt ?? 0 }
         } catch {
           return { key: k, savedAt: 0 }
@@ -67,7 +67,7 @@ export const useDraftStore = defineStore('draft', () => {
       draftsWithTime
         .sort((a, b) => b.savedAt - a.savedAt)  // 最新在前
         .slice(MAX_STORED_DRAFTS)
-        .forEach(({ key }) => wx.removeStorageSync(key))
+        .forEach(({ key }) => uni.removeStorageSync(key))
     } catch {
       // 清理失败不影响主流程
     }
@@ -76,10 +76,10 @@ export const useDraftStore = defineStore('draft', () => {
   /** 清空所有草稿 */
   function clearAll() {
     try {
-      const info = wx.getStorageInfoSync()
+      const info = uni.getStorageInfoSync()
       info.keys
         .filter(k => k.startsWith(STORAGE_PREFIX))
-        .forEach(k => wx.removeStorageSync(k))
+        .forEach(k => uni.removeStorageSync(k))
       strokes.value = []
       isDirty.value = false
     } catch {

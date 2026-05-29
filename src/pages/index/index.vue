@@ -4,8 +4,8 @@ import { onShow } from '@dcloudio/uni-app'
 import { useQuestionStore } from '@/store/question'
 import { useUserStore } from '@/store/user'
 import { useThemeStore } from '@/store/theme'
-import { today, formatDisplayDate } from '@/utils/date'
-import { syncNativeTabBarTheme } from '@/utils/theme'
+import { today, formatDisplayDate, dateToStr } from '@/utils/date'
+import { CATEGORY_SUBTITLE } from '@/utils/category'
 import type { Category } from '@/types'
 
 const questionStore = useQuestionStore()
@@ -38,11 +38,55 @@ function loadRecentDims() {
   }
 }
 
+// ── 本周答题记录（周历条） ──────────────────────────────
+const weeklyResults = ref<{ date: string; is_correct: boolean }[]>([])
+
+function loadWeeklyResults() {
+  try {
+    weeklyResults.value = uni.getStorageSync('weekly_results') || []
+  } catch {
+    weeklyResults.value = []
+  }
+}
+
+const weekDays = computed(() => {
+  const todayStr  = today()
+  const todayDate = new Date(todayStr + 'T00:00:00')
+  const dow    = todayDate.getDay()                        // 0=Sun
+  const offset = dow === 0 ? 6 : dow - 1                  // offset to Monday
+  const monday = new Date(todayDate)
+  monday.setDate(todayDate.getDate() - offset)
+
+  return ['一','二','三','四','五','六','日'].map((label, i) => {
+    const d = new Date(monday)
+    d.setDate(monday.getDate() + i)
+    const dateStr = dateToStr(d)
+    const rec = weeklyResults.value.find(r => r.date === dateStr)
+    return {
+      date:     dateStr,
+      label,
+      isToday:  dateStr === todayStr,
+      isFuture: dateStr > todayStr,
+      result:   rec != null ? rec.is_correct : null,   // null = 无记录
+    }
+  })
+})
+
+// ── 社交热度数据 ────────────────────────────────────────
+const socialStats = computed(() => {
+  const s = question.value?.stats
+  if (!s || s.total === 0) return null
+  return {
+    total: s.total,
+    rate:  Math.round((s.correct / s.total) * 100),
+  }
+})
+
 // 每次切回首页刷新（提交后数据即时可见）
 onShow(() => {
   themeStore.setCurrentTab(0)
-  syncNativeTabBarTheme(themeStore.isDark)
   loadRecentDims()
+  loadWeeklyResults()
 })
 
 // 跳转草稿纸
@@ -68,7 +112,7 @@ function goToSubmit() {
 </script>
 
 <template>
-  <view class="page" :class="themeStore.themeClass">
+  <view class="page">
 
     <!-- 顶部：标题 + Streak -->
     <view class="header">
@@ -97,6 +141,29 @@ function goToSubmit() {
     <!-- 有题目 -->
     <block v-else>
 
+      <!-- 本周打卡条 -->
+      <view class="week-strip">
+        <view
+          v-for="day in weekDays"
+          :key="day.date"
+          class="week-strip__day"
+        >
+          <view
+            class="week-strip__dot"
+            :class="{
+              'week-strip__dot--correct': day.result === true,
+              'week-strip__dot--wrong':   day.result === false,
+              'week-strip__dot--today':   day.isToday && day.result === null,
+              'week-strip__dot--future':  day.isFuture && day.result === null,
+            }"
+          />
+          <text
+            class="week-strip__label"
+            :class="{ 'week-strip__label--today': day.isToday }"
+          >{{ day.label }}</text>
+        </view>
+      </view>
+
       <!-- 今日大脑训练提示 -->
       <view class="train-eyebrow">
         <text class="train-eyebrow__label">今日大脑训练</text>
@@ -106,7 +173,10 @@ function goToSubmit() {
       <!-- 题目卡片 -->
       <view class="q-card">
         <view class="q-card__tag-row">
-          <text class="tag tag--green">{{ question.category }}</text>
+          <view class="tag tag--green tag--category">
+            <text class="tag__name">{{ question.category }}</text>
+            <text class="tag__sub">{{ CATEGORY_SUBTITLE[question.category] }}</text>
+          </view>
           <view class="q-card__right">
             <view class="q-card__dots">
               <view
@@ -127,6 +197,20 @@ function goToSubmit() {
           :src="question.image_url"
           mode="widthFix"
         />
+
+        <!-- 社交热度条 -->
+        <view v-if="socialStats" class="social-bar">
+          <text class="social-bar__text">
+            已有 <text class="social-bar__num">{{ socialStats.total }}</text> 人挑战
+            · 正确率 <text class="social-bar__num">{{ socialStats.rate }}%</text>
+          </text>
+        </view>
+      </view>
+
+      <!-- 每日哲言 -->
+      <view v-if="question.quote" class="daily-quote">
+        <text class="daily-quote__text">{{ question.quote }}</text>
+        <text class="daily-quote__label">— 今日题眼</text>
       </view>
 
       <!-- 演算草稿入口 -->
@@ -238,6 +322,64 @@ function goToSubmit() {
   &__sub   { font-size: 24rpx; color: $ink-4; }
 }
 
+// ── 本周打卡条 ─────────────────────────────────
+.week-strip {
+  display: flex;
+  justify-content: space-between;
+  padding: 20rpx 28rpx;
+  background: $white;
+  border-radius: $radius-md;
+  box-shadow: $shadow-sm;
+  margin-bottom: $space-md;
+
+  &__day {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10rpx;
+  }
+
+  &__dot {
+    width: 28rpx;
+    height: 28rpx;
+    border-radius: 50%;
+    background: $ink-5;
+
+    &--correct { background: $green; }
+    &--wrong   { background: $red; }
+    &--today   {
+      background: transparent;
+      border: 3rpx solid $amber;
+      box-sizing: border-box;
+    }
+    &--future  {
+      width: 10rpx;
+      height: 10rpx;
+      margin: 9rpx 9rpx 0;
+      background: $ink-5;
+    }
+  }
+
+  &__label {
+    font-size: 20rpx;
+    color: $ink-4;
+    font-weight: 600;
+
+    &--today { color: $amber; font-weight: 800; }
+  }
+}
+
+// ── 分类 Tag 副标题扩展 ────────────────────────
+.tag--category {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2rpx;
+  padding: 8rpx 16rpx;
+
+  .tag__name { font-size: 22rpx; font-weight: 700; line-height: 1.3; }
+  .tag__sub  { font-size: 18rpx; font-weight: 500; opacity: 0.75; line-height: 1.3; }
+}
+
 // ── 题目卡片 ───────────────────────────────────
 .q-card {
   background: $white;
@@ -284,6 +426,50 @@ function goToSubmit() {
     width: 100%;
     margin-top: $space-md;
     border-radius: $radius-md;
+  }
+}
+
+// ── 社交热度条（题目卡片内底部） ───────────────
+.social-bar {
+  margin-top: $space-md;
+  padding-top: $space-sm;
+  border-top: 1rpx solid $ink-5;
+
+  &__text {
+    font-size: 22rpx;
+    color: $ink-4;
+  }
+
+  &__num {
+    font-weight: 700;
+    color: $ink-3;
+  }
+}
+
+// ── 每日哲言 ───────────────────────────────────
+.daily-quote {
+  margin-bottom: $space-md;
+  padding: 24rpx 28rpx;
+  background: $white;
+  border-radius: $radius-md;
+  border-left: 6rpx solid $amber;
+  box-shadow: $shadow-sm;
+
+  &__text {
+    display: block;
+    font-size: 26rpx;
+    color: $ink-2;
+    line-height: 1.85;
+    font-style: italic;
+  }
+
+  &__label {
+    display: block;
+    margin-top: 12rpx;
+    font-size: 20rpx;
+    color: $ink-4;
+    font-weight: 600;
+    text-align: right;
   }
 }
 

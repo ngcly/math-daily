@@ -10,6 +10,7 @@ export type Category =
   | '抽象思维'
   | '博弈思维'
   | '拆解估算'
+  | '本周经典'
 
 /** 题目类型：选择题 | 数字填空（终极形态预留更多） */
 export type QuestionType = 'choice' | 'fill_number' | 'fill_expr'
@@ -44,12 +45,16 @@ export interface Question {
   solution?: string
   aha_moment?: string
   alt_solution?: string
+  trap?: string              // 大多数人会犯的错误
 
   // 全局统计（答题后更新）
   stats: {
     total: number
     correct: number
   }
+
+  // 题目主题短语（导入时写入）
+  quote?: string
 
   // ── 终极形态预留字段（MVP 阶段留空）──
   thought_prompt?: string       // 引导用户写思路的提示语
@@ -77,6 +82,7 @@ export interface SubmitResult {
   solution: string
   aha_moment: string
   alt_solution?: string
+  trap?: string               // 大多数人会犯的错误
   stats: { total: number; correct: number }
   ai_feedback?: string        // 终极形态：AI 批改，MVP 留空
 }
@@ -140,4 +146,14 @@ export interface DraftData {
   strokes: Stroke[]
   transform: CanvasTransform
   savedAt: number
+}
+
+// ─────────────────────────────────────
+// 历史回顾类型
+// ─────────────────────────────────────
+
+export interface HistoryDetail {
+  record: UserRecord
+  question: Question
+  correct_answer: string
 }

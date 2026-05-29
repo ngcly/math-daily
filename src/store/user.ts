@@ -2,12 +2,12 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { UserProfile, Category, Difficulty } from '@/types'
 import { initUser, updateSettings } from '@/api/cloud'
-import { today, isConsecutiveDay } from '@/utils/date'
+import { today, isConsecutiveDay, dateToStr } from '@/utils/date'
 
 function dayBefore(dateStr: string): string {
   const d = new Date(dateStr)
   d.setDate(d.getDate() - 1)
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
+  return dateToStr(d)
 }
 
 export const useUserStore = defineStore('user', () => {
@@ -41,6 +41,8 @@ export const useUserStore = defineStore('user', () => {
   async function init() {
     try {
       profile.value = await initUser()
+      // onShow 触发时 profile 尚未加载，须在加载完成后补跑一次
+      checkStreak()
     } catch (e) {
       console.error('[UserStore] init failed', e)
     }

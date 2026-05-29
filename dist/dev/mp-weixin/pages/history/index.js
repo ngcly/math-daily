@@ -4,7 +4,6 @@ const store_user = require("../../store/user.js");
 const store_theme = require("../../store/theme.js");
 const api_cloud = require("../../api/cloud.js");
 const utils_date = require("../../utils/date.js");
-const utils_theme = require("../../utils/theme.js");
 if (!Math) {
   Calendar();
 }
@@ -25,10 +24,9 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const correctRate = common_vendor.computed(
       () => totalDone.value === 0 ? 0 : Math.round(totalCorrect.value / totalDone.value * 100)
     );
-    common_vendor.onMounted(() => loadRecords());
     common_vendor.onShow(() => {
       themeStore.setCurrentTab(1);
-      utils_theme.syncNativeTabBarTheme(themeStore.isDark);
+      loadRecords();
     });
     async function loadRecords() {
       loading.value = true;
@@ -59,20 +57,17 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         viewMonth.value++;
       loadRecords();
     }
-    function onDayClick(dateStr) {
-      const record = records.value.find((r) => r.date === dateStr);
-      if (!record)
-        return;
-      common_vendor.index.navigateTo({ url: `/pages/result/index?replay=1&date=${dateStr}` });
+    function goReview(date) {
+      common_vendor.index.navigateTo({ url: `/pages/review/index?date=${date}` });
     }
     return (_ctx, _cache) => {
       return common_vendor.e({
         a: common_vendor.t(streak.value),
         b: common_vendor.t(totalDone.value),
         c: common_vendor.t(correctRate.value),
-        d: common_vendor.o(prevMonth, "f5"),
-        e: common_vendor.o(nextMonth, "6d"),
-        f: common_vendor.o(onDayClick, "6b"),
+        d: common_vendor.o(prevMonth, "a0"),
+        e: common_vendor.o(nextMonth, "28"),
+        f: common_vendor.o(goReview, "48"),
         g: common_vendor.p({
           year: viewYear.value,
           month: viewMonth.value,
@@ -90,10 +85,9 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             e: common_vendor.t(common_vendor.unref(utils_date.formatDuration)(record.time_spent)),
             f: common_vendor.t(record.is_correct ? "✅" : "❌"),
             g: record._id,
-            h: common_vendor.o(($event) => onDayClick(record.date), record._id)
+            h: common_vendor.o(($event) => goReview(record.date), record._id)
           };
-        }),
-        k: common_vendor.n(common_vendor.unref(themeStore).themeClass)
+        })
       });
     };
   }

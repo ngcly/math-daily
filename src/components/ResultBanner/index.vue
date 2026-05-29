@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { SubmitResult } from '@/types'
 import { formatDuration } from '@/utils/date'
 
@@ -12,8 +13,6 @@ const correctRate = computed(() => {
   if (!s || s.total === 0) return 0
   return Math.round((s.correct / s.total) * 100)
 })
-
-import { computed } from 'vue'
 </script>
 
 <template>

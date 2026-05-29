@@ -13,7 +13,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   setup(__props) {
     const questionStore = store_question.useQuestionStore();
     const userStore = store_user.useUserStore();
-    const themeStore = store_theme.useThemeStore();
+    store_theme.useThemeStore();
     const rescueDate = common_vendor.ref("");
     const isRescueMode = common_vendor.computed(() => !!rescueDate.value);
     const question = common_vendor.computed(
@@ -74,31 +74,30 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         d: isAnswered.value
       }, isAnswered.value ? {} : {}, {
         e: common_vendor.t(cardCollapsed.value ? "展开 ↑" : "收起 ↓"),
-        f: common_vendor.o(($event) => cardCollapsed.value = !cardCollapsed.value, "e6"),
+        f: common_vendor.o(($event) => cardCollapsed.value = !cardCollapsed.value, "fd"),
         g: !cardCollapsed.value
       }, !cardCollapsed.value ? {
         h: common_vendor.t(((_b = question.value) == null ? void 0 : _b.body) ?? "题目加载中...")
       } : {}, {
         i: cardCollapsed.value ? 1 : "",
-        j: common_vendor.o(goBack, "5e"),
+        j: common_vendor.o(goBack, "20"),
         k: !isAnswered.value
       }, !isAnswered.value ? {
-        l: common_vendor.o(openAnswer, "4e")
+        l: common_vendor.o(openAnswer, "af")
       } : {
-        m: common_vendor.o(goToResult, "08")
+        m: common_vendor.o(goToResult, "cf")
       }, {
-        n: common_vendor.o(($event) => answerVisible.value = false, "96"),
+        n: common_vendor.o(($event) => answerVisible.value = false, "24"),
         o: common_vendor.t((_c = question.value) == null ? void 0 : _c.title),
         p: question.value
       }, question.value ? {
-        q: common_vendor.o(onSubmitted, "1a"),
+        q: common_vendor.o(onSubmitted, "26"),
         r: common_vendor.p({
           question: question.value,
           ["submit-fn"]: isRescueMode.value ? rescueSubmitFn : void 0
         })
       } : {}, {
-        s: answerVisible.value ? 1 : "",
-        t: common_vendor.n(common_vendor.unref(themeStore).themeClass)
+        s: answerVisible.value ? 1 : ""
       });
     };
   }

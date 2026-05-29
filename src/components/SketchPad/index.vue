@@ -48,17 +48,14 @@ const canUndo     = ref(false)
 const canRedo     = ref(false)
 
 const PEN_WIDTHS = [2, 4, 7]   // 细/中/粗
-const COLORS = computed(() =>
-  themeStore.isDark ? ['#e0e0e0', '#ef5350'] : ['#333333', '#e53935']
-)
+const LIGHT_COLORS = ['#333333', '#e53935']
+const DARK_COLORS  = ['#e0e0e0', '#ef5350']
+const COLORS = computed(() => themeStore.isDark ? DARK_COLORS : LIGHT_COLORS)
 
-const DEFAULT_COLORS = [['#333333', '#e53935'], ['#e0e0e0', '#ef5350']]
 watch(() => themeStore.isDark, (dark) => {
-  const from = dark ? DEFAULT_COLORS[0] : DEFAULT_COLORS[1]
-  const to   = dark ? DEFAULT_COLORS[1] : DEFAULT_COLORS[0]
-  if (from.includes(activeColor.value)) {
-    activeColor.value = to[from.indexOf(activeColor.value)]
-  }
+  const prevColors = dark ? LIGHT_COLORS : DARK_COLORS
+  const idx = prevColors.indexOf(activeColor.value)
+  if (idx !== -1) activeColor.value = COLORS.value[idx]
   redrawAll()
 })
 
@@ -212,9 +209,9 @@ function onTouchStart(e: TouchEvent) {
     const pt = screenToCanvas(t.clientX, t.clientY)
 
     if (activeTool.value === 'eraser') {
-      // 橡皮：开启一次擦除操作（逐帧判断命中）
       currentStroke = null
       eraseAt(pt)
+      redrawAll()
     } else {
       currentStroke = {
         color:  activeColor.value,

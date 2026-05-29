@@ -1,23 +1,25 @@
 {
-  "darkmode": true,
-  "themeLocation": "theme.json",
   "pages": [
     {
       "path": "pages/index/index",
       "style": {
         "navigationBarTitleText": "脑生锈",
-        "navigationBarBackgroundColor": "@navDark",
+        "navigationBarBackgroundColor": "#1a1a1a",
         "navigationBarTextStyle": "white",
-        "backgroundColor": "@bgPaper"
+        "backgroundColor": "@bgPaper",
+        "backgroundColorTop": "@bgPaper",
+        "backgroundColorBottom": "@bgPaper"
       }
     },
     {
       "path": "pages/draft/index",
       "style": {
         "navigationBarTitleText": "草稿纸",
-        "navigationBarBackgroundColor": "@navDark",
+        "navigationBarBackgroundColor": "#1a1a1a",
         "navigationBarTextStyle": "white",
         "backgroundColor": "@bgYellow",
+        "backgroundColorTop": "@bgYellow",
+        "backgroundColorBottom": "@bgYellow",
         "disableScroll": true
       }
     },
@@ -25,27 +27,44 @@
       "path": "pages/result/index",
       "style": {
         "navigationBarTitleText": "解析",
-        "navigationBarBackgroundColor": "@navDark",
+        "navigationBarBackgroundColor": "#1a1a1a",
         "navigationBarTextStyle": "white",
-        "backgroundColor": "@bgWhite"
+        "backgroundColor": "@bgWhite",
+        "backgroundColorTop": "@bgWhite",
+        "backgroundColorBottom": "@bgWhite"
+      }
+    },
+    {
+      "path": "pages/review/index",
+      "style": {
+        "navigationBarTitleText": "回顾",
+        "navigationBarBackgroundColor": "#1a1a1a",
+        "navigationBarTextStyle": "white",
+        "backgroundColor": "@bgWhite",
+        "backgroundColorTop": "@bgWhite",
+        "backgroundColorBottom": "@bgWhite"
       }
     },
     {
       "path": "pages/history/index",
       "style": {
         "navigationBarTitleText": "我的记录",
-        "navigationBarBackgroundColor": "@navDark",
+        "navigationBarBackgroundColor": "#1a1a1a",
         "navigationBarTextStyle": "white",
-        "backgroundColor": "@bgPaper"
+        "backgroundColor": "@bgPaper",
+        "backgroundColorTop": "@bgPaper",
+        "backgroundColorBottom": "@bgPaper"
       }
     },
     {
       "path": "pages/settings/index",
       "style": {
         "navigationBarTitleText": "设置",
-        "navigationBarBackgroundColor": "@navDark",
+        "navigationBarBackgroundColor": "#1a1a1a",
         "navigationBarTextStyle": "white",
-        "backgroundColor": "@bgPaper"
+        "backgroundColor": "@bgPaper",
+        "backgroundColorTop": "@bgPaper",
+        "backgroundColorBottom": "@bgPaper"
       }
     }
   ],
@@ -78,8 +97,10 @@
   "globalStyle": {
     "navigationBarTextStyle": "white",
     "navigationBarTitleText": "脑生锈",
-    "navigationBarBackgroundColor": "@navDark",
+    "navigationBarBackgroundColor": "#1a1a1a",
     "backgroundColor": "@bgPaper",
+    "backgroundColorTop": "@bgPaper",
+    "backgroundColorBottom": "@bgPaper",
     "navigationStyle": "default"
   },
   "uniIdRouter": {}

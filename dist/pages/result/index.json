@@ -1,0 +1,11 @@
+{
+  "navigationBarTitleText": "解析",
+  "navigationBarBackgroundColor": "#1a1a1a",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "#ffffff",
+  "backgroundColorTop": "#ffffff",
+  "backgroundColorBottom": "#ffffff",
+  "usingComponents": {
+    "result-banner": "../../components/ResultBanner/index"
+  }
+}

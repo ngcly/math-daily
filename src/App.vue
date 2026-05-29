@@ -3,7 +3,7 @@ import { onLaunch, onShow } from '@dcloudio/uni-app'
 import { useUserStore } from '@/store/user'
 import { useQuestionStore } from '@/store/question'
 import { useThemeStore } from '@/store/theme'
-import { getSystemIsDark, syncNativeTabBarTheme } from '@/utils/theme'
+import { getSystemIsDark } from '@/utils/theme'
 
 const userStore     = useUserStore()
 const questionStore = useQuestionStore()
@@ -16,20 +16,17 @@ onLaunch(() => {
   })
 
   themeStore.setSystemTheme(getSystemIsDark())
-  syncNativeTabBarTheme(themeStore.isDark)
 
   userStore.init()
   questionStore.loadToday()
 
   wx.onThemeChange?.((res: { theme: string }) => {
     themeStore.setSystemTheme(res.theme === 'dark')
-    syncNativeTabBarTheme(themeStore.isDark)
   })
 })
 
 onShow(() => {
   userStore.checkStreak()
-  syncNativeTabBarTheme(themeStore.isDark)
 })
 </script>
 
@@ -79,70 +76,21 @@ page {
   --icon-filter: brightness(10);
 }
 
-// ── 设计 Token（深色模式） ────────────────────
+// ── 深色模式覆盖（跟随系统，无手动切换）────────────────────────────────────
 @media (prefers-color-scheme: dark) {
   page {
-    --ink:   #f0f0f0;
-    --ink-2: #c0c0c0;
-    --ink-3: #888888;
-    --ink-4: #606060;
-    --ink-5: #2e2e2e;
-    --paper:   #111111;
-    --paper-2: #1c1c1e;
-    --white:   #1a1a1a;
-    --green:        #4caf50;
-    --green-light:  #1a2e1c;
-    --green-border: #2d5c2f;
-    --red:          #ef5350;
-    --red-light:    #2e1a1a;
-    --amber:        #ff8a50;
-    --amber-light:  #2e1e08;
-    --yellow:       #1c1900;
-    --yellow-border:#3d3600;
-    --banner-correct-from: #1a2e1c;
-    --banner-correct-to:   #1e2810;
-    --banner-wrong-from:   #2e1a1a;
-    --banner-wrong-to:     #2e1e08;
-    --banner-wrong-border: #7a3030;
-    --aha-from:         #1e1c00;
-    --aha-to:           #2a2400;
-    --aha-border:       #3d3600;
-    --aha-label:        #d4a017;
-    --milestone-border: #4a3010;
-    --draft-hint:       #7a7040;
-    --fab-ghost-bg:     rgba(50,50,50,0.9);
-    --icon-filter:      none;
+    --ink: #f0f0f0; --ink-2: #c0c0c0; --ink-3: #888888; --ink-4: #606060; --ink-5: #2e2e2e;
+    --paper: #111111; --paper-2: #1c1c1e; --white: #1a1a1a;
+    --green: #4caf50; --green-light: #1a2e1c; --green-border: #2d5c2f;
+    --red: #ef5350; --red-light: #2e1a1a;
+    --amber: #ff8a50; --amber-light: #2e1e08;
+    --yellow: #1c1900; --yellow-border: #3d3600;
+    --banner-correct-from: #1a2e1c; --banner-correct-to: #1e2810;
+    --banner-wrong-from: #2e1a1a; --banner-wrong-to: #2e1e08; --banner-wrong-border: #7a3030;
+    --aha-from: #1e1c00; --aha-to: #2a2400; --aha-border: #3d3600; --aha-label: #d4a017;
+    --milestone-border: #4a3010; --draft-hint: #7a7040;
+    --fab-ghost-bg: rgba(50,50,50,0.9); --icon-filter: none;
   }
-}
-
-// ── 强制主题覆盖（用户手动选择时）─────────────
-// class 选择器（specificity 10）> @media page（specificity 1），可安全覆盖媒体查询
-.theme-dark {
-  --ink: #f0f0f0; --ink-2: #c0c0c0; --ink-3: #888888; --ink-4: #606060; --ink-5: #2e2e2e;
-  --paper: #111111; --paper-2: #1c1c1e; --white: #1a1a1a;
-  --green: #4caf50; --green-light: #1a2e1c; --green-border: #2d5c2f;
-  --red: #ef5350; --red-light: #2e1a1a;
-  --amber: #ff8a50; --amber-light: #2e1e08;
-  --yellow: #1c1900; --yellow-border: #3d3600;
-  --banner-correct-from: #1a2e1c; --banner-correct-to: #1e2810;
-  --banner-wrong-from: #2e1a1a; --banner-wrong-to: #2e1e08; --banner-wrong-border: #7a3030;
-  --aha-from: #1e1c00; --aha-to: #2a2400; --aha-border: #3d3600; --aha-label: #d4a017;
-  --milestone-border: #4a3010; --draft-hint: #7a7040;
-  --fab-ghost-bg: rgba(50,50,50,0.9); --icon-filter: none;
-}
-
-.theme-light {
-  --ink: #1a1a1a; --ink-2: #444444; --ink-3: #777777; --ink-4: #aaaaaa; --ink-5: #e4e4e4;
-  --paper: #f5f4f0; --paper-2: #eeede8; --white: #ffffff;
-  --green: #2e7d32; --green-light: #e8f5e9; --green-border: #a5d6a7;
-  --red: #c62828; --red-light: #ffebee;
-  --amber: #e65100; --amber-light: #fff3e0;
-  --yellow: #fffef5; --yellow-border: #e0d88a;
-  --banner-correct-from: #e8f5e9; --banner-correct-to: #f9fbe7;
-  --banner-wrong-from: #ffebee; --banner-wrong-to: #fff3e0; --banner-wrong-border: #ef9a9a;
-  --aha-from: #fffde7; --aha-to: #fff9c4; --aha-border: #f9e57a; --aha-label: #b8860b;
-  --milestone-border: #ffcc80; --draft-hint: #b8ad60;
-  --fab-ghost-bg: rgba(255,255,255,0.9); --icon-filter: brightness(10);
 }
 
 // ── 通用卡片 ─────────────────────────────────

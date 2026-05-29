@@ -4,7 +4,7 @@ const store_question = require("../../store/question.js");
 const store_user = require("../../store/user.js");
 const store_theme = require("../../store/theme.js");
 const utils_date = require("../../utils/date.js");
-const utils_theme = require("../../utils/theme.js");
+const utils_category = require("../../utils/category.js");
 const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   __name: "index",
   setup(__props) {
@@ -32,10 +32,50 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         recentDims.value = [];
       }
     }
+    const weeklyResults = common_vendor.ref([]);
+    function loadWeeklyResults() {
+      try {
+        weeklyResults.value = common_vendor.index.getStorageSync("weekly_results") || [];
+      } catch {
+        weeklyResults.value = [];
+      }
+    }
+    const weekDays = common_vendor.computed(() => {
+      const todayStr = utils_date.today();
+      const todayDate = /* @__PURE__ */ new Date(todayStr + "T00:00:00");
+      const dow = todayDate.getDay();
+      const offset = dow === 0 ? 6 : dow - 1;
+      const monday = new Date(todayDate);
+      monday.setDate(todayDate.getDate() - offset);
+      return ["一", "二", "三", "四", "五", "六", "日"].map((label, i) => {
+        const d = new Date(monday);
+        d.setDate(monday.getDate() + i);
+        const dateStr = utils_date.dateToStr(d);
+        const rec = weeklyResults.value.find((r) => r.date === dateStr);
+        return {
+          date: dateStr,
+          label,
+          isToday: dateStr === todayStr,
+          isFuture: dateStr > todayStr,
+          result: rec != null ? rec.is_correct : null
+          // null = 无记录
+        };
+      });
+    });
+    const socialStats = common_vendor.computed(() => {
+      var _a;
+      const s = (_a = question.value) == null ? void 0 : _a.stats;
+      if (!s || s.total === 0)
+        return null;
+      return {
+        total: s.total,
+        rate: Math.round(s.correct / s.total * 100)
+      };
+    });
     common_vendor.onShow(() => {
       themeStore.setCurrentTab(0);
-      utils_theme.syncNativeTabBarTheme(themeStore.isDark);
       loadRecentDims();
+      loadWeeklyResults();
     });
     function goToDraft() {
       if (!question.value)
@@ -58,51 +98,71 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         a: streak.value > 0
       }, streak.value > 0 ? {
         b: common_vendor.t(streak.value),
-        c: common_vendor.o(goToHistory, "a0")
+        c: common_vendor.o(goToHistory, "5a")
       } : {}, {
         d: common_vendor.t(dateLabel.value),
         e: loading.value
       }, loading.value ? {} : !question.value ? {} : common_vendor.e({
-        g: common_vendor.t(question.value.category),
-        h: common_vendor.t(timeEstimate(question.value.difficulty)),
-        i: common_vendor.t(question.value.category),
-        j: common_vendor.f(5, (i, k0, i0) => {
+        g: common_vendor.f(weekDays.value, (day, k0, i0) => {
+          return {
+            a: day.result === true ? 1 : "",
+            b: day.result === false ? 1 : "",
+            c: day.isToday && day.result === null ? 1 : "",
+            d: day.isFuture && day.result === null ? 1 : "",
+            e: common_vendor.t(day.label),
+            f: day.isToday ? 1 : "",
+            g: day.date
+          };
+        }),
+        h: common_vendor.t(question.value.category),
+        i: common_vendor.t(timeEstimate(question.value.difficulty)),
+        j: common_vendor.t(question.value.category),
+        k: common_vendor.t(common_vendor.unref(utils_category.CATEGORY_SUBTITLE)[question.value.category]),
+        l: common_vendor.f(5, (i, k0, i0) => {
           return {
             a: i,
             b: i <= question.value.difficulty ? 1 : ""
           };
         }),
-        k: answered.value
+        m: answered.value
       }, answered.value ? {} : {}, {
-        l: common_vendor.t(question.value.body),
-        m: question.value.image_url
+        n: common_vendor.t(question.value.body),
+        o: question.value.image_url
       }, question.value.image_url ? {
-        n: question.value.image_url
+        p: question.value.image_url
       } : {}, {
-        o: common_vendor.t(answered.value ? "查看解析 →" : "✏️ 点击开始演算 →"),
-        p: answered.value
+        q: socialStats.value
+      }, socialStats.value ? {
+        r: common_vendor.t(socialStats.value.total),
+        s: common_vendor.t(socialStats.value.rate)
+      } : {}, {
+        t: question.value.quote
+      }, question.value.quote ? {
+        v: common_vendor.t(question.value.quote)
+      } : {}, {
+        w: common_vendor.t(answered.value ? "查看解析 →" : "✏️ 点击开始演算 →"),
+        x: answered.value
       }, answered.value ? {
-        q: common_vendor.o(goToDraft, "24")
+        y: common_vendor.o(goToDraft, "e3")
       } : {
-        r: common_vendor.o(goToSubmit, "c3")
+        z: common_vendor.o(goToSubmit, "62")
       }, {
-        s: answered.value ? 1 : "",
-        t: common_vendor.o(($event) => answered.value ? goToResult() : goToDraft(), "ee"),
-        v: streak.value > 0
+        A: answered.value ? 1 : "",
+        B: common_vendor.o(($event) => answered.value ? goToResult() : goToDraft(), "27"),
+        C: streak.value > 0
       }, streak.value > 0 ? {
-        w: common_vendor.t(streak.value)
+        D: common_vendor.t(streak.value)
       } : {}, {
-        x: recentDims.value.length > 0
+        E: recentDims.value.length > 0
       }, recentDims.value.length > 0 ? {
-        y: common_vendor.f(recentDims.value.slice(0, 4), (dim, k0, i0) => {
+        F: common_vendor.f(recentDims.value.slice(0, 4), (dim, k0, i0) => {
           return {
             a: common_vendor.t(dim),
             b: dim
           };
         })
       } : {}), {
-        f: !question.value,
-        z: common_vendor.n(common_vendor.unref(themeStore).themeClass)
+        f: !question.value
       });
     };
   }

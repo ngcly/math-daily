@@ -2,7 +2,6 @@
 const common_vendor = require("../../common/vendor.js");
 const store_question = require("../../store/question.js");
 const store_user = require("../../store/user.js");
-const store_draft = require("../../store/draft.js");
 const store_theme = require("../../store/theme.js");
 const utils_subscribe = require("../../utils/subscribe.js");
 if (!Math) {
@@ -14,8 +13,7 @@ const _sfc_defineComponent = common_vendor.defineComponent({
   setup(__props) {
     const questionStore = store_question.useQuestionStore();
     const userStore = store_user.useUserStore();
-    store_draft.useDraftStore();
-    const themeStore = store_theme.useThemeStore();
+    store_theme.useThemeStore();
     const question = common_vendor.computed(() => questionStore.todayQuestion);
     const result = common_vendor.computed(() => questionStore.submitResult);
     const isAnswered = common_vendor.computed(() => questionStore.isAnswered);
@@ -70,7 +68,7 @@ ${miniLink.value}` : "\n微信搜索小程序「别让你的脑生锈」";
         })
       });
     }
-    common_vendor.onMounted(() => {
+    common_vendor.onShow(() => {
       var _a, _b;
       if (!result.value && !isAnswered.value) {
         common_vendor.index.switchTab({ url: "/pages/index/index" });
@@ -82,7 +80,7 @@ ${miniLink.value}` : "\n微信搜索小程序「别让你的脑生锈」";
       (_b = (_a = common_vendor.wx$1).generateShortLink) == null ? void 0 : _b.call(_a, {
         path: "pages/index/index",
         query: "",
-        isPermament: false,
+        isPermanent: false,
         success: (res) => {
           miniLink.value = res.link;
         }
@@ -128,28 +126,30 @@ ${miniLink.value}` : "\n微信搜索小程序「别让你的脑生锈」";
       }, result.value.aha_moment ? {
         g: common_vendor.t(result.value.aha_moment)
       } : {}, {
-        h: result.value.alt_solution
+        h: result.value.trap
+      }, result.value.trap ? {
+        i: common_vendor.t(result.value.trap)
+      } : {}, {
+        j: result.value.alt_solution
       }, result.value.alt_solution ? common_vendor.e({
-        i: common_vendor.t(altExpanded.value ? "↑" : "↓"),
-        j: altExpanded.value
+        k: common_vendor.t(altExpanded.value ? "↑" : "↓"),
+        l: altExpanded.value
       }, altExpanded.value ? {
-        k: common_vendor.t(result.value.alt_solution)
+        m: common_vendor.t(result.value.alt_solution)
       } : {}, {
-        l: common_vendor.o(($event) => altExpanded.value = !altExpanded.value, "eb")
+        n: common_vendor.o(($event) => altExpanded.value = !altExpanded.value, "09")
       }) : {}, {
-        m: common_vendor.t(answerCopy.value),
-        n: common_vendor.o(($event) => copyText(answerCopy.value), "b9"),
-        o: streak.value > 1
+        o: common_vendor.t(answerCopy.value),
+        p: common_vendor.o(($event) => copyText(answerCopy.value), "69"),
+        q: streak.value > 1
       }, streak.value > 1 ? {
-        p: common_vendor.t(streakCopy.value),
-        q: common_vendor.o(($event) => copyText(streakCopy.value), "39")
+        r: common_vendor.t(streakCopy.value),
+        s: common_vendor.o(($event) => copyText(streakCopy.value), "01")
       } : {}, {
-        r: common_vendor.o(shareToTimeline, "8a"),
-        s: common_vendor.o(requestSubscribe, "b4"),
-        t: common_vendor.o(goHome, "b1")
-      }) : {}, {
-        v: common_vendor.n(common_vendor.unref(themeStore).themeClass)
-      });
+        t: common_vendor.o(shareToTimeline, "7e"),
+        v: common_vendor.o(requestSubscribe, "1a"),
+        w: common_vendor.o(goHome, "cc")
+      }) : {});
     };
   }
 });

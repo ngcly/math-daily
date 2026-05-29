@@ -12,8 +12,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 npm install               # Install dependencies
 npm run dev:mp-weixin     # Compile and watch for WeChat Mini Program (use with WeChat DevTools)
 npm run build:mp-weixin   # Production build
-npm run sync-notion       # Sync question bank from Notion to cloud database
 ```
+
+题目维护：编辑 `questions.jsonl`（每行一条 JSON），通过微信开发者工具云数据库控制台直接导入到 `questions` 集合。
 
 No test or lint commands are configured. Node >= 16.0.0 is required.
 
@@ -68,7 +69,6 @@ The dcloudio packages use a **`vue3` dist-tag** for their Vue 3 builds. The `"*"
 | `initUser` | Silent login — finds or creates `user_profiles` doc by openId |
 | `getUserHistory` | Returns one month of `user_records` for the calendar |
 | `sendDailyPush` | Cron (hourly): batch-sends WeChat Subscription Messages to users whose `remind_time` matches current hour |
-| `syncFromNotion` | Reads Notion DB (filtered by `已审核=true`), parses properties into structured question objects |
 
 Cloud database collections: `questions` (read: all, write: creator), `user_records` (read+write: creator), `user_profiles` (read+write: creator).
 

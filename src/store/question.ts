@@ -103,6 +103,15 @@ export const useQuestionStore = defineStore('question', () => {
       hasSubmitted.value = true
       submittedDate.value = today()
 
+      // 记录本周答题结果，供首页周历条展示
+      try {
+        const key = 'weekly_results'
+        const prev: { date: string; is_correct: boolean }[] = uni.getStorageSync(key) || []
+        const filtered = prev.filter(d => d.date !== today())
+        filtered.unshift({ date: today(), is_correct: submitResult.value!.is_correct })
+        uni.setStorageSync(key, filtered.slice(0, 30))
+      } catch {}
+
       // 持久化用时，供 result 页显示（跨页面、跨进程均有效）
       try { uni.setStorageSync('last_time_spent', payload.time_spent ?? 0) } catch {}
 

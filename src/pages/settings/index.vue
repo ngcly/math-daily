@@ -4,9 +4,8 @@ import { onShow } from '@dcloudio/uni-app'
 import { useUserStore } from '@/store/user'
 import { useThemeStore } from '@/store/theme'
 import { useDraftStore } from '@/store/draft'
-import { syncNativeTabBarTheme } from '@/utils/theme'
 import { requestDailySubscribe, showSubscribeStatusToast } from '@/utils/subscribe'
-import type { Category, Difficulty } from '@/types'
+import type { Difficulty } from '@/types'
 
 const userStore  = useUserStore()
 const themeStore = useThemeStore()
@@ -14,7 +13,6 @@ const draftStore = useDraftStore()
 
 onShow(() => {
   themeStore.setCurrentTab(2)
-  syncNativeTabBarTheme(themeStore.isDark)
 })
 const profile    = computed(() => userStore.profile)
 
@@ -30,33 +28,6 @@ function onRemindChange(e: any) {
   remindIndex.value = e.detail.value
   remindTime.value  = REMIND_HOURS[e.detail.value]
   userStore.updatePrefs({ remind_time: remindTime.value })
-}
-
-// ── 题目偏好 ─────────────────────────────────────────
-const CATEGORIES: Category[] = [
-  '逻辑推理', '空间想象', '直觉挑战', '抽象思维', '博弈思维', '拆解估算'
-]
-const selectedCats = ref<Category[]>(profile.value?.pref_categories ?? [])
-
-function toggleCategory(cat: Category) {
-  const idx = selectedCats.value.indexOf(cat)
-  if (idx >= 0) selectedCats.value.splice(idx, 1)
-  else selectedCats.value.push(cat)
-  userStore.updatePrefs({ pref_categories: [...selectedCats.value] })
-}
-
-// ── 难度偏好 ─────────────────────────────────────────
-const DIFFICULTIES: { label: string; value: Difficulty | null }[] = [
-  { label: '不限',   value: null },
-  { label: '轻松',   value: 1 },
-  { label: '适中',   value: 3 },
-  { label: '烧脑',   value: 5 },
-]
-const selectedDiff = ref<Difficulty | null>(profile.value?.pref_difficulty ?? null)
-
-function setDifficulty(v: Difficulty | null) {
-  selectedDiff.value = v
-  userStore.updatePrefs({ pref_difficulty: v })
 }
 
 // ── 订阅推送 ─────────────────────────────────────────
@@ -77,18 +48,6 @@ function goRescue() {
   uni.navigateTo({ url: `/pages/draft/index?rescue_date=${pendingRescueDate.value}` })
 }
 
-// ── 外观主题 ─────────────────────────────────────────
-const THEMES = [
-  { label: '自动', value: 'system' as const },
-  { label: '浅色', value: 'light'  as const },
-  { label: '深色', value: 'dark'   as const },
-]
-
-function setTheme(v: 'system' | 'light' | 'dark') {
-  themeStore.setPreference(v)
-  syncNativeTabBarTheme(themeStore.isDark)
-}
-
 // ── 清除草稿缓存 ──────────────────────────────────────
 function clearDrafts() {
   uni.showModal({
@@ -106,26 +65,10 @@ function clearDrafts() {
 </script>
 
 <template>
-  <scroll-view class="page" :class="themeStore.themeClass" scroll-y :show-scrollbar="false">
+  <scroll-view class="page" scroll-y :show-scrollbar="false">
     <view class="content">
 
       <text class="page-title">设置</text>
-
-      <!-- ── 外观 ── -->
-      <view class="section-card">
-        <text class="section-card__title">🌓 外观</text>
-        <view class="diff-row">
-          <view
-            v-for="t in THEMES"
-            :key="t.value"
-            class="diff-chip"
-            :class="{ 'diff-chip--selected': themeStore.preference === t.value }"
-            @tap="setTheme(t.value)"
-          >
-            <text>{{ t.label }}</text>
-          </view>
-        </view>
-      </view>
 
       <!-- ── 每日提醒 ── -->
       <view class="section-card">
@@ -147,39 +90,6 @@ function clearDrafts() {
         <view class="section-card__row section-card__row--btn">
           <view class="outline-btn" @tap="requestSubscribe">
             <text>订阅每日推送通知</text>
-          </view>
-        </view>
-      </view>
-
-      <!-- ── 题目偏好 ── -->
-      <view class="section-card">
-        <text class="section-card__title">📚 题目类型偏好</text>
-        <text class="section-card__desc">选择后优先推送你偏好的类型，不选则随机</text>
-        <view class="cat-grid">
-          <view
-            v-for="cat in CATEGORIES"
-            :key="cat"
-            class="cat-chip"
-            :class="{ 'cat-chip--selected': selectedCats.includes(cat) }"
-            @tap="toggleCategory(cat)"
-          >
-            <text>{{ cat }}</text>
-          </view>
-        </view>
-      </view>
-
-      <!-- ── 难度偏好 ── -->
-      <view class="section-card">
-        <text class="section-card__title">🎯 难度偏好</text>
-        <view class="diff-row">
-          <view
-            v-for="d in DIFFICULTIES"
-            :key="String(d.value)"
-            class="diff-chip"
-            :class="{ 'diff-chip--selected': selectedDiff === d.value }"
-            @tap="setDifficulty(d.value)"
-          >
-            <text>{{ d.label }}</text>
           </view>
         </view>
       </view>
@@ -272,14 +182,6 @@ function clearDrafts() {
     margin-bottom: $space-md;
   }
 
-  &__desc {
-    display: block;
-    font-size: 22rpx;
-    color: $ink-4;
-    margin-bottom: $space-sm;
-    margin-top: -$space-sm;
-  }
-
   &__row {
     display: flex;
     align-items: center;
@@ -342,59 +244,6 @@ function clearDrafts() {
 .picker-arrow {
   font-size: 32rpx;
   color: $ink-4;
-}
-
-// ── 分类标签 ────────────────────────────────
-.cat-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: $space-sm;
-}
-
-.cat-chip {
-  padding: 10rpx 22rpx;
-  border-radius: $radius-full;
-  background: $paper;
-  border: 2rpx solid $ink-5;
-  font-size: 24rpx;
-  color: $ink-3;
-  font-weight: 600;
-  transition: all $duration-fast;
-
-  &--selected {
-    background: $ink;
-    border-color: $ink;
-    color: $white;
-  }
-
-  &:active { opacity: 0.7; }
-}
-
-// ── 难度选择 ────────────────────────────────
-.diff-row {
-  display: flex;
-  gap: $space-sm;
-}
-
-.diff-chip {
-  flex: 1;
-  text-align: center;
-  padding: 12rpx 0;
-  border-radius: $radius-md;
-  background: $paper;
-  border: 2rpx solid $ink-5;
-  font-size: 26rpx;
-  color: $ink-3;
-  font-weight: 600;
-  transition: all $duration-fast;
-
-  &--selected {
-    background: $ink;
-    border-color: $ink;
-    color: $white;
-  }
-
-  &:active { opacity: 0.7; }
 }
 
 // ── 线框按钮 ────────────────────────────────

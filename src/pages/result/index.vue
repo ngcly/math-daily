@@ -1,16 +1,14 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { onShareAppMessage, onShareTimeline } from '@dcloudio/uni-app'
+import { ref, computed } from 'vue'
+import { onShow, onShareAppMessage, onShareTimeline } from '@dcloudio/uni-app'
 import ResultBanner from '@/components/ResultBanner/index.vue'
 import { useQuestionStore } from '@/store/question'
 import { useUserStore } from '@/store/user'
-import { useDraftStore } from '@/store/draft'
 import { useThemeStore } from '@/store/theme'
 import { requestDailySubscribe, showSubscribeStatusToast } from '@/utils/subscribe'
 
 const questionStore = useQuestionStore()
 const userStore     = useUserStore()
-const draftStore    = useDraftStore()
 const themeStore    = useThemeStore()
 
 const question   = computed(() => questionStore.todayQuestion)
@@ -71,7 +69,7 @@ function shareToTimeline() {
 }
 
 
-onMounted(() => {
+onShow(() => {
   // 未作答且无结果（用户直接进入此页）→ 跳回首页
   // 注意：submitResult 已持久化，重启 app 后 result.value 仍有值
   if (!result.value && !isAnswered.value) {
@@ -86,7 +84,7 @@ onMounted(() => {
   wx.generateShortLink?.({
     path: 'pages/index/index',
     query: '',
-    isPermament: false,
+    isPermanent: false,
     success: (res: any) => { miniLink.value = res.link },
   })
 })
@@ -128,7 +126,7 @@ function goHome() {
 </script>
 
 <template>
-  <scroll-view class="page" :class="themeStore.themeClass" scroll-y :show-scrollbar="false">
+  <scroll-view class="page" scroll-y :show-scrollbar="false">
 
     <view v-if="result && question" class="content">
 
@@ -153,6 +151,12 @@ function goHome() {
       <view v-if="result.aha_moment" class="aha-box">
         <text class="aha-box__label">✨ 核心洞察</text>
         <text class="aha-box__text">{{ result.aha_moment }}</text>
+      </view>
+
+      <!-- 常见陷阱 -->
+      <view v-if="result.trap" class="trap-box">
+        <text class="trap-box__label">⚠️ 大多数人栽在这里</text>
+        <text class="trap-box__text">{{ result.trap }}</text>
       </view>
 
       <!-- 另一种解法（折叠） -->
@@ -298,6 +302,31 @@ function goHome() {
     font-weight: 700;
     color: $ink;
     line-height: 1.6;
+  }
+}
+
+// ── 常见陷阱 ────────────────────────────────
+.trap-box {
+  background: $red-light;
+  border-radius: $radius-md;
+  padding: 24rpx;
+  margin-bottom: $space-md;
+  border-left: 6rpx solid $red;
+
+  &__label {
+    display: block;
+    font-size: 22rpx;
+    font-weight: 800;
+    color: $red;
+    letter-spacing: 1px;
+    margin-bottom: 8rpx;
+  }
+
+  &__text {
+    display: block;
+    font-size: 28rpx;
+    color: $ink-2;
+    line-height: 1.8;
   }
 }
 

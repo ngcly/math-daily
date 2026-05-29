@@ -3,18 +3,16 @@ const common_vendor = require("../../common/vendor.js");
 const store_user = require("../../store/user.js");
 const store_theme = require("../../store/theme.js");
 const store_draft = require("../../store/draft.js");
-const utils_theme = require("../../utils/theme.js");
 const utils_subscribe = require("../../utils/subscribe.js");
 const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   __name: "index",
   setup(__props) {
-    var _a, _b, _c;
+    var _a;
     const userStore = store_user.useUserStore();
     const themeStore = store_theme.useThemeStore();
     const draftStore = store_draft.useDraftStore();
     common_vendor.onShow(() => {
       themeStore.setCurrentTab(2);
-      utils_theme.syncNativeTabBarTheme(themeStore.isDark);
     });
     const profile = common_vendor.computed(() => userStore.profile);
     const remindTime = common_vendor.ref(((_a = profile.value) == null ? void 0 : _a.remind_time) ?? "08:00");
@@ -27,34 +25,6 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       remindIndex.value = e.detail.value;
       remindTime.value = REMIND_HOURS[e.detail.value];
       userStore.updatePrefs({ remind_time: remindTime.value });
-    }
-    const CATEGORIES = [
-      "逻辑推理",
-      "空间想象",
-      "直觉挑战",
-      "抽象思维",
-      "博弈思维",
-      "拆解估算"
-    ];
-    const selectedCats = common_vendor.ref(((_b = profile.value) == null ? void 0 : _b.pref_categories) ?? []);
-    function toggleCategory(cat) {
-      const idx = selectedCats.value.indexOf(cat);
-      if (idx >= 0)
-        selectedCats.value.splice(idx, 1);
-      else
-        selectedCats.value.push(cat);
-      userStore.updatePrefs({ pref_categories: [...selectedCats.value] });
-    }
-    const DIFFICULTIES = [
-      { label: "不限", value: null },
-      { label: "轻松", value: 1 },
-      { label: "适中", value: 3 },
-      { label: "烧脑", value: 5 }
-    ];
-    const selectedDiff = common_vendor.ref(((_c = profile.value) == null ? void 0 : _c.pref_difficulty) ?? null);
-    function setDifficulty(v) {
-      selectedDiff.value = v;
-      userStore.updatePrefs({ pref_difficulty: v });
     }
     async function requestSubscribe() {
       const status = await utils_subscribe.requestDailySubscribe();
@@ -69,15 +39,6 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       if (!canRescue.value)
         return;
       common_vendor.index.navigateTo({ url: `/pages/draft/index?rescue_date=${pendingRescueDate.value}` });
-    }
-    const THEMES = [
-      { label: "自动", value: "system" },
-      { label: "浅色", value: "light" },
-      { label: "深色", value: "dark" }
-    ];
-    function setTheme(v) {
-      themeStore.setPreference(v);
-      utils_theme.syncNativeTabBarTheme(themeStore.isDark);
     }
     function clearDrafts() {
       common_vendor.index.showModal({
@@ -94,44 +55,19 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       });
     }
     return (_ctx, _cache) => {
-      var _a2, _b2;
+      var _a2, _b;
       return {
-        a: common_vendor.f(THEMES, (t, k0, i0) => {
-          return {
-            a: common_vendor.t(t.label),
-            b: t.value,
-            c: common_vendor.unref(themeStore).preference === t.value ? 1 : "",
-            d: common_vendor.o(($event) => setTheme(t.value), t.value)
-          };
-        }),
-        b: common_vendor.t(remindTime.value),
-        c: common_vendor.unref(REMIND_HOURS),
-        d: remindIndex.value,
-        e: common_vendor.o(onRemindChange, "f2"),
-        f: common_vendor.o(requestSubscribe, "c4"),
-        g: common_vendor.f(CATEGORIES, (cat, k0, i0) => {
-          return {
-            a: common_vendor.t(cat),
-            b: cat,
-            c: selectedCats.value.includes(cat) ? 1 : "",
-            d: common_vendor.o(($event) => toggleCategory(cat), cat)
-          };
-        }),
-        h: common_vendor.f(DIFFICULTIES, (d, k0, i0) => {
-          return {
-            a: common_vendor.t(d.label),
-            b: String(d.value),
-            c: selectedDiff.value === d.value ? 1 : "",
-            d: common_vendor.o(($event) => setDifficulty(d.value), String(d.value))
-          };
-        }),
-        i: common_vendor.t(((_a2 = profile.value) == null ? void 0 : _a2.streak) ?? 0),
-        j: common_vendor.t(((_b2 = profile.value) == null ? void 0 : _b2.streak_rescue) ?? 0),
-        k: common_vendor.t(canRescue.value ? `补签 ${pendingRescueDate.value}` : "暂无可补签的日期"),
-        l: !canRescue.value ? 1 : "",
-        m: common_vendor.o(goRescue, "de"),
-        n: common_vendor.o(clearDrafts, "cf"),
-        o: common_vendor.n(common_vendor.unref(themeStore).themeClass)
+        a: common_vendor.t(remindTime.value),
+        b: common_vendor.unref(REMIND_HOURS),
+        c: remindIndex.value,
+        d: common_vendor.o(onRemindChange, "ba"),
+        e: common_vendor.o(requestSubscribe, "1c"),
+        f: common_vendor.t(((_a2 = profile.value) == null ? void 0 : _a2.streak) ?? 0),
+        g: common_vendor.t(((_b = profile.value) == null ? void 0 : _b.streak_rescue) ?? 0),
+        h: common_vendor.t(canRescue.value ? `补签 ${pendingRescueDate.value}` : "暂无可补签的日期"),
+        i: !canRescue.value ? 1 : "",
+        j: common_vendor.o(goRescue, "b6"),
+        k: common_vendor.o(clearDrafts, "cf")
       };
     };
   }

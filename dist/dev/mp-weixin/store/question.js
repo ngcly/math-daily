@@ -75,6 +75,14 @@ const useQuestionStore = common_vendor.defineStore("question", () => {
       hasSubmitted.value = true;
       submittedDate.value = utils_date.today();
       try {
+        const key = "weekly_results";
+        const prev = common_vendor.index.getStorageSync(key) || [];
+        const filtered = prev.filter((d) => d.date !== utils_date.today());
+        filtered.unshift({ date: utils_date.today(), is_correct: submitResult.value.is_correct });
+        common_vendor.index.setStorageSync(key, filtered.slice(0, 30));
+      } catch {
+      }
+      try {
         common_vendor.index.setStorageSync("last_time_spent", payload.time_spent ?? 0);
       } catch {
       }

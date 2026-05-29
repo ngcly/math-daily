@@ -10,8 +10,10 @@ exports.main = async (event) => {
   const { OPENID } = cloud.getWXContext()
   const { year, month } = event
 
-  const start = `${year}-${String(month).padStart(2,'0')}-01`
-  const end   = `${year}-${String(month).padStart(2,'0')}-31`
+  const mm    = String(month).padStart(2, '0')
+  const lastDay = new Date(year, month, 0).getDate()
+  const start = `${year}-${mm}-01`
+  const end   = `${year}-${mm}-${String(lastDay).padStart(2, '0')}`
 
   try {
     const res = await db.collection('user_records')

@@ -94,6 +94,7 @@ exports.main = async (event, context) => {
       solution:       q.solution,
       aha_moment:     q.aha_moment,
       alt_solution:   q.alt_solution || null,
+      trap:           q.trap || null,
       stats:          updatedQ.data.stats,
       ai_feedback:    null,  // 终极形态预留
     }

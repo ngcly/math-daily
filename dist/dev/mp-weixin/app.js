@@ -9,6 +9,7 @@ if (!Math) {
   "./pages/index/index.js";
   "./pages/draft/index.js";
   "./pages/result/index.js";
+  "./pages/review/index.js";
   "./pages/history/index.js";
   "./pages/settings/index.js";
 }
@@ -25,17 +26,14 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         traceUser: true
       });
       themeStore.setSystemTheme(utils_theme.getSystemIsDark());
-      utils_theme.syncNativeTabBarTheme(themeStore.isDark);
       userStore.init();
       questionStore.loadToday();
       (_b = (_a = common_vendor.wx$1).onThemeChange) == null ? void 0 : _b.call(_a, (res) => {
         themeStore.setSystemTheme(res.theme === "dark");
-        utils_theme.syncNativeTabBarTheme(themeStore.isDark);
       });
     });
     common_vendor.onShow(() => {
       userStore.checkStreak();
-      utils_theme.syncNativeTabBarTheme(themeStore.isDark);
     });
     return (_ctx, _cache) => {
       return {};

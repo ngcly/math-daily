@@ -110,7 +110,17 @@
   font-size: 22rpx;
   color: var(--ink-4);
 }
+.history-item__right {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  flex-shrink: 0;
+}
 .history-item__result {
   font-size: 32rpx;
-  flex-shrink: 0;
+}
+.history-item__arrow {
+  font-size: 32rpx;
+  color: var(--ink-4);
+  font-weight: 300;
 }

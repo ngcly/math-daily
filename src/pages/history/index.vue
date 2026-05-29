@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import Calendar from '@/components/Calendar/index.vue'
 import { useUserStore } from '@/store/user'
@@ -7,7 +7,6 @@ import { useThemeStore } from '@/store/theme'
 import { getUserHistory } from '@/api/cloud'
 import type { UserRecord } from '@/types'
 import { formatDuration } from '@/utils/date'
-import { syncNativeTabBarTheme } from '@/utils/theme'
 
 const userStore  = useUserStore()
 const themeStore = useThemeStore()
@@ -29,10 +28,9 @@ const correctRate  = computed(() =>
   totalDone.value === 0 ? 0 : Math.round((totalCorrect.value / totalDone.value) * 100)
 )
 
-onMounted(() => loadRecords())
 onShow(() => {
   themeStore.setCurrentTab(1)
-  syncNativeTabBarTheme(themeStore.isDark)
+  loadRecords()
 })
 
 async function loadRecords() {
@@ -62,16 +60,13 @@ function nextMonth() {
   loadRecords()
 }
 
-// 点击某天 → 跳到该天的解析（回看）
-function onDayClick(dateStr: string) {
-  const record = records.value.find(r => r.date === dateStr)
-  if (!record) return
-  uni.navigateTo({ url: `/pages/result/index?replay=1&date=${dateStr}` })
+function goReview(date: string) {
+  uni.navigateTo({ url: `/pages/review/index?date=${date}` })
 }
 </script>
 
 <template>
-  <scroll-view class="page" :class="themeStore.themeClass" scroll-y :show-scrollbar="false">
+  <scroll-view class="page" scroll-y :show-scrollbar="false">
     <view class="content">
 
       <!-- 页面标题 -->
@@ -100,7 +95,7 @@ function onDayClick(dateStr: string) {
         :records="records"
         @prevMonth="prevMonth"
         @nextMonth="nextMonth"
-        @dayClick="onDayClick"
+        @dayClick="goReview"
         class="calendar-wrap"
       />
 
@@ -121,7 +116,7 @@ function onDayClick(dateStr: string) {
           v-for="record in records"
           :key="record._id"
           class="history-item"
-          @tap="onDayClick(record.date)"
+          @tap="goReview(record.date)"
         >
           <!-- 日期 -->
           <view class="history-item__date">
@@ -137,10 +132,11 @@ function onDayClick(dateStr: string) {
             </view>
           </view>
 
-          <!-- 结果图标 -->
-          <text class="history-item__result">
-            {{ record.is_correct ? '✅' : '❌' }}
-          </text>
+          <!-- 结果图标 + 回顾箭头 -->
+          <view class="history-item__right">
+            <text class="history-item__result">{{ record.is_correct ? '✅' : '❌' }}</text>
+            <text class="history-item__arrow">›</text>
+          </view>
         </view>
 
       </view>
@@ -280,6 +276,19 @@ function onDayClick(dateStr: string) {
     color: $ink-4;
   }
 
-  &__result { font-size: 32rpx; flex-shrink: 0; }
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: 8rpx;
+    flex-shrink: 0;
+  }
+
+  &__result { font-size: 32rpx; }
+
+  &__arrow {
+    font-size: 32rpx;
+    color: $ink-4;
+    font-weight: 300;
+  }
 }
 </style>

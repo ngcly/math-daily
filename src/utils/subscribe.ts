@@ -8,8 +8,6 @@ export function requestDailySubscribe(): Promise<SubscribeStatus> {
       tmplIds: [DAILY_SUBSCRIBE_TEMPLATE_ID],
       success: (res) => {
         const status = res[DAILY_SUBSCRIBE_TEMPLATE_ID]
-        console.info('[subscribe] requestSubscribeMessage result:', res)
-
         if (status === 'accept') {
           resolve('accept')
         } else if (status === 'ban') {

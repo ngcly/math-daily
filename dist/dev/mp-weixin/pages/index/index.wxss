@@ -61,6 +61,70 @@
   font-size: 24rpx;
   color: var(--ink-4);
 }
+.week-strip {
+  display: flex;
+  justify-content: space-between;
+  padding: 20rpx 28rpx;
+  background: var(--white);
+  border-radius: 16rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
+  margin-bottom: 24rpx;
+}
+.week-strip__day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10rpx;
+}
+.week-strip__dot {
+  width: 28rpx;
+  height: 28rpx;
+  border-radius: 50%;
+  background: var(--ink-5);
+}
+.week-strip__dot--correct {
+  background: var(--green);
+}
+.week-strip__dot--wrong {
+  background: var(--red);
+}
+.week-strip__dot--today {
+  background: transparent;
+  border: 3rpx solid var(--amber);
+  box-sizing: border-box;
+}
+.week-strip__dot--future {
+  width: 10rpx;
+  height: 10rpx;
+  margin: 9rpx 9rpx 0;
+  background: var(--ink-5);
+}
+.week-strip__label {
+  font-size: 20rpx;
+  color: var(--ink-4);
+  font-weight: 600;
+}
+.week-strip__label--today {
+  color: var(--amber);
+  font-weight: 800;
+}
+.tag--category {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2rpx;
+  padding: 8rpx 16rpx;
+}
+.tag--category .tag__name {
+  font-size: 22rpx;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.tag--category .tag__sub {
+  font-size: 18rpx;
+  font-weight: 500;
+  opacity: 0.75;
+  line-height: 1.3;
+}
 .q-card {
   background: var(--white);
   border-radius: 24rpx;
@@ -102,6 +166,42 @@
   width: 100%;
   margin-top: 24rpx;
   border-radius: 16rpx;
+}
+.social-bar {
+  margin-top: 24rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx solid var(--ink-5);
+}
+.social-bar__text {
+  font-size: 22rpx;
+  color: var(--ink-4);
+}
+.social-bar__num {
+  font-weight: 700;
+  color: var(--ink-3);
+}
+.daily-quote {
+  margin-bottom: 24rpx;
+  padding: 24rpx 28rpx;
+  background: var(--white);
+  border-radius: 16rpx;
+  border-left: 6rpx solid var(--amber);
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
+}
+.daily-quote__text {
+  display: block;
+  font-size: 26rpx;
+  color: var(--ink-2);
+  line-height: 1.85;
+  font-style: italic;
+}
+.daily-quote__label {
+  display: block;
+  margin-top: 12rpx;
+  font-size: 20rpx;
+  color: var(--ink-4);
+  font-weight: 600;
+  text-align: right;
 }
 .draft-preview {
   min-height: 200rpx;

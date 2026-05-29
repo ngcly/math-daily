@@ -1,7 +1,9 @@
 {
   "navigationBarTitleText": "脑生锈",
-  "navigationBarBackgroundColor": "@navDark",
+  "navigationBarBackgroundColor": "#1a1a1a",
   "navigationBarTextStyle": "white",
   "backgroundColor": "@bgPaper",
+  "backgroundColorTop": "@bgPaper",
+  "backgroundColorBottom": "@bgPaper",
   "usingComponents": {}
 }

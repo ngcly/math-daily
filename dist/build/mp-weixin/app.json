@@ -3,14 +3,17 @@
     "pages/index/index",
     "pages/draft/index",
     "pages/result/index",
+    "pages/review/index",
     "pages/history/index",
     "pages/settings/index"
   ],
   "window": {
     "navigationBarTextStyle": "white",
     "navigationBarTitleText": "脑生锈",
-    "navigationBarBackgroundColor": "@navDark",
+    "navigationBarBackgroundColor": "#1a1a1a",
     "backgroundColor": "@bgPaper",
+    "backgroundColorTop": "@bgPaper",
+    "backgroundColorBottom": "@bgPaper",
     "navigationStyle": "default"
   },
   "tabBar": {

@@ -84,7 +84,7 @@ function goToResult() {
 </script>
 
 <template>
-  <view class="draft-page" :class="themeStore.themeClass">
+  <view class="draft-page">
 
     <!-- 草稿纸（全屏） -->
     <SketchPad
@@ -184,10 +184,6 @@ function goToResult() {
   border: 1rpx solid $ink-5;
   overflow: hidden;
   transition: all $duration-mid $ease-out;
-
-  &--collapsed {
-    bottom: 180rpx;
-  }
 
   &__header {
     display: flex;

@@ -1,4 +1,4 @@
-import type { Question, SubmitPayload, SubmitResult, UserRecord, UserProfile } from '@/types'
+import type { Question, SubmitPayload, SubmitResult, UserRecord, UserProfile, HistoryDetail } from '@/types'
 
 /**
  * 通用云函数调用封装，统一处理错误
@@ -40,6 +40,10 @@ export const initUser = () =>
 /** 获取用户历史记录 */
 export const getUserHistory = (params: { year: number; month: number }) =>
   callCloud<UserRecord[]>('getUserHistory', params)
+
+/** 获取历史回顾详情（含题目解析，仅已答题日期可调用） */
+export const getHistoryDetail = (date: string) =>
+  callCloud<HistoryDetail>('getHistoryDetail', { date })
 
 /** 更新用户设置 */
 export const updateSettings = (settings: Partial<UserProfile>) =>

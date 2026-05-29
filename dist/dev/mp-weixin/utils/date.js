@@ -1,10 +1,9 @@
 "use strict";
+function dateToStr(d) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
 function today() {
-  const d = /* @__PURE__ */ new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
+  return dateToStr(/* @__PURE__ */ new Date());
 }
 function formatDisplayDate(dateStr) {
   const d = new Date(dateStr);
@@ -30,6 +29,7 @@ function firstDayOfMonth(year, month) {
 function daysInMonth(year, month) {
   return new Date(year, month, 0).getDate();
 }
+exports.dateToStr = dateToStr;
 exports.daysInMonth = daysInMonth;
 exports.firstDayOfMonth = firstDayOfMonth;
 exports.formatDisplayDate = formatDisplayDate;

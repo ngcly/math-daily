@@ -5,7 +5,7 @@ const utils_date = require("../utils/date.js");
 function dayBefore(dateStr) {
   const d = new Date(dateStr);
   d.setDate(d.getDate() - 1);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  return utils_date.dateToStr(d);
 }
 const useUserStore = common_vendor.defineStore("user", () => {
   const profile = common_vendor.ref(null);
@@ -33,6 +33,7 @@ const useUserStore = common_vendor.defineStore("user", () => {
   async function init() {
     try {
       profile.value = await api_cloud.initUser();
+      checkStreak();
     } catch (e) {
       console.error("[UserStore] init failed", e);
     }
