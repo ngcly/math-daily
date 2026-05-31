@@ -70,8 +70,10 @@ export interface Question {
 export interface SubmitPayload {
   question_id: string
   date: string
-  selected?: string           // 选择题：'A'|'B'|'C'|'D'
-  fill_answer?: string        // 填空题：用户输入的字符串
+  /** 选择题答案：'A'|'B'|'C'|'D'（选择题必填，填空题不传） */
+  selected?: Option['key']
+  /** 填空题答案（填空题必填，选择题不传） */
+  fill_answer?: string
   time_spent: number          // 答题用时（秒）
   user_thought?: string       // 用户思路（MVP 阶段可为空）
 }

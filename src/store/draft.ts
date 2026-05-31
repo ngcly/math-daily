@@ -34,9 +34,10 @@ export const useDraftStore = defineStore('draft', () => {
   /** 保存草稿（每笔结束时调用） */
   function save(questionId: string, data: DraftData) {
     strokes.value = data.strokes
-    isDirty.value = false
     try {
       uni.setStorageSync(`${STORAGE_PREFIX}${questionId}`, JSON.stringify(data))
+      isDirty.value = false
+      cleanup()  // 每次保存后自动清理过期草稿
     } catch (e) {
       console.warn('[DraftStore] save failed', e)
     }

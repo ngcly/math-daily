@@ -71,8 +71,8 @@ function shareToTimeline() {
 
 
 onShow(() => {
-  // 无结果时跳回首页（submitResult 已持久化，重启后仍有值，此处只兜底）
-  if (!result.value) {
+  // 提交结果必须属于今天，防止跨天后 submitResult 持久化导致的旧数据显示
+  if (!result.value || !questionStore.isAnswered) {
     uni.switchTab({ url: '/pages/index/index' })
     return
   }
@@ -120,7 +120,11 @@ onShareTimeline(() => {
 async function requestSubscribe() {
   const status = await requestDailySubscribe()
   if (status === 'accept') {
-    await userStore.updatePrefs({ subscribed: true })
+    try {
+      await userStore.updatePrefs({ subscribed: true })
+    } catch {
+      console.warn('[Result] subscribed 保存失败')
+    }
   }
   showSubscribeStatusToast(status, '明天准时提醒你 🔔')
 }

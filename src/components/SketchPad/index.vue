@@ -86,6 +86,9 @@ const redoStack = ref<Stroke[]>([])
 // 当前正在画的笔迹
 let currentStroke: Stroke | null = null
 
+// 橡皮擦收集点：touchmove 期间只收集，touchend 时批量擦除（性能优化）
+let eraserPoints: StrokePoint[] = []
+
 // ── 变换状态（缩放 + 平移）────────────────────────────
 const transform = ref<CanvasTransform>({
   scale: 1,
@@ -225,9 +228,9 @@ function onTouchStart(e: TouchEvent) {
     const pt = screenToCanvas(t.clientX, t.clientY)
 
     if (activeTool.value === 'eraser') {
+      // 橡皮擦：收集起始点，touchend 时批量擦除
       currentStroke = null
-      eraseAt(pt)
-      redrawAll()
+      eraserPoints = [pt]
     } else {
       currentStroke = {
         color:  activeColor.value,
@@ -238,8 +241,9 @@ function onTouchStart(e: TouchEvent) {
     lastPinch = null
 
   } else if (touches.length === 2) {
-    // 双指：进入缩放/平移模式，取消当前笔迹
+    // 双指：进入缩放/平移模式，取消当前笔迹和橡皮擦
     currentStroke = null
+    eraserPoints = []
     lastPinch = getPinchState(touches as unknown as Touch[])
   }
 }
@@ -253,8 +257,8 @@ function onTouchMove(e: TouchEvent) {
     const pt = screenToCanvas(t.clientX, t.clientY)
 
     if (activeTool.value === 'eraser') {
-      eraseAt(pt)
-      redrawAll()
+      // 只收集点，touchend 时批量擦除，避免每帧全量遍历+重绘
+      eraserPoints.push(pt)
       return
     }
 
@@ -270,6 +274,15 @@ function onTouchMove(e: TouchEvent) {
 }
 
 function onTouchEnd(e: TouchEvent) {
+  // 橡皮擦：touchend 时批量擦除所有收集点，避免 touchmove 每帧全量遍历
+  if (activeTool.value === 'eraser' && eraserPoints.length > 0) {
+    for (const pt of eraserPoints) eraseAt(pt)
+    redrawAll()
+    eraserPoints = []
+    lastPinch = null
+    return
+  }
+
   if (touchesLength(e) === 0 && currentStroke) {
     // 笔迹结束：加入 strokes，清空 redoStack
     if (currentStroke.points.length > 1) {

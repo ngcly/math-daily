@@ -55,23 +55,36 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       }
     }
     async function onNicknameBlur(e) {
-      var _a;
+      var _a, _b;
       const name = (e.detail.value ?? "").trim();
       if (!name || name === ((_a = profile.value) == null ? void 0 : _a.nickname))
         return;
       nickname.value = name;
-      await userStore.updatePrefs({ nickname: name });
-      common_vendor.index.showToast({ title: "昵称已保存", icon: "success" });
+      try {
+        await userStore.updatePrefs({ nickname: name });
+        common_vendor.index.showToast({ title: "昵称已保存", icon: "success" });
+      } catch {
+        nickname.value = ((_b = profile.value) == null ? void 0 : _b.nickname) || "";
+        common_vendor.index.showToast({ title: "保存失败，请重试", icon: "none" });
+      }
     }
-    function onRemindChange(e) {
+    async function onRemindChange(e) {
       remindIndex.value = e.detail.value;
       remindTime.value = REMIND_HOURS[e.detail.value];
-      userStore.updatePrefs({ remind_time: remindTime.value });
+      try {
+        await userStore.updatePrefs({ remind_time: remindTime.value });
+      } catch {
+        console.warn("[Settings] remind_time 保存失败");
+      }
     }
     async function requestSubscribe() {
       const status = await utils_subscribe.requestDailySubscribe();
       if (status === "accept") {
-        await userStore.updatePrefs({ subscribed: true });
+        try {
+          await userStore.updatePrefs({ subscribed: true });
+        } catch {
+          console.warn("[Settings] subscribed 保存失败");
+        }
       }
       utils_subscribe.showSubscribeStatusToast(status, "订阅成功 🔔");
     }

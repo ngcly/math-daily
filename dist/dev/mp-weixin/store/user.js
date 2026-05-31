@@ -32,7 +32,16 @@ const useUserStore = common_vendor.defineStore("user", () => {
   });
   async function init() {
     try {
-      profile.value = await api_cloud.initUser();
+      const cloudProfile = await api_cloud.initUser();
+      if (profile.value) {
+        profile.value = {
+          ...cloudProfile,
+          nickname: cloudProfile.nickname ?? profile.value.nickname,
+          avatar_url: cloudProfile.avatar_url ?? profile.value.avatar_url
+        };
+      } else {
+        profile.value = cloudProfile;
+      }
       checkStreak();
     } catch (e) {
       console.error("[UserStore] init failed", e);
@@ -50,7 +59,7 @@ const useUserStore = common_vendor.defineStore("user", () => {
       lastRescueResetMonth.value = currentMonth;
       if (profile.value.streak_rescue < 1) {
         profile.value.streak_rescue = 1;
-        syncProfile();
+        syncProfile(true);
       }
     }
     if (!lastActiveDate.value)
@@ -62,7 +71,7 @@ const useUserStore = common_vendor.defineStore("user", () => {
       const canRescue = utils_date.isConsecutiveDay(lastActiveDate.value, yesterdayStr) && profile.value.streak_rescue > 0;
       if (!canRescue) {
         profile.value.streak = 0;
-        syncProfile();
+        syncProfile(true);
       }
     }
   }
@@ -72,37 +81,55 @@ const useUserStore = common_vendor.defineStore("user", () => {
     profile.value.streak += 1;
     profile.value.streak_rescue -= 1;
     lastActiveDate.value = rescuedDate;
-    syncProfile();
+    syncProfile(true);
   }
   function onCompleted() {
     if (!profile.value)
       return;
     const todayStr = utils_date.today();
     if (lastActiveDate.value !== todayStr) {
-      const consecutive = !lastActiveDate.value || utils_date.isConsecutiveDay(lastActiveDate.value, todayStr);
+      const consecutive = !lastActiveDate.value || utils_date.isConsecutiveDay(lastActiveDate.value, todayStr) || pendingRescueDate.value !== "";
       profile.value.streak = consecutive ? profile.value.streak + 1 : 1;
       lastActiveDate.value = todayStr;
-      syncProfile();
+      if (pendingRescueDate.value !== "") {
+        profile.value.streak_rescue = Math.max(0, profile.value.streak_rescue - 1);
+      }
+      syncProfile(true);
     }
   }
   async function updatePrefs(prefs) {
     if (!profile.value)
       return;
+    const rollback = {};
+    for (const key of Object.keys(prefs)) {
+      rollback[key] = profile.value[key];
+    }
     Object.assign(profile.value, prefs);
-    await api_cloud.updateSettings(prefs);
+    try {
+      await api_cloud.updateSettings(prefs);
+    } catch (e) {
+      Object.assign(profile.value, rollback);
+      console.error("[UserStore] updatePrefs 写入云端失败，已回滚", e);
+      throw e;
+    }
   }
   let syncTimer = null;
-  function syncProfile() {
+  function syncProfile(immediate = false) {
     if (syncTimer)
       clearTimeout(syncTimer);
-    syncTimer = setTimeout(() => {
+    const doSync = () => {
       if (profile.value) {
         api_cloud.updateSettings({
           streak: profile.value.streak,
           streak_rescue: profile.value.streak_rescue
         }).catch(console.error);
       }
-    }, 1e3);
+    };
+    if (immediate) {
+      doSync();
+    } else {
+      syncTimer = setTimeout(doSync, 1e3);
+    }
   }
   return {
     profile,

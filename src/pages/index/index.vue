@@ -587,4 +587,12 @@ function goToSubmit() {
     padding: 4rpx 16rpx;
   }
 }
+
+// ── 深色模式：难度点阵对比度增强 ──────────────
+@media (prefers-color-scheme: dark) {
+  .q-card__dot {
+    background: #444;
+    &--filled { background: #ccc; }
+  }
+}
 </style>

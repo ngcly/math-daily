@@ -72,7 +72,7 @@ ${miniLink.value}` : "\n微信搜索小程序「别让你的脑生锈」";
     }
     common_vendor.onShow(() => {
       var _a, _b;
-      if (!result.value) {
+      if (!result.value || !questionStore.isAnswered) {
         common_vendor.index.switchTab({ url: "/pages/index/index" });
         return;
       }
@@ -109,7 +109,11 @@ ${miniLink.value}` : "\n微信搜索小程序「别让你的脑生锈」";
     async function requestSubscribe() {
       const status = await utils_subscribe.requestDailySubscribe();
       if (status === "accept") {
-        await userStore.updatePrefs({ subscribed: true });
+        try {
+          await userStore.updatePrefs({ subscribed: true });
+        } catch {
+          console.warn("[Result] subscribed 保存失败");
+        }
       }
       utils_subscribe.showSubscribeStatusToast(status, "明天准时提醒你 🔔");
     }

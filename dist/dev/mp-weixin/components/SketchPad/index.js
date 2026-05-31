@@ -36,6 +36,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const strokes = common_vendor.ref([]);
     const redoStack = common_vendor.ref([]);
     let currentStroke = null;
+    let eraserPoints = [];
     const transform = common_vendor.ref({
       scale: 1,
       offsetX: 0,
@@ -128,8 +129,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         const pt = screenToCanvas(t.clientX, t.clientY);
         if (activeTool.value === "eraser") {
           currentStroke = null;
-          eraseAt(pt);
-          redrawAll();
+          eraserPoints = [pt];
         } else {
           currentStroke = {
             color: activeColor.value,
@@ -140,6 +140,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         lastPinch = null;
       } else if (touches.length === 2) {
         currentStroke = null;
+        eraserPoints = [];
         lastPinch = getPinchState(touches);
       }
     }
@@ -151,8 +152,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         const t = touches[0];
         const pt = screenToCanvas(t.clientX, t.clientY);
         if (activeTool.value === "eraser") {
-          eraseAt(pt);
-          redrawAll();
+          eraserPoints.push(pt);
           return;
         }
         if (!currentStroke)
@@ -164,6 +164,14 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       }
     }
     function onTouchEnd(e) {
+      if (activeTool.value === "eraser" && eraserPoints.length > 0) {
+        for (const pt of eraserPoints)
+          eraseAt(pt);
+        redrawAll();
+        eraserPoints = [];
+        lastPinch = null;
+        return;
+      }
       if (touchesLength(e) === 0 && currentStroke) {
         if (currentStroke.points.length > 1) {
           strokes.value.push(currentStroke);

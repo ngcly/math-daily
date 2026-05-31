@@ -32,16 +32,30 @@ exports.main = async () => {
   const hour = String(now.getHours()).padStart(2, '0')
   const currentTime = `${hour}:00`   // 匹配用户设置的整点时间
 
-  // 查找该时间点应该推送的已订阅用户
-  const res = await db.collection('user_profiles')
-    .where({
-      subscribed:   true,
-      remind_time:  currentTime,
-    })
-    .limit(100)
-    .get()
+  // 查找该时间点应该推送的已订阅用户（分页取全部，最多 2000 人）
+  let allUsers = []
+  let offset = 0
+  const PAGE_SIZE = 100
+  while (true) {
+    const res = await db.collection('user_profiles')
+      .where({
+        subscribed:   true,
+        remind_time:  currentTime,
+      })
+      .skip(offset)
+      .limit(PAGE_SIZE)
+      .get()
 
-  if (!res.data.length) return { sent: 0 }
+    allUsers = allUsers.concat(res.data)
+    if (res.data.length < PAGE_SIZE) break
+    offset += PAGE_SIZE
+    if (offset >= 2000) {
+      console.warn('[sendDailyPush] 超过 2000 人分页上限，只取前 2000 人')
+      break
+    }
+  }
+
+  if (!allUsers.length) return { sent: 0 }
 
   // 今日题目摘要（用于推送文案）
   const today = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`
@@ -57,7 +71,7 @@ exports.main = async () => {
   // 批量发送
   let sent = 0
   let unsubscribed = []   // 需要清除 subscribed 标记的用户（openId 列表）
-  for (const user of res.data) {
+  for (const user of allUsers) {
     try {
       await cloud.openapi.subscribeMessage.send({
         touser:     user._id,
@@ -93,5 +107,5 @@ exports.main = async () => {
     }
   }
 
-  return { sent, total: res.data.length, unsubscribed: unsubscribed.length }
+  return { sent, total: allUsers.length, unsubscribed: unsubscribed.length }
 }

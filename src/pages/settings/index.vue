@@ -78,21 +78,34 @@ async function onNicknameBlur(e: InputBlurEvent) {
   const name = (e.detail.value ?? '').trim()
   if (!name || name === profile.value?.nickname) return
   nickname.value = name
-  await userStore.updatePrefs({ nickname: name })
-  uni.showToast({ title: '昵称已保存', icon: 'success' })
+  try {
+    await userStore.updatePrefs({ nickname: name })
+    uni.showToast({ title: '昵称已保存', icon: 'success' })
+  } catch {
+    nickname.value = profile.value?.nickname || ''
+    uni.showToast({ title: '保存失败，请重试', icon: 'none' })
+  }
 }
 
-function onRemindChange(e: PickerChangeEvent) {
+async function onRemindChange(e: PickerChangeEvent) {
   remindIndex.value = e.detail.value
   remindTime.value  = REMIND_HOURS[e.detail.value]
-  userStore.updatePrefs({ remind_time: remindTime.value })
+  try {
+    await userStore.updatePrefs({ remind_time: remindTime.value })
+  } catch {
+    console.warn('[Settings] remind_time 保存失败')
+  }
 }
 
 // ── 订阅推送 ─────────────────────────────────────────
 async function requestSubscribe() {
   const status = await requestDailySubscribe()
   if (status === 'accept') {
-    await userStore.updatePrefs({ subscribed: true })
+    try {
+      await userStore.updatePrefs({ subscribed: true })
+    } catch {
+      console.warn('[Settings] subscribed 保存失败')
+    }
   }
   showSubscribeStatusToast(status, '订阅成功 🔔')
 }
@@ -248,7 +261,7 @@ function clearDrafts() {
         </view>
 
         <view class="about-footer">
-          <text class="about-footer__quote">人最重要的能力是思考，但大多数人的大脑，正在悄悄退化</text>
+          <text class="about-footer__quote">每天一道思考题，别让脑袋生锈 ✨</text>
           <text class="about-footer__copy">© 2026 别让你的脑生锈</text>
         </view>
       </view>

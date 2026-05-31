@@ -160,7 +160,7 @@ export const useQuestionStore = defineStore('question', () => {
         date: rescueDate,
       }
       const result = await submitAnswer(fullPayload)
-      return result.is_correct !== undefined  // 提交成功
+      return true  // 提交成功（未抛异常即成功）
     } catch (e) {
       console.error('[QuestionStore] submitRescue failed', e)
       uni.showToast({ title: '提交失败，请重试', icon: 'none' })

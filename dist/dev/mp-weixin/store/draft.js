@@ -24,9 +24,10 @@ const useDraftStore = common_vendor.defineStore("draft", () => {
   }
   function save(questionId, data) {
     strokes.value = data.strokes;
-    isDirty.value = false;
     try {
       common_vendor.index.setStorageSync(`${STORAGE_PREFIX}${questionId}`, JSON.stringify(data));
+      isDirty.value = false;
+      cleanup();
     } catch (e) {
       console.warn("[DraftStore] save failed", e);
     }

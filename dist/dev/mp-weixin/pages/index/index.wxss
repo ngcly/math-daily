@@ -314,3 +314,11 @@
   border-radius: 9999rpx;
   padding: 4rpx 16rpx;
 }
+@media (prefers-color-scheme: dark) {
+.q-card__dot {
+    background: #444;
+}
+.q-card__dot--filled {
+    background: #ccc;
+}
+}

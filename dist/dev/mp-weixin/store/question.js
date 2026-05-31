@@ -115,7 +115,7 @@ const useQuestionStore = common_vendor.defineStore("question", () => {
         date: rescueDate
       };
       const result = await api_cloud.submitAnswer(fullPayload);
-      return result.is_correct !== void 0;
+      return true;
     } catch (e) {
       console.error("[QuestionStore] submitRescue failed", e);
       common_vendor.index.showToast({ title: "提交失败，请重试", icon: "none" });

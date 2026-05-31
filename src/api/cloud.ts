@@ -22,7 +22,7 @@ class CloudBusinessError extends Error {
  * - 仅对网络/超时类异常重试，业务错误（result.code !== 0）直接抛出
  * - 指数退避 + 随机 jitter，最大 2 次重试
  */
-async function callCloud<T>(name: string, data: Record<string, unknown> = {}): Promise<T> {
+async function callCloud<T>(name: string, data: Record<string, any> = {}): Promise<T> {
   let lastError: Error | null = null
 
   for (let attempt = 0; attempt <= RETRY_MAX; attempt++) {
@@ -66,7 +66,7 @@ export const getQuestionByDate = (date: string) =>
 
 /** 提交答案，返回判题结果和解析 */
 export const submitAnswer = (payload: SubmitPayload) =>
-  callCloud<SubmitResult>('submitAnswer', payload as unknown as Record<string, unknown>)
+  callCloud<SubmitResult>('submitAnswer', payload)
 
 // ─────────────────────────────────────
 // 用户相关
@@ -86,7 +86,7 @@ export const getHistoryDetail = (date: string) =>
 
 /** 更新用户设置 */
 export const updateSettings = (settings: Partial<UserProfile>) =>
-  callCloud<void>('updateSettings', settings as unknown as Record<string, unknown>)
+  callCloud<void>('updateSettings', settings)
 
 // ─────────────────────────────────────
 // 埋点
