@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { useQuestionStore } from '@/store/question'
 import { useUserStore } from '@/store/user'
@@ -7,6 +7,10 @@ import { useThemeStore } from '@/store/theme'
 import { today, formatDisplayDate, dateToStr } from '@/utils/date'
 import { CATEGORY_SUBTITLE } from '@/utils/category'
 import type { Category } from '@/types'
+import SkeletonCard from '@/components/SkeletonCard/index.vue'
+
+// 是否显示骨架屏：没有缓存数据且正在加载
+const showSkeleton = computed(() => loading.value && !question.value)
 
 const questionStore = useQuestionStore()
 const userStore     = useUserStore()
@@ -26,29 +30,12 @@ function timeEstimate(difficulty: number): string {
 }
 
 // ── 最近训练维度 ───────────────────────────────────────
-const recentDims = ref<Category[]>([])
-
-function loadRecentDims() {
-  try {
-    const raw: { date: string; category: Category }[] =
-      uni.getStorageSync('recent_trained_dims') || []
-    recentDims.value = [...new Set(raw.map(d => d.category))]
-  } catch {
-    recentDims.value = []
-  }
-}
+const recentDims = computed(() => {
+  const raw = questionStore.recentTrainedDims
+  return [...new Set(raw.map(d => d.category))]
+})
 
 // ── 本周答题记录（周历条） ──────────────────────────────
-const weeklyResults = ref<{ date: string; is_correct: boolean }[]>([])
-
-function loadWeeklyResults() {
-  try {
-    weeklyResults.value = uni.getStorageSync('weekly_results') || []
-  } catch {
-    weeklyResults.value = []
-  }
-}
-
 const weekDays = computed(() => {
   const todayStr  = today()
   const todayDate = new Date(todayStr + 'T00:00:00')
@@ -61,7 +48,7 @@ const weekDays = computed(() => {
     const d = new Date(monday)
     d.setDate(monday.getDate() + i)
     const dateStr = dateToStr(d)
-    const rec = weeklyResults.value.find(r => r.date === dateStr)
+    const rec = questionStore.weeklyResults.find(r => r.date === dateStr)
     return {
       date:     dateStr,
       label,
@@ -85,11 +72,9 @@ const socialStats = computed(() => {
   }
 })
 
-// 每次切回首页刷新（提交后数据即时可见）
+// 每次切回首页刷新（提交后数据即时可见，统计数据通过 Pinia 自动持久化）
 onShow(() => {
   themeStore.setCurrentTab(0)
-  loadRecentDims()
-  loadWeeklyResults()
 })
 
 // 跳转草稿纸
@@ -129,10 +114,8 @@ function goToSubmit() {
     <!-- 日期 -->
     <text class="date-label">{{ dateLabel }}</text>
 
-    <!-- 加载中 -->
-    <view class="loading-wrap" v-if="loading">
-      <text class="loading-wrap__text">题目加载中...</text>
-    </view>
+    <!-- 骨架屏（首次加载无缓存时展示） -->
+    <SkeletonCard v-if="showSkeleton" />
 
     <!-- 无题目 -->
     <view class="empty-wrap" v-else-if="!question">

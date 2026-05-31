@@ -15,6 +15,11 @@ export const useQuestionStore = defineStore('question', () => {
   const submittedDate  = ref('')      // 已作答的日期，防止跨天误判
   const rescueQuestion = ref<Question | null>(null)   // 补签题目（临时）
 
+  // ── 持久化的本地统计数据（通过 unistorage 自动同步到 uni.Storage）──
+  const weeklyResults = ref<{ date: string; is_correct: boolean }[]>([])
+  const recentTrainedDims = ref<{ date: string; category: string }[]>([])
+  const lastTimeSpent = ref(0)
+
   // ── Getters ──
   const isAnswered = computed(() => {
     // 跨天后重置
@@ -104,27 +109,17 @@ export const useQuestionStore = defineStore('question', () => {
       submittedDate.value = today()
 
       // 记录本周答题结果，供首页周历条展示
-      try {
-        const key = 'weekly_results'
-        const prev: { date: string; is_correct: boolean }[] = uni.getStorageSync(key) || []
-        const filtered = prev.filter(d => d.date !== today())
-        filtered.unshift({ date: today(), is_correct: submitResult.value!.is_correct })
-        uni.setStorageSync(key, filtered.slice(0, 30))
-      } catch {}
+      const filteredWeekly = weeklyResults.value.filter(d => d.date !== today())
+      filteredWeekly.unshift({ date: today(), is_correct: submitResult.value!.is_correct })
+      weeklyResults.value = filteredWeekly.slice(0, 30)
 
       // 持久化用时，供 result 页显示（跨页面、跨进程均有效）
-      try { uni.setStorageSync('last_time_spent', payload.time_spent ?? 0) } catch {}
+      lastTimeSpent.value = payload.time_spent ?? 0
 
       // 记录本次训练维度，供首页"最近训练的能力维度"展示
-      try {
-        const key  = 'recent_trained_dims'
-        const prev: { date: string; category: string }[] =
-          uni.getStorageSync(key) || []
-        // 去重同一天的条目（一天只记一次），最多保留 30 条
-        const filtered = prev.filter(d => d.date !== today())
-        filtered.unshift({ date: today(), category: todayQuestion.value!.category })
-        uni.setStorageSync(key, filtered.slice(0, 30))
-      } catch {}
+      const filteredDims = recentTrainedDims.value.filter(d => d.date !== today())
+      filteredDims.unshift({ date: today(), category: todayQuestion.value!.category })
+      recentTrainedDims.value = filteredDims.slice(0, 30)
 
       // 通知 userStore 更新 streak
       const userStore = useUserStore()
@@ -191,6 +186,9 @@ export const useQuestionStore = defineStore('question', () => {
     submitting,
     hasSubmitted,
     submittedDate,
+    weeklyResults,
+    recentTrainedDims,
+    lastTimeSpent,
     isAnswered,
     correctRate,
     loadToday,
@@ -201,7 +199,13 @@ export const useQuestionStore = defineStore('question', () => {
   }
 }, {
   unistorage: {
-    // submitResult 也持久化：重启 app 后 result 页仍可展示解析
-    paths: ['hasSubmitted', 'submittedDate', 'submitResult'],
+    paths: [
+      'hasSubmitted',
+      'submittedDate',
+      'submitResult',
+      'weeklyResults',
+      'recentTrainedDims',
+      'lastTimeSpent',
+    ],
   },
 })

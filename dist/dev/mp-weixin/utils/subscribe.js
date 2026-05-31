@@ -1,6 +1,6 @@
 "use strict";
 const common_vendor = require("../common/vendor.js");
-const DAILY_SUBSCRIBE_TEMPLATE_ID = "KiJLSpuOmVhQ5RJh5LqkQbMrfWYqkUVIHj2C1Dy4k78";
+const DAILY_SUBSCRIBE_TEMPLATE_ID = "KiJLSpuOmVhQ5RJh5LqkQfbFVCQGcoaMkcV2WbOIcuU";
 function requestDailySubscribe() {
   return new Promise((resolve) => {
     common_vendor.wx$1.requestSubscribeMessage({

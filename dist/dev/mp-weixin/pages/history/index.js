@@ -73,9 +73,9 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         a: common_vendor.t(streak.value),
         b: common_vendor.t(totalDone.value),
         c: common_vendor.t(correctRate.value),
-        d: common_vendor.o(prevMonth, "a0"),
-        e: common_vendor.o(nextMonth, "28"),
-        f: common_vendor.o(goReview, "48"),
+        d: common_vendor.o(prevMonth, "ca"),
+        e: common_vendor.o(nextMonth, "fe"),
+        f: common_vendor.o(goReview, "7b"),
         g: common_vendor.p({
           year: viewYear.value,
           month: viewMonth.value,

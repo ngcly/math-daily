@@ -1,16 +1,55 @@
 import type { Question, SubmitPayload, SubmitResult, UserRecord, UserProfile, HistoryDetail } from '@/types'
 
+/** 重试配置 */
+const RETRY_MAX = 2
+const RETRY_BASE_MS = 1000
+
+/** 简易 sleep */
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+/** 云函数业务错误（非网络异常，不重试） */
+class CloudBusinessError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'CloudBusinessError'
+  }
+}
+
 /**
- * 通用云函数调用封装，统一处理错误
+ * 通用云函数调用封装，网络异常时自动指数退避重试
+ * - 仅对网络/超时类异常重试，业务错误（result.code !== 0）直接抛出
+ * - 指数退避 + 随机 jitter，最大 2 次重试
  */
 async function callCloud<T>(name: string, data: Record<string, unknown> = {}): Promise<T> {
-  const res = await wx.cloud.callFunction({ name, data })
-  const result = res.result as { code: number; data: T; message?: string }
+  let lastError: Error | null = null
 
-  if (result.code !== 0) {
-    throw new Error(result.message || `云函数 ${name} 调用失败`)
+  for (let attempt = 0; attempt <= RETRY_MAX; attempt++) {
+    try {
+      const res = await wx.cloud.callFunction({ name, data })
+      const result = res.result as { code: number; data: T; message?: string }
+
+      if (result.code !== 0) {
+        // 业务错误直接抛出，不重试（注意此处用自定义类与网络异常区分）
+        throw new CloudBusinessError(result.message || `云函数 ${name} 调用失败`)
+      }
+      return result.data
+    } catch (e) {
+      // 业务错误直接透传
+      if (e instanceof CloudBusinessError) throw e
+
+      lastError = e instanceof Error ? e : new Error(String(e))
+      if (attempt < RETRY_MAX) {
+        const jitter = Math.random() * 0.3 + 0.85          // 0.85～1.15
+        const delay = Math.round(RETRY_BASE_MS * Math.pow(2, attempt) * jitter)
+        console.warn(`[callCloud] ${name} 失败，${delay}ms 后重试 (${attempt + 1}/${RETRY_MAX})`, lastError.message)
+        await sleep(delay)
+      }
+    }
   }
-  return result.data
+
+  throw lastError ?? new Error(`云函数 ${name} 调用失败（已重试 ${RETRY_MAX} 次）`)
 }
 
 // ─────────────────────────────────────

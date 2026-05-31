@@ -62,10 +62,10 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     }
     return (_ctx, _cache) => {
       return {
-        a: common_vendor.o(($event) => emit("prevMonth"), "87"),
+        a: common_vendor.o(($event) => emit("prevMonth"), "6d"),
         b: common_vendor.t(monthLabel.value),
         c: common_vendor.t(completionRate.value),
-        d: common_vendor.o(($event) => emit("nextMonth"), "7c"),
+        d: common_vendor.o(($event) => emit("nextMonth"), "bf"),
         e: common_vendor.f(["一", "二", "三", "四", "五", "六", "日"], (w, k0, i0) => {
           return {
             a: common_vendor.t(w),

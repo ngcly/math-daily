@@ -67,7 +67,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     return (_ctx, _cache) => {
       var _a, _b, _c;
       return common_vendor.e({
-        a: common_vendor.sr(sketchPadRef, "a67f3e04-0", {
+        a: common_vendor.sr(sketchPadRef, "66abf536-0", {
           "k": "sketchPadRef"
         }),
         b: common_vendor.p({
@@ -77,24 +77,24 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         d: isAnswered.value
       }, isAnswered.value ? {} : {}, {
         e: common_vendor.t(cardCollapsed.value ? "展开 ↑" : "收起 ↓"),
-        f: common_vendor.o(($event) => cardCollapsed.value = !cardCollapsed.value, "fd"),
+        f: common_vendor.o(($event) => cardCollapsed.value = !cardCollapsed.value, "cc"),
         g: !cardCollapsed.value
       }, !cardCollapsed.value ? {
         h: common_vendor.t(((_b = question.value) == null ? void 0 : _b.body) ?? "题目加载中...")
       } : {}, {
         i: cardCollapsed.value ? 1 : "",
-        j: common_vendor.o(goBack, "20"),
+        j: common_vendor.o(goBack, "2f"),
         k: !isAnswered.value
       }, !isAnswered.value ? {
         l: common_vendor.o(openAnswer, "af")
       } : {
-        m: common_vendor.o(goToResult, "cf")
+        m: common_vendor.o(goToResult, "c8")
       }, {
-        n: common_vendor.o(($event) => answerVisible.value = false, "24"),
+        n: common_vendor.o(($event) => answerVisible.value = false, "77"),
         o: common_vendor.t((_c = question.value) == null ? void 0 : _c.title),
         p: question.value
       }, question.value ? {
-        q: common_vendor.o(onSubmitted, "26"),
+        q: common_vendor.o(onSubmitted, "35"),
         r: common_vendor.p({
           question: question.value,
           ["submit-fn"]: isRescueMode.value ? rescueSubmitFn : void 0

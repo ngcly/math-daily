@@ -5,9 +5,14 @@ const store_user = require("../../store/user.js");
 const store_theme = require("../../store/theme.js");
 const utils_date = require("../../utils/date.js");
 const utils_category = require("../../utils/category.js");
+if (!Math) {
+  SkeletonCard();
+}
+const SkeletonCard = () => "../../components/SkeletonCard/index.js";
 const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   __name: "index",
   setup(__props) {
+    const showSkeleton = common_vendor.computed(() => loading.value && !question.value);
     const questionStore = store_question.useQuestionStore();
     const userStore = store_user.useUserStore();
     const themeStore = store_theme.useThemeStore();
@@ -23,23 +28,10 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         return "约10分钟";
       return "约15分钟";
     }
-    const recentDims = common_vendor.ref([]);
-    function loadRecentDims() {
-      try {
-        const raw = common_vendor.index.getStorageSync("recent_trained_dims") || [];
-        recentDims.value = [...new Set(raw.map((d) => d.category))];
-      } catch {
-        recentDims.value = [];
-      }
-    }
-    const weeklyResults = common_vendor.ref([]);
-    function loadWeeklyResults() {
-      try {
-        weeklyResults.value = common_vendor.index.getStorageSync("weekly_results") || [];
-      } catch {
-        weeklyResults.value = [];
-      }
-    }
+    const recentDims = common_vendor.computed(() => {
+      const raw = questionStore.recentTrainedDims;
+      return [...new Set(raw.map((d) => d.category))];
+    });
     const weekDays = common_vendor.computed(() => {
       const todayStr = utils_date.today();
       const todayDate = /* @__PURE__ */ new Date(todayStr + "T00:00:00");
@@ -51,7 +43,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         const d = new Date(monday);
         d.setDate(monday.getDate() + i);
         const dateStr = utils_date.dateToStr(d);
-        const rec = weeklyResults.value.find((r) => r.date === dateStr);
+        const rec = questionStore.weeklyResults.find((r) => r.date === dateStr);
         return {
           date: dateStr,
           label,
@@ -74,8 +66,6 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     });
     common_vendor.onShow(() => {
       themeStore.setCurrentTab(0);
-      loadRecentDims();
-      loadWeeklyResults();
     });
     function goToDraft() {
       if (!question.value)
@@ -98,11 +88,11 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         a: streak.value > 0
       }, streak.value > 0 ? {
         b: common_vendor.t(streak.value),
-        c: common_vendor.o(goToHistory, "5a")
+        c: common_vendor.o(goToHistory, "0e")
       } : {}, {
         d: common_vendor.t(dateLabel.value),
-        e: loading.value
-      }, loading.value ? {} : !question.value ? {} : common_vendor.e({
+        e: showSkeleton.value
+      }, showSkeleton.value ? {} : !question.value ? {} : common_vendor.e({
         g: common_vendor.f(weekDays.value, (day, k0, i0) => {
           return {
             a: day.result === true ? 1 : "",
@@ -143,12 +133,12 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         w: common_vendor.t(answered.value ? "查看解析 →" : "✏️ 点击开始演算 →"),
         x: answered.value
       }, answered.value ? {
-        y: common_vendor.o(goToDraft, "e3")
+        y: common_vendor.o(goToDraft, "0a")
       } : {
-        z: common_vendor.o(goToSubmit, "62")
+        z: common_vendor.o(goToSubmit, "96")
       }, {
         A: answered.value ? 1 : "",
-        B: common_vendor.o(($event) => answered.value ? goToResult() : goToDraft(), "27"),
+        B: common_vendor.o(($event) => answered.value ? goToResult() : goToDraft(), "66"),
         C: streak.value > 0
       }, streak.value > 0 ? {
         D: common_vendor.t(streak.value)

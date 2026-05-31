@@ -4,12 +4,12 @@ import { useThemeStore } from '@/store/theme'
 
 const themeStore = useThemeStore()
 
-// wx.onThemeChange 在 custom-tab-bar 里比 Pinia 响应式更可靠
+// uni.onThemeChange 在 custom-tab-bar 里比 Pinia 响应式更可靠
 let themeChangeOff: (() => void) | null = null
 onMounted(() => {
   const handler = (res: { theme: string }) => themeStore.setSystemTheme(res.theme === 'dark')
-  wx.onThemeChange?.(handler)
-  themeChangeOff = () => wx.offThemeChange?.(handler)
+  uni.onThemeChange?.(handler)
+  themeChangeOff = () => uni.offThemeChange?.(handler)
 })
 onUnmounted(() => themeChangeOff?.())
 

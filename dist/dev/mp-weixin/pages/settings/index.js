@@ -21,14 +21,16 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const remindIndex = common_vendor.ref(8);
     common_vendor.onShow(() => {
       themeStore.setCurrentTab(2);
-      if (profile.value) {
-        avatarUrl.value = profile.value.avatar_url || "";
-        nickname.value = profile.value.nickname || "";
-        remindTime.value = profile.value.remind_time;
-        const idx = REMIND_HOURS.indexOf(profile.value.remind_time);
-        remindIndex.value = idx >= 0 ? idx : 8;
-      }
     });
+    common_vendor.watch(profile, (p) => {
+      if (!p)
+        return;
+      avatarUrl.value = p.avatar_url || "";
+      nickname.value = p.nickname || "";
+      remindTime.value = p.remind_time;
+      const idx = REMIND_HOURS.indexOf(p.remind_time);
+      remindIndex.value = idx >= 0 ? idx : 8;
+    }, { immediate: true });
     async function onChooseAvatar(e) {
       const tempPath = e.detail.avatarUrl;
       if (!tempPath || !profile.value)
@@ -98,27 +100,30 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       });
     }
     return (_ctx, _cache) => {
-      var _a, _b;
+      var _a, _b, _c, _d, _e;
       return common_vendor.e({
         a: avatarUrl.value
       }, avatarUrl.value ? {
         b: avatarUrl.value
       } : {}, {
-        c: common_vendor.o(onChooseAvatar, "87"),
+        c: common_vendor.o(onChooseAvatar, "57"),
         d: nickname.value,
-        e: common_vendor.o(onNicknameBlur, "46"),
+        e: common_vendor.o(onNicknameBlur, "88"),
         f: common_vendor.t(remindTime.value),
         g: common_vendor.unref(REMIND_HOURS),
         h: remindIndex.value,
-        i: common_vendor.o(onRemindChange, "4a"),
-        j: common_vendor.o(requestSubscribe, "1a"),
-        k: common_vendor.t(((_a = profile.value) == null ? void 0 : _a.streak) ?? 0),
-        l: common_vendor.t(((_b = profile.value) == null ? void 0 : _b.streak_rescue) ?? 0),
-        m: common_vendor.t(canRescue.value ? `补签 ${pendingRescueDate.value}` : "暂无可补签的日期"),
-        n: !canRescue.value ? 1 : "",
-        o: common_vendor.o(goRescue, "cd"),
-        p: common_vendor.o(goFeedback, "ea"),
-        q: common_vendor.o(clearDrafts, "e6")
+        i: common_vendor.o(onRemindChange, "55"),
+        j: common_vendor.t(((_a = profile.value) == null ? void 0 : _a.subscribed) ? "✅ 已开启" : "未开启"),
+        k: ((_b = profile.value) == null ? void 0 : _b.subscribed) ? 1 : "",
+        l: common_vendor.t(((_c = profile.value) == null ? void 0 : _c.subscribed) ? "重新订阅" : "订阅每日推送通知"),
+        m: common_vendor.o(requestSubscribe, "e5"),
+        n: common_vendor.t(((_d = profile.value) == null ? void 0 : _d.streak) ?? 0),
+        o: common_vendor.t(((_e = profile.value) == null ? void 0 : _e.streak_rescue) ?? 0),
+        p: common_vendor.t(canRescue.value ? `补签 ${pendingRescueDate.value}` : "暂无可补签的日期"),
+        q: !canRescue.value ? 1 : "",
+        r: common_vendor.o(goRescue, "c8"),
+        s: common_vendor.o(goFeedback, "1e"),
+        t: common_vendor.o(clearDrafts, "c9")
       });
     };
   }

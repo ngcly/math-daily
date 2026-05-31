@@ -1,6 +1,9 @@
 /**
  * 标准化用户输入的填空题答案，用于与标准答案比较
  * 处理：去空格、分数/小数等价、单位容错
+ *
+ * ⚠️ 此函数与 cloudfunctions/submitAnswer/index.js 中的 normalizeAnswer
+ *    逻辑完全一致，修改时务必两端同步，否则会导致前后端判题结果不一致。
  */
 export function normalizeAnswer(raw: string): string {
   let s = raw.trim().toLowerCase()
@@ -32,6 +35,10 @@ export function normalizeAnswer(raw: string): string {
 
 /**
  * 判断用户填空答案是否正确
+ *
+ * @deprecated 当前未在前端使用，判题完全由云端 submitAnswer 云函数完成。
+ *             如需开启本地预览校验，使用前请同步此逻辑与 cloudfunctions/submitAnswer/index.js。
+ *
  * @param userInput  用户输入
  * @param answer     标准答案
  * @param variants   等价答案列表（可选）

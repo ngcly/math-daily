@@ -5,7 +5,8 @@ export function getSystemIsDark(): boolean {
   } catch {}
 
   try {
-    return (wx.getSystemInfoSync() as any).theme === 'dark'
+    const info: { theme?: string } = uni.getSystemInfoSync() as { theme?: string }
+    return info.theme === 'dark'
   } catch {
     return false
   }

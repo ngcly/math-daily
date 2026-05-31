@@ -32,8 +32,27 @@ const instance = getCurrentInstance()
 // ── Canvas 引用 ────────────────────────────────────────
 // 云数据库 _id 可能以数字开头或含特殊字符，需要清洗成合法 CSS id
 const canvasId = `sp_${props.questionId.replace(/[^a-zA-Z0-9_-]/g, '_')}`
-let ctx: UniApp.CanvasContext | null = null
-let canvasNode: any = null   // Canvas 2D 节点引用，canvasToTempFilePath 需要
+
+/** 微信小程序 Canvas 2D 节点（type="2d"）的最小类型描述 */
+interface Canvas2DNode {
+  width: number
+  height: number
+  getContext(type: '2d'): CanvasRenderingContext2D | null
+}
+
+/** SelectorQuery fields() 查询 Canvas 2D 节点后返回的扁平结构 */
+interface Canvas2DNodeFields {
+  node: Canvas2DNode
+  width: number
+  height: number
+  left: number
+  top: number
+  right: number
+  bottom: number
+}
+
+let ctx: CanvasRenderingContext2D | null = null
+let canvasNode: Canvas2DNode | null = null   // Canvas 2D 节点引用，canvasToTempFilePath 需要
 let canvasRect = { left: 0, top: 0, width: 0, height: 0 }
 
 // ── 主题（从全局 store 读取，跟随用户设置）─────────────
@@ -115,7 +134,7 @@ function queryWithTimeout<T>(
       ? uni.createSelectorQuery().in(scope)
       : uni.createSelectorQuery()
     queryFn(query)
-    query.exec((res: any[]) => {
+    query.exec((res: (Canvas2DNodeFields | null)[]) => {
       clearTimeout(timer)
       resolve(res?.[0] ?? null)
     })
@@ -125,10 +144,7 @@ function queryWithTimeout<T>(
 async function initCanvas() {
   // 一次查询同时拿到：Canvas 节点、尺寸、位置（rect）
   // 避免单独调用 boundingClientRect()——该 API 在 uni-app Vue3 组件内有兼容性问题
-  const res = await queryWithTimeout<{
-    node: any; width: number; height: number
-    left: number; top: number; right: number; bottom: number
-  }>(q =>
+  const res = await queryWithTimeout<Canvas2DNodeFields>(q =>
     q.select(`#${canvasId}`).fields({ node: true, size: true, rect: true })
   )
 
@@ -153,7 +169,7 @@ async function initCanvas() {
   const dpr = uni.getWindowInfo?.()?.pixelRatio ?? uni.getSystemInfoSync().pixelRatio ?? 1
   canvas.width  = res.width  * dpr
   canvas.height = res.height * dpr
-  ;(ctx as any).scale(dpr, dpr)
+  ctx.scale(dpr, dpr)
 }
 
 // ════════════════════════════════════════════════════════
@@ -328,53 +344,51 @@ function handlePinch(touches: Touch[]) {
 /** 全量重绘（缩放/撤销/加载时调用） */
 function redrawAll() {
   if (!ctx) return
-  const c = ctx as any
 
-  c.clearRect(0, 0, canvasRect.width * 4, canvasRect.height * 4)
+  ctx.clearRect(0, 0, canvasRect.width * 4, canvasRect.height * 4)
 
   // 应用变换
   const t = transform.value
-  c.save()
-  c.translate(t.offsetX, t.offsetY)
-  c.scale(t.scale, t.scale)
+  ctx.save()
+  ctx.translate(t.offsetX, t.offsetY)
+  ctx.scale(t.scale, t.scale)
 
   // 绘制点阵背景
-  drawDotGrid(c)
+  drawDotGrid(ctx)
 
   // 绘制所有已完成笔迹
   for (const stroke of strokes.value) {
-    drawStroke(c, stroke)
+    drawStroke(ctx, stroke)
   }
 
   // 绘制当前正在画的笔迹
   if (currentStroke && currentStroke.points.length > 1) {
-    drawStroke(c, currentStroke)
+    drawStroke(ctx, currentStroke)
   }
 
-  c.restore()
+  ctx.restore()
 }
 
 /** 增量绘制（touchmove 时只画最新的一小段，性能更好） */
 function drawLatestSegment(stroke: Stroke) {
   if (!ctx || stroke.points.length < 2) return
-  const c = ctx as any
   const t = transform.value
   const pts = stroke.points
 
-  c.save()
-  c.translate(t.offsetX, t.offsetY)
-  c.scale(t.scale, t.scale)
+  ctx.save()
+  ctx.translate(t.offsetX, t.offsetY)
+  ctx.scale(t.scale, t.scale)
 
-  c.beginPath()
-  c.strokeStyle = stroke.color
-  c.lineWidth   = stroke.width / t.scale
-  c.lineCap     = 'round'
-  c.lineJoin    = 'round'
+  ctx.beginPath()
+  ctx.strokeStyle = stroke.color
+  ctx.lineWidth   = stroke.width / t.scale
+  ctx.lineCap     = 'round'
+  ctx.lineJoin    = 'round'
 
   const len = pts.length
   if (len === 2) {
-    c.moveTo(pts[0].x, pts[0].y)
-    c.lineTo(pts[1].x, pts[1].y)
+    ctx.moveTo(pts[0].x, pts[0].y)
+    ctx.lineTo(pts[1].x, pts[1].y)
   } else {
     // 取最后三个点做贝塞尔
     const p0 = pts[len - 3]
@@ -384,40 +398,40 @@ function drawLatestSegment(stroke: Stroke) {
     const mid1y = (p0.y + p1.y) / 2
     const mid2x = (p1.x + p2.x) / 2
     const mid2y = (p1.y + p2.y) / 2
-    c.moveTo(mid1x, mid1y)
-    c.quadraticCurveTo(p1.x, p1.y, mid2x, mid2y)
+    ctx.moveTo(mid1x, mid1y)
+    ctx.quadraticCurveTo(p1.x, p1.y, mid2x, mid2y)
   }
 
-  c.stroke()
-  c.restore()
+  ctx.stroke()
+  ctx.restore()
 }
 
 /** 绘制单条笔迹（贝塞尔曲线平滑） */
-function drawStroke(c: any, stroke: Stroke) {
+function drawStroke(ctx: CanvasRenderingContext2D, stroke: Stroke) {
   const pts = stroke.points
   if (pts.length < 2) return
 
-  c.beginPath()
-  c.strokeStyle = stroke.color
-  c.lineWidth   = stroke.width / transform.value.scale
-  c.lineCap     = 'round'
-  c.lineJoin    = 'round'
+  ctx.beginPath()
+  ctx.strokeStyle = stroke.color
+  ctx.lineWidth   = stroke.width / transform.value.scale
+  ctx.lineCap     = 'round'
+  ctx.lineJoin    = 'round'
 
-  c.moveTo(pts[0].x, pts[0].y)
+  ctx.moveTo(pts[0].x, pts[0].y)
 
   for (let i = 1; i < pts.length - 1; i++) {
     const midX = (pts[i].x + pts[i + 1].x) / 2
     const midY = (pts[i].y + pts[i + 1].y) / 2
-    c.quadraticCurveTo(pts[i].x, pts[i].y, midX, midY)
+    ctx.quadraticCurveTo(pts[i].x, pts[i].y, midX, midY)
   }
 
   // 最后一段直接到终点
-  c.lineTo(pts[pts.length - 1].x, pts[pts.length - 1].y)
-  c.stroke()
+  ctx.lineTo(pts[pts.length - 1].x, pts[pts.length - 1].y)
+  ctx.stroke()
 }
 
 /** 点阵背景 */
-function drawDotGrid(c: any) {
+function drawDotGrid(ctx: CanvasRenderingContext2D) {
   const GRID  = 20    // 点间距（逻辑像素）
   const t     = transform.value
   const DOT_R = 0.8 / t.scale
@@ -431,12 +445,12 @@ function drawDotGrid(c: any) {
   const startX = Math.floor(left  / GRID) * GRID
   const startY = Math.floor(top   / GRID) * GRID
 
-  c.fillStyle = themeStore.isDark ? '#3a3820' : '#d4cc80'
+  ctx.fillStyle = themeStore.isDark ? '#3a3820' : '#d4cc80'
   for (let x = startX; x <= right; x += GRID) {
     for (let y = startY; y <= bottom; y += GRID) {
-      c.beginPath()
-      c.arc(x, y, DOT_R, 0, Math.PI * 2)
-      c.fill()
+      ctx.beginPath()
+      ctx.arc(x, y, DOT_R, 0, Math.PI * 2)
+      ctx.fill()
     }
   }
 }

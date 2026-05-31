@@ -9,7 +9,8 @@ function getSystemIsDark() {
   } catch {
   }
   try {
-    return common_vendor.wx$1.getSystemInfoSync().theme === "dark";
+    const info = common_vendor.index.getSystemInfoSync();
+    return info.theme === "dark";
   } catch {
     return false;
   }

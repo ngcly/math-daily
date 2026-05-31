@@ -87,7 +87,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       }, altExpanded.value ? {
         x: common_vendor.t(syntheticResult.value.alt_solution)
       } : {}, {
-        y: common_vendor.o(($event) => altExpanded.value = !altExpanded.value, "c1")
+        y: common_vendor.o(($event) => altExpanded.value = !altExpanded.value, "81")
       }) : {}) : {}, {
         b: detail.value && syntheticResult.value
       });

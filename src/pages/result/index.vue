@@ -76,16 +76,15 @@ onShow(() => {
     uni.switchTab({ url: '/pages/index/index' })
     return
   }
-  // 从 localStorage 取本次用时
-  const cached = uni.getStorageSync('last_time_spent')
-  if (cached) timeSpent.value = Number(cached)
+  // 从 questionStore 取本次用时（submit 时已持久化到 store）
+  timeSpent.value = questionStore.lastTimeSpent
 
   // 生成小程序短链（正式版可用；开发版可能失败，静默降级）
   wx.generateShortLink?.({
     path: 'pages/index/index',
     query: '',
     isPermanent: false,
-    success: (res: any) => { miniLink.value = res.link },
+    success: (res: { link: string }) => { miniLink.value = res.link },
   })
 })
 

@@ -31,7 +31,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       themeStore.setSystemTheme(utils_theme.getSystemIsDark());
       userStore.init();
       questionStore.loadToday();
-      (_b = (_a = common_vendor.wx$1).onThemeChange) == null ? void 0 : _b.call(_a, (res) => {
+      (_b = (_a = common_vendor.index).onThemeChange) == null ? void 0 : _b.call(_a, (res) => {
         themeStore.setSystemTheme(res.theme === "dark");
       });
       const todayStr = utils_date.today();

@@ -149,6 +149,11 @@ export const useUserStore = defineStore('user', () => {
   }
 }, {
   unistorage: {
-    paths: ['lastActiveDate', 'lastCheckDate', 'lastRescueResetMonth'],
+    paths: [
+      'profile',
+      'lastActiveDate',
+      'lastCheckDate',
+      'lastRescueResetMonth',
+    ],
   },
 })

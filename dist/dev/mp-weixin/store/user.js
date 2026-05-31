@@ -117,7 +117,12 @@ const useUserStore = common_vendor.defineStore("user", () => {
   };
 }, {
   unistorage: {
-    paths: ["lastActiveDate", "lastCheckDate", "lastRescueResetMonth"]
+    paths: [
+      "profile",
+      "lastActiveDate",
+      "lastCheckDate",
+      "lastRescueResetMonth"
+    ]
   }
 });
 exports.useUserStore = useUserStore;

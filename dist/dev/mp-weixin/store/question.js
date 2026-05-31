@@ -11,6 +11,9 @@ const useQuestionStore = common_vendor.defineStore("question", () => {
   const hasSubmitted = common_vendor.ref(false);
   const submittedDate = common_vendor.ref("");
   const rescueQuestion = common_vendor.ref(null);
+  const weeklyResults = common_vendor.ref([]);
+  const recentTrainedDims = common_vendor.ref([]);
+  const lastTimeSpent = common_vendor.ref(0);
   const isAnswered = common_vendor.computed(() => {
     return hasSubmitted.value && submittedDate.value === utils_date.today();
   });
@@ -74,26 +77,13 @@ const useQuestionStore = common_vendor.defineStore("question", () => {
       submitResult.value = await api_cloud.submitAnswer(fullPayload);
       hasSubmitted.value = true;
       submittedDate.value = utils_date.today();
-      try {
-        const key = "weekly_results";
-        const prev = common_vendor.index.getStorageSync(key) || [];
-        const filtered = prev.filter((d) => d.date !== utils_date.today());
-        filtered.unshift({ date: utils_date.today(), is_correct: submitResult.value.is_correct });
-        common_vendor.index.setStorageSync(key, filtered.slice(0, 30));
-      } catch {
-      }
-      try {
-        common_vendor.index.setStorageSync("last_time_spent", payload.time_spent ?? 0);
-      } catch {
-      }
-      try {
-        const key = "recent_trained_dims";
-        const prev = common_vendor.index.getStorageSync(key) || [];
-        const filtered = prev.filter((d) => d.date !== utils_date.today());
-        filtered.unshift({ date: utils_date.today(), category: todayQuestion.value.category });
-        common_vendor.index.setStorageSync(key, filtered.slice(0, 30));
-      } catch {
-      }
+      const filteredWeekly = weeklyResults.value.filter((d) => d.date !== utils_date.today());
+      filteredWeekly.unshift({ date: utils_date.today(), is_correct: submitResult.value.is_correct });
+      weeklyResults.value = filteredWeekly.slice(0, 30);
+      lastTimeSpent.value = payload.time_spent ?? 0;
+      const filteredDims = recentTrainedDims.value.filter((d) => d.date !== utils_date.today());
+      filteredDims.unshift({ date: utils_date.today(), category: todayQuestion.value.category });
+      recentTrainedDims.value = filteredDims.slice(0, 30);
       const userStore = store_user.useUserStore();
       userStore.onCompleted();
       return submitResult.value;
@@ -151,6 +141,9 @@ const useQuestionStore = common_vendor.defineStore("question", () => {
     submitting,
     hasSubmitted,
     submittedDate,
+    weeklyResults,
+    recentTrainedDims,
+    lastTimeSpent,
     isAnswered,
     correctRate,
     loadToday,
@@ -161,8 +154,14 @@ const useQuestionStore = common_vendor.defineStore("question", () => {
   };
 }, {
   unistorage: {
-    // submitResult 也持久化：重启 app 后 result 页仍可展示解析
-    paths: ["hasSubmitted", "submittedDate", "submitResult"]
+    paths: [
+      "hasSubmitted",
+      "submittedDate",
+      "submitResult",
+      "weeklyResults",
+      "recentTrainedDims",
+      "lastTimeSpent"
+    ]
   }
 });
 exports.useQuestionStore = useQuestionStore;

@@ -8,7 +8,7 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db    = cloud.database()
 const _     = db.command
 
-// ── 答案标准化（与前端 utils/answer.ts 保持一致）──
+// ── 答案标准化（⚠️ 与前端 src/utils/answer.ts 中各函数逻辑完全一致，修改需两端同步）──
 function normalizeAnswer(raw = '') {
   let s = String(raw).trim().toLowerCase()
   s = s.replace(/[个天元米秒年月日次步人只条块]$/, '').trim()

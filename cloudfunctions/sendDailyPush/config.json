@@ -1,0 +1,14 @@
+{
+  "triggers": [
+    {
+      "name": "hourlyPush",
+      "type": "timer",
+      "config": "0 * * * * *"
+    }
+  ],
+  "permissions": {
+    "openapi": [
+      "subscribeMessage.send"
+    ]
+  }
+}

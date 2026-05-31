@@ -1,10 +1,21 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { useUserStore } from '@/store/user'
 import { useThemeStore } from '@/store/theme'
 import { useDraftStore } from '@/store/draft'
 import { requestDailySubscribe, showSubscribeStatusToast } from '@/utils/subscribe'
+
+// ── WeChat 小程序事件类型定义（uni-app @dcloudio/types 未覆盖）──
+interface ChooseAvatarEvent {
+  detail: { avatarUrl: string }
+}
+interface InputBlurEvent {
+  detail: { value: string }
+}
+interface PickerChangeEvent {
+  detail: { value: number }
+}
 
 const userStore  = useUserStore()
 const themeStore = useThemeStore()
@@ -25,17 +36,20 @@ const remindIndex = ref(8)
 
 onShow(() => {
   themeStore.setCurrentTab(2)
-  if (profile.value) {
-    avatarUrl.value   = profile.value.avatar_url  || ''
-    nickname.value    = profile.value.nickname    || ''
-    remindTime.value  = profile.value.remind_time
-    const idx = REMIND_HOURS.indexOf(profile.value.remind_time)
-    remindIndex.value = idx >= 0 ? idx : 8
-  }
 })
 
+// 监听 profile 变化，自动填充表单（解决 init() 异步加载完比 onShow 晚的问题）
+watch(profile, (p) => {
+  if (!p) return
+  avatarUrl.value   = p.avatar_url  || ''
+  nickname.value    = p.nickname    || ''
+  remindTime.value  = p.remind_time
+  const idx = REMIND_HOURS.indexOf(p.remind_time)
+  remindIndex.value = idx >= 0 ? idx : 8
+}, { immediate: true })
+
 // 选择头像后上传到云存储并保存文件 ID
-async function onChooseAvatar(e: any) {
+async function onChooseAvatar(e: ChooseAvatarEvent) {
   const tempPath = e.detail.avatarUrl
   if (!tempPath || !profile.value) return
 
@@ -45,7 +59,7 @@ async function onChooseAvatar(e: any) {
       wx.cloud.uploadFile({
         cloudPath: `avatars/${profile.value!._id}.jpg`,
         filePath:  tempPath,
-        success:   (res: any) => resolve(res.fileID),
+        success:   (res: { fileID: string }) => resolve(res.fileID),
         fail:      reject,
       })
     })
@@ -60,7 +74,7 @@ async function onChooseAvatar(e: any) {
 }
 
 // 昵称失焦后保存（仅值变化时才写云端）
-async function onNicknameBlur(e: any) {
+async function onNicknameBlur(e: InputBlurEvent) {
   const name = (e.detail.value ?? '').trim()
   if (!name || name === profile.value?.nickname) return
   nickname.value = name
@@ -68,7 +82,7 @@ async function onNicknameBlur(e: any) {
   uni.showToast({ title: '昵称已保存', icon: 'success' })
 }
 
-function onRemindChange(e: any) {
+function onRemindChange(e: PickerChangeEvent) {
   remindIndex.value = e.detail.value
   remindTime.value  = REMIND_HOURS[e.detail.value]
   userStore.updatePrefs({ remind_time: remindTime.value })
@@ -123,37 +137,35 @@ function clearDrafts() {
       <view class="section-card">
         <text class="section-card__title">👤 我的资料</text>
 
-        <!-- 头像（button 包裹触发微信选图） -->
-        <view class="profile-avatar-row">
+        <!-- 单行：左侧头像（可点击更换） + 右侧昵称（可编辑） -->
+        <view class="profile-row">
           <button
-            class="avatar-btn"
+            class="profile-avatar-btn"
             open-type="chooseAvatar"
             @chooseavatar="onChooseAvatar"
           >
             <image
               v-if="avatarUrl"
-              class="avatar-img"
+              class="profile-avatar"
               :src="avatarUrl"
               mode="aspectFill"
             />
-            <view v-else class="avatar-placeholder">
-              <text class="avatar-placeholder__icon">👤</text>
+            <view v-else class="profile-avatar profile-avatar--empty">
+              <text class="profile-avatar__icon">👤</text>
             </view>
-            <text class="avatar-hint">点击更换头像</text>
           </button>
-        </view>
-
-        <!-- 昵称（type="nickname" 唤起微信昵称键盘） -->
-        <view class="section-card__row">
-          <text class="section-card__label">昵称</text>
-          <input
-            class="nickname-input"
-            type="nickname"
-            :value="nickname"
-            placeholder="点击填写昵称"
-            placeholder-class="nickname-input__placeholder"
-            @blur="onNicknameBlur"
-          />
+          <view class="profile-info">
+            <text class="profile-info__hint">微信昵称</text>
+            <input
+              class="profile-info__input"
+              type="nickname"
+              :value="nickname"
+              placeholder="点击填写"
+              placeholder-class="profile-info__placeholder"
+              @blur="onNicknameBlur"
+            />
+          </view>
+          <text class="profile-arrow">›</text>
         </view>
       </view>
 
@@ -174,9 +186,15 @@ function clearDrafts() {
             </view>
           </picker>
         </view>
+        <view class="section-card__row">
+          <text class="section-card__label">推送状态</text>
+          <text class="section-card__value" :class="{ 'section-card__value--active': profile?.subscribed }">
+            {{ profile?.subscribed ? '✅ 已开启' : '未开启' }}
+          </text>
+        </view>
         <view class="section-card__row section-card__row--btn">
           <view class="outline-btn" @tap="requestSubscribe">
-            <text>订阅每日推送通知</text>
+            <text>{{ profile?.subscribed ? '重新订阅' : '订阅每日推送通知' }}</text>
           </view>
         </view>
       </view>
@@ -214,7 +232,7 @@ function clearDrafts() {
 
         <view class="section-card__row">
           <text class="section-card__label">开发者</text>
-          <text class="section-card__value">独立开发 · 用爱维护</text>
+          <text class="section-card__value">LinChen</text>
         </view>
 
         <view class="section-card__row section-card__row--btn">
@@ -230,7 +248,7 @@ function clearDrafts() {
         </view>
 
         <view class="about-footer">
-          <text class="about-footer__quote">人最重要的能力是思考。但大多数人的大脑，正在悄悄退化</text>
+          <text class="about-footer__quote">人最重要的能力是思考，但大多数人的大脑，正在悄悄退化</text>
           <text class="about-footer__copy">© 2026 别让你的脑生锈</text>
         </view>
       </view>
@@ -298,68 +316,83 @@ function clearDrafts() {
     font-weight: 600;
     max-width: 55%;
     text-align: right;
+
+    &--active { color: $green; }
   }
 
   &--about .section-card__title { color: $ink-3; }
 }
 
 // ── 用户资料 ────────────────────────────────
-.profile-avatar-row {
+.profile-row {
   display: flex;
-  justify-content: center;
-  padding: $space-sm 0 $space-md;
+  align-items: center;
+  gap: 24rpx;
+  padding: 6rpx 0;
 }
 
-.avatar-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12rpx;
-  background: transparent;
-  border: none;
+.profile-avatar-btn {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
   padding: 0;
-  line-height: 1;
+  border: none;
+  background: none;
+  flex-shrink: 0;
+  overflow: hidden;
 
-  // 去掉微信默认按钮高亮和边框
   &::after { display: none; }
   &:active { opacity: 0.75; }
 }
 
-.avatar-img {
-  width: 128rpx;
-  height: 128rpx;
+.profile-avatar {
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
-  border: 3rpx solid $ink-5;
-}
-
-.avatar-placeholder {
-  width: 128rpx;
-  height: 128rpx;
-  border-radius: 50%;
+  display: block;
   background: $paper;
-  border: 3rpx dashed $ink-5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border: 2rpx solid $ink-5;
 
-  &__icon { font-size: 52rpx; line-height: 1; }
+  &--empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40rpx;
+  }
 }
 
-.avatar-hint {
-  font-size: 20rpx;
-  color: $ink-4;
-  font-weight: 500;
-}
-
-.nickname-input {
+.profile-info {
   flex: 1;
-  text-align: right;
-  font-size: 28rpx;
-  color: $ink;
-  font-weight: 600;
-  min-height: 44rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
 
-  &__placeholder { color: $ink-4; font-weight: 400; }
+  &__hint {
+    font-size: 22rpx;
+    color: $ink-4;
+    line-height: 1;
+  }
+
+  &__input {
+    width: 100%;
+    min-height: 48rpx;
+    font-size: 28rpx;
+    font-weight: 600;
+    color: $ink;
+  }
+}
+
+.profile-info__placeholder {
+  color: $ink-4;
+  font-weight: 400;
+}
+
+.profile-arrow {
+  font-size: 40rpx;
+  color: $ink-5;
+  flex-shrink: 0;
+  line-height: 1;
+  margin-top: 12rpx;
 }
 
 // ── 关于 ────────────────────────────────────

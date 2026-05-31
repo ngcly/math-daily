@@ -5,5 +5,7 @@
   "backgroundColor": "@bgPaper",
   "backgroundColorTop": "@bgPaper",
   "backgroundColorBottom": "@bgPaper",
-  "usingComponents": {}
+  "usingComponents": {
+    "skeleton-card": "../../components/SkeletonCard/index"
+  }
 }

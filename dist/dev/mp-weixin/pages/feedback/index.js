@@ -39,7 +39,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       return common_vendor.e({
         a: submitted.value
       }, submitted.value ? {
-        b: common_vendor.o(goBack, "ef")
+        b: common_vendor.o(goBack, "e4")
       } : {
         c: common_vendor.f(CATEGORIES, (cat, k0, i0) => {
           return {
@@ -53,13 +53,13 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         d: MAX_LENGTH,
         e: submitting.value,
         f: content.value,
-        g: common_vendor.o(($event) => content.value = $event.detail.value, "07"),
+        g: common_vendor.o(($event) => content.value = $event.detail.value, "19"),
         h: common_vendor.t(content.value.length),
         i: common_vendor.t(MAX_LENGTH),
         j: common_vendor.t(submitting.value ? "提交中..." : "提交反馈"),
         k: !content.value.trim() || submitting.value ? 1 : "",
         l: submitting.value ? 1 : "",
-        m: common_vendor.o(handleSubmit, "ab")
+        m: common_vendor.o(handleSubmit, "b8")
       });
     };
   }

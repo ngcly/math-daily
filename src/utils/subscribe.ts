@@ -1,4 +1,4 @@
-export const DAILY_SUBSCRIBE_TEMPLATE_ID = 'KiJLSpuOmVhQ5RJh5LqkQbMrfWYqkUVIHj2C1Dy4k78'
+export const DAILY_SUBSCRIBE_TEMPLATE_ID = 'KiJLSpuOmVhQ5RJh5LqkQfbFVCQGcoaMkcV2WbOIcuU'
 
 export type SubscribeStatus = 'accept' | 'reject' | 'ban' | 'fail'
 

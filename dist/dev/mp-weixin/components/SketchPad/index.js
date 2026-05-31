@@ -214,39 +214,37 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     function redrawAll() {
       if (!ctx)
         return;
-      const c = ctx;
-      c.clearRect(0, 0, canvasRect.width * 4, canvasRect.height * 4);
+      ctx.clearRect(0, 0, canvasRect.width * 4, canvasRect.height * 4);
       const t = transform.value;
-      c.save();
-      c.translate(t.offsetX, t.offsetY);
-      c.scale(t.scale, t.scale);
-      drawDotGrid(c);
+      ctx.save();
+      ctx.translate(t.offsetX, t.offsetY);
+      ctx.scale(t.scale, t.scale);
+      drawDotGrid(ctx);
       for (const stroke of strokes.value) {
-        drawStroke(c, stroke);
+        drawStroke(ctx, stroke);
       }
       if (currentStroke && currentStroke.points.length > 1) {
-        drawStroke(c, currentStroke);
+        drawStroke(ctx, currentStroke);
       }
-      c.restore();
+      ctx.restore();
     }
     function drawLatestSegment(stroke) {
       if (!ctx || stroke.points.length < 2)
         return;
-      const c = ctx;
       const t = transform.value;
       const pts = stroke.points;
-      c.save();
-      c.translate(t.offsetX, t.offsetY);
-      c.scale(t.scale, t.scale);
-      c.beginPath();
-      c.strokeStyle = stroke.color;
-      c.lineWidth = stroke.width / t.scale;
-      c.lineCap = "round";
-      c.lineJoin = "round";
+      ctx.save();
+      ctx.translate(t.offsetX, t.offsetY);
+      ctx.scale(t.scale, t.scale);
+      ctx.beginPath();
+      ctx.strokeStyle = stroke.color;
+      ctx.lineWidth = stroke.width / t.scale;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
       const len = pts.length;
       if (len === 2) {
-        c.moveTo(pts[0].x, pts[0].y);
-        c.lineTo(pts[1].x, pts[1].y);
+        ctx.moveTo(pts[0].x, pts[0].y);
+        ctx.lineTo(pts[1].x, pts[1].y);
       } else {
         const p0 = pts[len - 3];
         const p1 = pts[len - 2];
@@ -255,31 +253,31 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         const mid1y = (p0.y + p1.y) / 2;
         const mid2x = (p1.x + p2.x) / 2;
         const mid2y = (p1.y + p2.y) / 2;
-        c.moveTo(mid1x, mid1y);
-        c.quadraticCurveTo(p1.x, p1.y, mid2x, mid2y);
+        ctx.moveTo(mid1x, mid1y);
+        ctx.quadraticCurveTo(p1.x, p1.y, mid2x, mid2y);
       }
-      c.stroke();
-      c.restore();
+      ctx.stroke();
+      ctx.restore();
     }
-    function drawStroke(c, stroke) {
+    function drawStroke(ctx2, stroke) {
       const pts = stroke.points;
       if (pts.length < 2)
         return;
-      c.beginPath();
-      c.strokeStyle = stroke.color;
-      c.lineWidth = stroke.width / transform.value.scale;
-      c.lineCap = "round";
-      c.lineJoin = "round";
-      c.moveTo(pts[0].x, pts[0].y);
+      ctx2.beginPath();
+      ctx2.strokeStyle = stroke.color;
+      ctx2.lineWidth = stroke.width / transform.value.scale;
+      ctx2.lineCap = "round";
+      ctx2.lineJoin = "round";
+      ctx2.moveTo(pts[0].x, pts[0].y);
       for (let i = 1; i < pts.length - 1; i++) {
         const midX = (pts[i].x + pts[i + 1].x) / 2;
         const midY = (pts[i].y + pts[i + 1].y) / 2;
-        c.quadraticCurveTo(pts[i].x, pts[i].y, midX, midY);
+        ctx2.quadraticCurveTo(pts[i].x, pts[i].y, midX, midY);
       }
-      c.lineTo(pts[pts.length - 1].x, pts[pts.length - 1].y);
-      c.stroke();
+      ctx2.lineTo(pts[pts.length - 1].x, pts[pts.length - 1].y);
+      ctx2.stroke();
     }
-    function drawDotGrid(c) {
+    function drawDotGrid(ctx2) {
       const GRID = 20;
       const t = transform.value;
       const DOT_R = 0.8 / t.scale;
@@ -289,12 +287,12 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       const bottom = top + canvasRect.height / t.scale;
       const startX = Math.floor(left / GRID) * GRID;
       const startY = Math.floor(top / GRID) * GRID;
-      c.fillStyle = themeStore.isDark ? "#3a3820" : "#d4cc80";
+      ctx2.fillStyle = themeStore.isDark ? "#3a3820" : "#d4cc80";
       for (let x = startX; x <= right; x += GRID) {
         for (let y = startY; y <= bottom; y += GRID) {
-          c.beginPath();
-          c.arc(x, y, DOT_R, 0, Math.PI * 2);
-          c.fill();
+          ctx2.beginPath();
+          ctx2.arc(x, y, DOT_R, 0, Math.PI * 2);
+          ctx2.fill();
         }
       }
     }
@@ -372,9 +370,9 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     return (_ctx, _cache) => {
       return {
         a: activeTool.value === "pen" ? 1 : "",
-        b: common_vendor.o(($event) => setTool("pen"), "7a"),
+        b: common_vendor.o(($event) => setTool("pen"), "d2"),
         c: activeTool.value === "eraser" ? 1 : "",
-        d: common_vendor.o(($event) => setTool("eraser"), "48"),
+        d: common_vendor.o(($event) => setTool("eraser"), "9f"),
         e: common_vendor.f(PEN_WIDTHS, (w, k0, i0) => {
           return {
             a: `${w * 4}rpx`,
@@ -393,14 +391,14 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           };
         }),
         g: !canUndo.value ? 1 : "",
-        h: common_vendor.o(undo, "31"),
+        h: common_vendor.o(undo, "df"),
         i: !canRedo.value ? 1 : "",
-        j: common_vendor.o(redo, "fa"),
-        k: common_vendor.o(clearAll, "c8"),
+        j: common_vendor.o(redo, "a7"),
+        k: common_vendor.o(clearAll, "76"),
         l: canvasId,
-        m: common_vendor.o(onTouchStart, "5c"),
-        n: common_vendor.o(onTouchMove, "a3"),
-        o: common_vendor.o(onTouchEnd, "df")
+        m: common_vendor.o(onTouchStart, "1d"),
+        n: common_vendor.o(onTouchMove, "b4"),
+        o: common_vendor.o(onTouchEnd, "fa")
       };
     };
   }

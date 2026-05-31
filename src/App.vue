@@ -11,7 +11,7 @@ const userStore     = useUserStore()
 const questionStore = useQuestionStore()
 const themeStore    = useThemeStore()
 
-onLaunch((options) => {
+onLaunch((options?: { scene?: number; query?: Record<string, string> }) => {
   wx.cloud.init({
     env: 'cloud1-d4g6o6y529c3db4b2',
     traceUser: true,
@@ -22,7 +22,7 @@ onLaunch((options) => {
   userStore.init()
   questionStore.loadToday()
 
-  wx.onThemeChange?.((res: { theme: string }) => {
+  uni.onThemeChange?.((res: { theme: string }) => {
     themeStore.setSystemTheme(res.theme === 'dark')
   })
 
@@ -32,8 +32,8 @@ onLaunch((options) => {
   const lastOpenDate = uni.getStorageSync('last_open_date') || ''
   if (lastOpenDate !== todayStr) {
     logEvent('app_open', {
-      scene: (options as any)?.scene ?? null,
-      ref:   (options as any)?.query?.ref  ?? null,
+      scene: options?.scene ?? null,
+      ref:   options?.query?.ref ?? null,
     })
     try { uni.setStorageSync('last_open_date', todayStr) } catch {}
   }

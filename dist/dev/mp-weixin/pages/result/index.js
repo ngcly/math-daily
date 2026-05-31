@@ -76,9 +76,7 @@ ${miniLink.value}` : "\n微信搜索小程序「别让你的脑生锈」";
         common_vendor.index.switchTab({ url: "/pages/index/index" });
         return;
       }
-      const cached = common_vendor.index.getStorageSync("last_time_spent");
-      if (cached)
-        timeSpent.value = Number(cached);
+      timeSpent.value = questionStore.lastTimeSpent;
       (_b = (_a = common_vendor.wx$1).generateShortLink) == null ? void 0 : _b.call(_a, {
         path: "pages/index/index",
         query: "",
@@ -146,18 +144,18 @@ ${miniLink.value}` : "\n微信搜索小程序「别让你的脑生锈」";
       }, altExpanded.value ? {
         m: common_vendor.t(result.value.alt_solution)
       } : {}, {
-        n: common_vendor.o(($event) => altExpanded.value = !altExpanded.value, "09")
+        n: common_vendor.o(($event) => altExpanded.value = !altExpanded.value, "d2")
       }) : {}, {
         o: common_vendor.t(answerCopy.value),
-        p: common_vendor.o(($event) => copyText(answerCopy.value), "69"),
+        p: common_vendor.o(($event) => copyText(answerCopy.value), "39"),
         q: streak.value > 1
       }, streak.value > 1 ? {
         r: common_vendor.t(streakCopy.value),
-        s: common_vendor.o(($event) => copyText(streakCopy.value), "01")
+        s: common_vendor.o(($event) => copyText(streakCopy.value), "77")
       } : {}, {
-        t: common_vendor.o(shareToTimeline, "7e"),
-        v: common_vendor.o(requestSubscribe, "1a"),
-        w: common_vendor.o(goHome, "cc")
+        t: common_vendor.o(shareToTimeline, "56"),
+        v: common_vendor.o(requestSubscribe, "9b"),
+        w: common_vendor.o(goHome, "39")
       }) : {});
     };
   }

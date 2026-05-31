@@ -51,17 +51,23 @@ const canSubmit = computed(() => {
 })
 
 // ── 提交 ───────────────────────────────────────────────
+let localSubmitting = false  // 局部锁，防止 submit 操作前 submitting 尚未变为 true 时双击进入
 async function handleSubmit() {
-  if (!canSubmit.value || submitting.value) return
+  if (!canSubmit.value || submitting.value || localSubmitting) return
+  localSubmitting = true
 
   const payload: SubmitPayloadPartial = props.question.type === 'choice'
     ? { selected: selectedOption.value, time_spent: getTimeSpent() }
     : { fill_answer: fillInput.value.trim(), time_spent: getTimeSpent() }
 
   const doSubmit = props.submitFn ?? questionStore.submit
-  const result = await doSubmit(payload)
-  if (result) {
-    emit('submitted')
+  try {
+    const result = await doSubmit(payload)
+    if (result) {
+      emit('submitted')
+    }
+  } finally {
+    localSubmitting = false
   }
 }
 

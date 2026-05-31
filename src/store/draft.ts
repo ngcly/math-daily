@@ -6,7 +6,7 @@ const STORAGE_PREFIX = 'draft_'
 const MAX_STORED_DRAFTS = 30 // 最多保留30天草稿
 
 export const useDraftStore = defineStore('draft', () => {
-  // ── State（运行时，不持久化到 pinia，直接用 wx.Storage）──
+  // ── State（运行时，不持久化到 pinia，直接用 uni.Storage）──
   const strokes      = ref<Stroke[]>([])
   const currentQId   = ref('')
   const isDirty      = ref(false)   // 是否有未保存的更改

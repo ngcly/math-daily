@@ -31,14 +31,20 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       }
       return fillInput.value.trim().length > 0;
     });
+    let localSubmitting = false;
     async function handleSubmit() {
-      if (!canSubmit.value || submitting.value)
+      if (!canSubmit.value || submitting.value || localSubmitting)
         return;
+      localSubmitting = true;
       const payload = props.question.type === "choice" ? { selected: selectedOption.value, time_spent: getTimeSpent() } : { fill_answer: fillInput.value.trim(), time_spent: getTimeSpent() };
       const doSubmit = props.submitFn ?? questionStore.submit;
-      const result = await doSubmit(payload);
-      if (result) {
-        emit("submitted");
+      try {
+        const result = await doSubmit(payload);
+        if (result) {
+          emit("submitted");
+        }
+      } finally {
+        localSubmitting = false;
       }
     }
     common_vendor.onMounted(() => {
@@ -68,9 +74,9 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         e: _ctx.question.type === "fill_number" ? "输入数字" : "输入答案",
         f: submitting.value,
         g: inputFocused.value,
-        h: common_vendor.o(handleSubmit, "f3"),
+        h: common_vendor.o(handleSubmit, "34"),
         i: fillInput.value,
-        j: common_vendor.o(($event) => fillInput.value = $event.detail.value, "1d"),
+        j: common_vendor.o(($event) => fillInput.value = $event.detail.value, "5e"),
         k: _ctx.question.answer_unit
       }, _ctx.question.answer_unit ? {
         l: common_vendor.t(_ctx.question.answer_unit)
@@ -80,7 +86,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         n: common_vendor.t(submitting.value ? "提交中..." : "确认提交"),
         o: !canSubmit.value || submitting.value ? 1 : "",
         p: submitting.value ? 1 : "",
-        q: common_vendor.o(handleSubmit, "57")
+        q: common_vendor.o(handleSubmit, "3d")
       });
     };
   }
