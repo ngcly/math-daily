@@ -1,1 +1,0 @@
-"use strict";const t=require("../common/vendor.js");exports.getSystemIsDark=function(){var e,r;try{const n=null==(r=(e=t.wx$1).getAppBaseInfo)?void 0:r.call(e);if(null==n?void 0:n.theme)return"dark"===n.theme}catch{}try{return"dark"===t.wx$1.getSystemInfoSync().theme}catch{return!1}};
