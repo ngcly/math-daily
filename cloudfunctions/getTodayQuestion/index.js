@@ -2,14 +2,23 @@
  * 云函数：getTodayQuestion
  * 返回今日题目，answer 字段不返回给前端
  */
+/**
+ * 云函数：getTodayQuestion
+ * 返回今日题目，answer 字段不返回给前端。
+ * 日期由客户端根据设备时区传入，避免云函数 UTC 时区导致的日期错位。
+ */
 const cloud = require('wx-server-sdk')
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
 
-exports.main = async () => {
-  // 今日日期
-  const now  = new Date()
-  const date = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`
+/** 服务端兜底：用 Intl 取北京时间（Asia/Shanghai） */
+function serverDateFallback() {
+  const f = new Intl.DateTimeFormat('zh-CN', { timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit' })
+  return f.format(new Date()).replace(/\//g, '-')
+}
+
+exports.main = async (event) => {
+  const date = event.date || serverDateFallback()
 
   try {
     const res = await db.collection('questions')

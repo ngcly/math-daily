@@ -27,9 +27,24 @@ const TEMPLATE_ID = 'KiJLSpuOmVhQ5RJh5LqkQfbFVCQGcoaMkcV2WbOIcuU'
 const ERR_USER_REFUSE = 43101      // 用户拒绝接收
 const ERR_USER_SUB_EXPIRE = 43120  // 订阅时间到期（长期订阅专用）
 
+/** 获取北京时间（Asia/Shanghai）的小时和日期 */
+function getChinaTime() {
+  const now = new Date()
+  const f = new Intl.DateTimeFormat('zh-CN', {
+    timeZone: 'Asia/Shanghai',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', hour12: false,
+  })
+  const parts = f.formatToParts(now)
+  const get = (type) => parts.find(p => p.type === type)?.value || ''
+  return {
+    hour: get('hour'),
+    date: `${get('year')}-${get('month')}-${get('day')}`,
+  }
+}
+
 exports.main = async () => {
-  const now  = new Date()
-  const hour = String(now.getHours()).padStart(2, '0')
+  const { hour, date: today } = getChinaTime()
   const currentTime = `${hour}:00`   // 匹配用户设置的整点时间
 
   // 查找该时间点应该推送的已订阅用户（分页取全部，最多 2000 人）
@@ -58,7 +73,6 @@ exports.main = async () => {
   if (!allUsers.length) return { sent: 0 }
 
   // 今日题目摘要（用于推送文案）
-  const today = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`
   const qRes  = await db.collection('questions')
     .where({ date: today })
     .field({ title: true, category: true })

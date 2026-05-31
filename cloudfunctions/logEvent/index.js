@@ -14,14 +14,19 @@ const cloud = require('wx-server-sdk')
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
 
+/** 获取按指定时区格式化的日期 YYYY-MM-DD */
+function formatDateInTimezone(timeZone = 'Asia/Shanghai') {
+  const f = new Intl.DateTimeFormat('zh-CN', { timeZone, year: 'numeric', month: '2-digit', day: '2-digit' })
+  return f.format(new Date()).replace(/\//g, '-')
+}
+
 exports.main = async (event) => {
   const { OPENID } = cloud.getWXContext()
   const { event: eventName, data = {} } = event
 
   if (!eventName) return { code: 400, message: '缺少 event 参数', data: null }
 
-  const now  = new Date()
-  const date = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`
+  const date = formatDateInTimezone()
 
   await db.collection('events').add({
     data: {

@@ -1,4 +1,5 @@
 import type { Question, SubmitPayload, SubmitResult, UserRecord, UserProfile, HistoryDetail } from '@/types'
+import { today } from '@/utils/date'
 
 /** 重试配置 */
 const RETRY_MAX = 2
@@ -56,9 +57,11 @@ async function callCloud<T>(name: string, data: Record<string, any> = {}): Promi
 // 题目相关
 // ─────────────────────────────────────
 
-/** 获取今日题目（不含答案字段） */
+/** 获取今日题目（不含答案字段）
+ *  由客户端计算"今天"的日期（用户设备时区），传给云函数
+ *  避免云函数运行在 UTC 时区导致的日期错位 */
 export const getTodayQuestion = () =>
-  callCloud<Question>('getTodayQuestion')
+  callCloud<Question>('getTodayQuestion', { date: today() })
 
 /** 按日期获取题目（补签用，不含答案字段） */
 export const getQuestionByDate = (date: string) =>
