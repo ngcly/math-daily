@@ -30,6 +30,9 @@ const fillInput      = ref<string>('')        // 填空题输入
 const submitting     = computed(() => questionStore.submitting)
 const inputFocused   = ref(false)             // 控制填空题输入框 :focus 属性
 
+// ── 解题思路 ───────────────────────────────────────────
+const userThought = ref('')
+
 // ── 计时 ───────────────────────────────────────────────
 const startTime = Date.now()
 function getTimeSpent(): number {
@@ -55,10 +58,12 @@ let localSubmitting = false  // 局部锁，防止 submit 操作前 submitting �
 async function handleSubmit() {
   if (!canSubmit.value || submitting.value || localSubmitting) return
   localSubmitting = true
+  uni.hideKeyboard()
 
+  const thought = userThought.value.trim() || undefined
   const payload: SubmitPayloadPartial = props.question.type === 'choice'
-    ? { selected: selectedOption.value, time_spent: getTimeSpent() }
-    : { fill_answer: fillInput.value.trim(), time_spent: getTimeSpent() }
+    ? { selected: selectedOption.value, time_spent: getTimeSpent(), user_thought: thought }
+    : { fill_answer: fillInput.value.trim(), time_spent: getTimeSpent(), user_thought: thought }
 
   const doSubmit = props.submitFn ?? questionStore.submit
   try {
@@ -113,7 +118,7 @@ onMounted(() => {
         <input
           class="answer-input__field"
           v-model="fillInput"
-          :type="question.type === 'fill_number' ? 'number' : 'text'"
+          :type="question.type === 'fill_number' ? 'digit' : 'text'"
           :placeholder="question.type === 'fill_number' ? '输入数字' : '输入答案'"
           :disabled="submitting"
           :focus="inputFocused"
@@ -128,6 +133,20 @@ onMounted(() => {
       <text v-if="question.type === 'fill_expr'" class="fill-wrap__hint">
         支持分数（如 1/8）和百分比（如 12.5%）
       </text>
+    </view>
+
+    <!-- 解题思路（选填） -->
+    <view class="thought-wrap">
+      <text class="thought-wrap__label">写下你的思路（选填）</text>
+      <textarea
+        class="thought-wrap__input"
+        v-model="userThought"
+        placeholder="你是怎么想到的？"
+        placeholder-class="thought-wrap__placeholder"
+        :maxlength="300"
+        :auto-height="true"
+        :disabled="submitting"
+      />
     </view>
 
     <!-- 提交按钮 -->
@@ -262,6 +281,35 @@ onMounted(() => {
     color: $ink-4;
     margin-top: 10rpx;
   }
+}
+
+// ── 解题思路 ────────────────────────────────────────────
+.thought-wrap {
+  margin-bottom: $space-md;
+
+  &__label {
+    display: block;
+    font-size: 22rpx;
+    color: $ink-4;
+    margin-bottom: 10rpx;
+    font-weight: 600;
+    letter-spacing: 0.5rpx;
+  }
+
+  &__input {
+    width: 100%;
+    min-height: 72rpx;
+    background: $paper;
+    border-radius: $radius-md;
+    padding: 16rpx $space-md;
+    font-size: 26rpx;
+    color: $ink;
+    border: 2rpx solid $ink-5;
+    line-height: 1.6;
+    box-sizing: border-box;
+  }
+
+  &__placeholder { color: $ink-4; }
 }
 
 // ── 提交按钮 ────────────────────────────────────────────

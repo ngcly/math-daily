@@ -1,4 +1,4 @@
-import type { Question, SubmitPayload, SubmitResult, UserRecord, UserProfile, HistoryDetail } from '@/types'
+import type { Question, SubmitPayload, SubmitResult, UserRecord, UserProfile, HistoryDetail, UserStats } from '@/types'
 import { today } from '@/utils/date'
 
 /** 重试配置 */
@@ -87,9 +87,17 @@ export const getUserHistory = (params: { year: number; month: number }) =>
 export const getHistoryDetail = (date: string) =>
   callCloud<HistoryDetail>('getHistoryDetail', { date })
 
+/** 获取用户全局累计统计数据 */
+export const getUserStats = () =>
+  callCloud<UserStats>('getUserStats')
+
 /** 更新用户设置 */
 export const updateSettings = (settings: Partial<UserProfile>) =>
   callCloud<void>('updateSettings', settings)
+
+/** 按需获取 AI 点评（结果在服务端缓存） */
+export const getAIFeedback = (date: string) =>
+  callCloud<{ feedback: string }>('getAIFeedback', { date })
 
 // ─────────────────────────────────────
 // 埋点

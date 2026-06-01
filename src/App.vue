@@ -41,6 +41,11 @@ onLaunch((options?: { scene?: number; query?: Record<string, string> }) => {
 
 onShow(() => {
   userStore.checkStreak()
+  // 热恢复跨天时刷新题目（冷启动已由 onLaunch 的 loadToday 覆盖）
+  const q = questionStore.todayQuestion
+  if (!q || q.date !== today()) {
+    questionStore.loadToday()
+  }
 })
 </script>
 

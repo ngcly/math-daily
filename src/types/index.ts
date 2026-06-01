@@ -154,6 +154,16 @@ export interface DraftData {
 }
 
 // ─────────────────────────────────────
+// 统计类型
+// ─────────────────────────────────────
+
+export interface UserStats {
+  total:       number
+  correct:     number
+  by_category: Array<{ category: Category; total: number; correct: number }>
+}
+
+// ─────────────────────────────────────
 // 历史回顾类型
 // ─────────────────────────────────────
 

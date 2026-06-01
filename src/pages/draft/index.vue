@@ -76,6 +76,20 @@ async function onSubmitted() {
   }
 }
 
+// 截图并预览（微信原生预览支持转发/保存到相册）
+async function shareSketch() {
+  if (!sketchPadRef.value) return
+  uni.showLoading({ title: '生成中...' })
+  try {
+    const path = await sketchPadRef.value.capture()
+    uni.hideLoading()
+    uni.previewImage({ urls: [path], current: path })
+  } catch {
+    uni.hideLoading()
+    uni.showToast({ title: '截图失败，请重试', icon: 'none' })
+  }
+}
+
 // 返回首页
 function goBack() {
   uni.navigateBack()
@@ -124,6 +138,10 @@ function goToResult() {
       <!-- 返回 -->
       <view class="fab fab--ghost" @tap="goBack">
         <text class="fab__icon">←</text>
+      </view>
+      <!-- 截图分享 -->
+      <view class="fab fab--ghost" @tap="shareSketch">
+        <text class="fab__icon">📤</text>
       </view>
       <!-- 未作答：提交答案；已作答：查看解析 -->
       <view v-if="!isAnswered" class="fab fab--primary" @tap="openAnswer">

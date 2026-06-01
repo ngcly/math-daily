@@ -6,7 +6,8 @@ import { useQuestionStore } from '@/store/question'
 import { useUserStore } from '@/store/user'
 import { useThemeStore } from '@/store/theme'
 import { requestDailySubscribe, showSubscribeStatusToast } from '@/utils/subscribe'
-import { logEvent } from '@/api/cloud'
+import { logEvent, getAIFeedback } from '@/api/cloud'
+import { today, dateToStr } from '@/utils/date'
 
 const questionStore = useQuestionStore()
 const userStore     = useUserStore()
@@ -30,6 +31,29 @@ const correctRate = computed(() => {
   const s = result.value?.stats
   if (!s || s.total === 0) return null
   return Math.round((s.correct / s.total) * 100)
+})
+
+// 与全球平均用时的对比（差距 < 3s 不显示）
+const avgTimeComparison = computed(() => {
+  const s = result.value?.stats
+  if (!s || s.total < 2 || !s.total_time) return null
+  const avg  = Math.round(s.total_time / s.total)
+  const diff = avg - timeSpent.value
+  if (Math.abs(diff) < 3) return null
+  return diff > 0
+    ? `比全球平均用时快 ${diff} 秒 ⚡`
+    : `比全球平均用时慢 ${Math.abs(diff)} 秒`
+})
+
+// 里程碑：只在特定节点触发
+const milestone = computed(() => {
+  const s = streak.value
+  if (s === 100) return { emoji: '🚀', text: '百日里程碑！传奇级别' }
+  if (s === 30)  return { emoji: '🏆', text: '整整一个月！顶级自律' }
+  if (s === 14)  return { emoji: '🌟', text: '两周不间断！你是认真的' }
+  if (s === 7)   return { emoji: '🎯', text: '坚持一周！大脑在发光' }
+  if (s > 7 && s % 7 === 0) return { emoji: '🔥', text: `连续 ${s} 天！保持下去` }
+  return null
 })
 
 const answerCopy = computed(() => {
@@ -71,8 +95,17 @@ function shareToTimeline() {
 
 
 onShow(() => {
-  // 提交结果必须属于今天，防止跨天后 submitResult 持久化导致的旧数据显示
-  if (!result.value || !questionStore.isAnswered) {
+  if (!result.value) {
+    uni.switchTab({ url: '/pages/index/index' })
+    return
+  }
+  // 允许今天或昨天的提交（处理跨零点边界情况：23:59 提交，00:01 查看）
+  const sd = questionStore.submittedDate
+  const todayStr = today()
+  const d = new Date()
+  d.setDate(d.getDate() - 1)
+  const yesterdayStr = dateToStr(d)
+  if (sd !== todayStr && sd !== yesterdayStr) {
     uni.switchTab({ url: '/pages/index/index' })
     return
   }
@@ -129,6 +162,27 @@ async function requestSubscribe() {
   showSubscribeStatusToast(status, '明天准时提醒你 🔔')
 }
 
+// ── AI 点评 ───────────────────────────────────────────
+const aiFeedback        = ref('')
+const aiFeedbackLoading = ref(false)
+const aiFeedbackError   = ref('')
+
+async function fetchAiFeedback() {
+  if (aiFeedback.value || aiFeedbackLoading.value) return
+  const date = questionStore.submittedDate
+  if (!date) return
+  aiFeedbackLoading.value = true
+  aiFeedbackError.value   = ''
+  try {
+    const res = await getAIFeedback(date)
+    aiFeedback.value = res.feedback
+  } catch (e) {
+    aiFeedbackError.value = e instanceof Error ? e.message : 'AI 点评生成失败，请稍后重试'
+  } finally {
+    aiFeedbackLoading.value = false
+  }
+}
+
 // ── 返回首页 ─────────────────────────────────────────
 function goHome() {
   uni.switchTab({ url: '/pages/index/index' })
@@ -140,14 +194,19 @@ function goHome() {
 
     <view v-if="result && question" class="content">
 
-      <!-- Streak 里程碑提示 -->
-      <view v-if="streak > 0 && streak % 7 === 0" class="milestone">
-        <text class="milestone__emoji">🏆</text>
-        <text class="milestone__text">连续 {{ streak }} 天！你真厉害</text>
+      <!-- Streak 里程碑 -->
+      <view v-if="milestone" class="milestone">
+        <text class="milestone__emoji">{{ milestone.emoji }}</text>
+        <text class="milestone__text">{{ milestone.text }}</text>
       </view>
 
       <!-- 结果 Banner + 统计 -->
       <ResultBanner :result="result" :timeSpent="timeSpent" />
+
+      <!-- 平均用时对比 -->
+      <view v-if="avgTimeComparison" class="avg-time">
+        <text class="avg-time__text">{{ avgTimeComparison }}</text>
+      </view>
 
       <!-- 解题思路 -->
       <view class="section">
@@ -181,6 +240,39 @@ function goHome() {
         </view>
         <view v-if="altExpanded" class="alt-solution__body">
           <text class="alt-solution__text">{{ result.alt_solution }}</text>
+        </view>
+      </view>
+
+      <!-- AI 点评 -->
+      <view class="ai-section">
+        <!-- 入口按钮（未加载时显示） -->
+        <view
+          v-if="!aiFeedback && !aiFeedbackLoading"
+          class="ai-btn"
+          @tap="fetchAiFeedback"
+        >
+          <text class="ai-btn__icon">🤖</text>
+          <text class="ai-btn__label">AI 点评我的作答</text>
+          <text class="ai-btn__arrow">›</text>
+        </view>
+
+        <!-- 加载中 -->
+        <view v-else-if="aiFeedbackLoading" class="ai-loading">
+          <text class="ai-loading__text">AI 正在分析中…</text>
+        </view>
+
+        <!-- 错误 -->
+        <view v-else-if="aiFeedbackError" class="ai-error" @tap="fetchAiFeedback">
+          <text class="ai-error__text">{{ aiFeedbackError }}</text>
+          <text class="ai-error__retry">点击重试</text>
+        </view>
+
+        <!-- 点评结果 -->
+        <view v-else-if="aiFeedback" class="ai-card">
+          <view class="ai-card__header">
+            <text class="ai-card__tag">🤖 AI 点评</text>
+          </view>
+          <text class="ai-card__text">{{ aiFeedback }}</text>
         </view>
       </view>
 
@@ -246,18 +338,42 @@ function goHome() {
 }
 
 // ── 里程碑 ──────────────────────────────────
+@keyframes milestone-pop {
+  0%   { transform: scale(0.7); opacity: 0; }
+  65%  { transform: scale(1.06); }
+  100% { transform: scale(1);   opacity: 1; }
+}
+
 .milestone {
   display: flex;
   align-items: center;
   gap: $space-sm;
   background: $amber-light;
   border-radius: $radius-md;
-  padding: 16rpx 24rpx;
+  padding: 20rpx 28rpx;
   margin-bottom: $space-md;
   border: 1rpx solid var(--milestone-border);
+  animation: milestone-pop 0.45s ease-out both;
 
-  &__emoji { font-size: 36rpx; }
-  &__text  { font-size: 26rpx; font-weight: 700; color: $amber; }
+  &__emoji { font-size: 48rpx; flex-shrink: 0; }
+  &__text  { font-size: 28rpx; font-weight: 700; color: $amber; }
+}
+
+// ── 平均用时对比 ─────────────────────────────
+.avg-time {
+  text-align: center;
+  margin-bottom: $space-md;
+
+  &__text {
+    font-size: 24rpx;
+    color: $ink-3;
+    font-weight: 600;
+    background: $paper;
+    display: inline-block;
+    padding: 10rpx 24rpx;
+    border-radius: $radius-full;
+    border: 1rpx solid $ink-5;
+  }
 }
 
 // ── 章节标题 ────────────────────────────────
@@ -337,6 +453,103 @@ function goHome() {
     font-size: 28rpx;
     color: $ink-2;
     line-height: 1.8;
+  }
+}
+
+// ── AI 点评 ─────────────────────────────────
+.ai-section {
+  margin-bottom: $space-md;
+}
+
+.ai-btn {
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+  padding: 28rpx $space-md;
+  background: $paper;
+  border: 2rpx dashed $ink-4;
+  border-radius: $radius-md;
+  transition: opacity $duration-fast;
+
+  &:active { opacity: 0.7; }
+
+  &__icon { font-size: 36rpx; flex-shrink: 0; }
+
+  &__label {
+    flex: 1;
+    font-size: 28rpx;
+    font-weight: 600;
+    color: $ink-2;
+  }
+
+  &__arrow {
+    font-size: 32rpx;
+    color: $ink-4;
+    font-weight: 300;
+  }
+}
+
+.ai-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32rpx;
+  background: $paper;
+  border-radius: $radius-md;
+
+  &__text {
+    font-size: 26rpx;
+    color: $ink-4;
+  }
+}
+
+.ai-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx $space-md;
+  background: $red-light;
+  border-radius: $radius-md;
+  border-left: 4rpx solid $red;
+
+  &__text {
+    flex: 1;
+    font-size: 24rpx;
+    color: $ink-3;
+  }
+
+  &__retry {
+    font-size: 24rpx;
+    color: $red;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+}
+
+.ai-card {
+  background: $paper;
+  border-radius: $radius-md;
+  overflow: hidden;
+  border: 1rpx solid $ink-5;
+
+  &__header {
+    padding: 16rpx 24rpx 12rpx;
+    border-bottom: 1rpx solid $ink-5;
+  }
+
+  &__tag {
+    font-size: 22rpx;
+    font-weight: 800;
+    color: $ink-3;
+    letter-spacing: 0.5px;
+  }
+
+  &__text {
+    display: block;
+    font-size: 28rpx;
+    color: $ink-2;
+    line-height: 1.8;
+    padding: 20rpx 24rpx 24rpx;
   }
 }
 

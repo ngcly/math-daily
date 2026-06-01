@@ -10,6 +10,7 @@ export const useQuestionStore = defineStore('question', () => {
   const todayQuestion = ref<Question | null>(null)
   const submitResult  = ref<SubmitResult | null>(null)
   const loading        = ref(false)
+  const loadError      = ref(false)
   const submitting     = ref(false)
   const hasSubmitted   = ref(false)   // 今天是否已作答（持久化）
   const submittedDate  = ref('')      // 已作答的日期，防止跨天误判
@@ -80,13 +81,14 @@ export const useQuestionStore = defineStore('question', () => {
 
     // 无缓存：正常 loading 流程
     loading.value = true
+    loadError.value = false
     try {
       const q = await getTodayQuestion()
       todayQuestion.value = q
       writeCache(q)
     } catch (e) {
       console.error('[QuestionStore] loadToday failed', e)
-      uni.showToast({ title: '加载失败，请检查网络', icon: 'none' })
+      loadError.value = true
     } finally {
       loading.value = false
     }
@@ -163,7 +165,8 @@ export const useQuestionStore = defineStore('question', () => {
       return true  // 提交成功（未抛异常即成功）
     } catch (e) {
       console.error('[QuestionStore] submitRescue failed', e)
-      uni.showToast({ title: '提交失败，请重试', icon: 'none' })
+      const msg = e instanceof Error ? e.message : '提交失败，请重试'
+      uni.showToast({ title: msg, icon: 'none' })
       return false
     } finally {
       submitting.value = false
@@ -183,6 +186,7 @@ export const useQuestionStore = defineStore('question', () => {
     rescueQuestion,
     submitResult,
     loading,
+    loadError,
     submitting,
     hasSubmitted,
     submittedDate,

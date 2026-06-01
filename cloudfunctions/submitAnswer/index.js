@@ -32,6 +32,11 @@ function normalizeAnswer(raw = '') {
   return s
 }
 
+/** 服务端北京时间的今日 YYYY-MM-DD */
+function getServerToday() {
+  return new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)
+}
+
 exports.main = async (event, context) => {
   const { OPENID } = cloud.getWXContext()
   const { question_id, date, selected, fill_answer, time_spent, user_thought } = event
@@ -42,15 +47,28 @@ exports.main = async (event, context) => {
       return { code: 400, message: '参数错误', data: null }
     }
 
-    // 1. 防重复提交（非原子，极低概率并发通过，后续可加唯一索引兜底）
-    const existing = await db.collection('user_records')
-      .where({ openid: OPENID, date })
-      .count()
-    if (existing.total > 0) {
-      return { code: 409, message: '今日已作答', data: null }
+    const serverToday = getServerToday()
+    const isRescue = date < serverToday
+
+    // 1. 补签资格校验（防止绕过客户端直接提交历史日期）
+    if (isRescue) {
+      const profileRes = await db.collection('user_profiles').doc(OPENID).get()
+      if (!profileRes.data || profileRes.data.streak_rescue <= 0) {
+        return { code: 403, message: '本月补签机会已用完', data: null }
+      }
     }
 
-    // 2. 读取题目（含 answer）
+    // 2. 防重复提交
+    // ⚠️ 建议在 user_records 集合上创建 {openid: 1, date: 1} 唯一复合索引作为并发兜底
+    const existing = await db.collection('user_records')
+      .where({ openid: OPENID, date })
+      .limit(1)
+      .get()
+    if (existing.data.length > 0) {
+      return { code: 409, message: isRescue ? '该日期已作答' : '今日已作答', data: null }
+    }
+
+    // 3. 读取题目（含 answer）
     const qRes = await db.collection('questions').doc(question_id).get()
     const q = qRes.data
     if (!q) {
@@ -62,7 +80,7 @@ exports.main = async (event, context) => {
       return { code: 400, message: '日期与题目不匹配', data: null }
     }
 
-    // 3. 判题
+    // 4. 判题
     let is_correct = false
     if (q.type === 'choice') {
       is_correct = selected === q.answer
@@ -73,26 +91,45 @@ exports.main = async (event, context) => {
       is_correct = allAnswers.includes(normalizeAnswer(fill_answer || ''))
     }
 
-    // 4. 写入答题记录
-    await db.collection('user_records').add({
-      data: {
-        openid:       OPENID,
-        question_id,
-        date,
-        title:        q.title,
-        category:     q.category,
-        type:         q.type,
-        selected:     selected || null,
-        fill_answer:  fill_answer || null,
-        is_correct,
-        time_spent:   time_spent || 0,
-        user_thought: user_thought || '',   // 终极形态预留
-        ai_feedback:  '',                   // 终极形态预留
-        created_at:   db.serverDate(),
+    // 5. 写入答题记录
+    try {
+      await db.collection('user_records').add({
+        data: {
+          openid:       OPENID,
+          question_id,
+          date,
+          title:        q.title,
+          category:     q.category,
+          type:         q.type,
+          selected:     selected || null,
+          fill_answer:  fill_answer || null,
+          is_correct,
+          time_spent:   time_spent || 0,
+          user_thought: user_thought || '',   // 终极形态预留
+          ai_feedback:  '',                   // 终极形态预留
+          created_at:   db.serverDate(),
+        }
+      })
+    } catch (addErr) {
+      // 并发写入时唯一索引触发异常，验证后返回 409
+      const dup = await db.collection('user_records')
+        .where({ openid: OPENID, date })
+        .limit(1)
+        .get()
+      if (dup.data.length > 0) {
+        return { code: 409, message: isRescue ? '该日期已作答' : '今日已作答', data: null }
       }
-    })
+      throw addErr
+    }
 
-    // 5. 更新题目全局统计（原子操作）
+    // 6. 补签成功后原子扣减补签次数
+    if (isRescue) {
+      await db.collection('user_profiles').doc(OPENID).update({
+        data: { streak_rescue: _.inc(-1) },
+      })
+    }
+
+    // 7. 更新题目全局统计（原子操作）
     const statsUpdate = {
       'stats.total':      _.inc(1),
       'stats.total_time': _.inc(time_spent || 0),
@@ -100,9 +137,9 @@ exports.main = async (event, context) => {
     if (is_correct) statsUpdate['stats.correct'] = _.inc(1)
     await db.collection('questions').doc(question_id).update({ data: statsUpdate })
 
-    // 6. 读取最新统计（用于返回正确率）
+    // 8. 读取最新统计（用于返回正确率）
     const updatedQ = await db.collection('questions').doc(question_id)
-      .field({ stats: true, solution: true, aha_moment: true, alt_solution: true })
+      .field({ stats: true })
       .get()
 
     return {

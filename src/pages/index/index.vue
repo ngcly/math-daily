@@ -16,11 +16,13 @@ const questionStore = useQuestionStore()
 const userStore     = useUserStore()
 const themeStore    = useThemeStore()
 
-const question  = computed(() => questionStore.todayQuestion)
-const loading   = computed(() => questionStore.loading)
-const answered  = computed(() => questionStore.isAnswered)
-const streak    = computed(() => userStore.streak)
-const dateLabel = computed(() => formatDisplayDate(today()))
+const question           = computed(() => questionStore.todayQuestion)
+const loading            = computed(() => questionStore.loading)
+const loadError          = computed(() => questionStore.loadError)
+const answered           = computed(() => questionStore.isAnswered)
+const streak             = computed(() => userStore.streak)
+const dateLabel          = computed(() => formatDisplayDate(today()))
+const pendingRescueDate  = computed(() => userStore.pendingRescueDate)
 
 // ── 难度 → 时间预估 ────────────────────────────────────
 function timeEstimate(difficulty: number): string {
@@ -93,6 +95,11 @@ function goToHistory() {
   uni.switchTab({ url: '/pages/history/index' })
 }
 
+function goRescue() {
+  if (!pendingRescueDate.value) return
+  uni.navigateTo({ url: `/pages/draft/index?rescue_date=${pendingRescueDate.value}` })
+}
+
 function goToSubmit() {
   if (!question.value) return
   uni.navigateTo({ url: `/pages/draft/index?id=${question.value._id}&submit=1` })
@@ -114,8 +121,30 @@ function goToSubmit() {
     <!-- 日期 -->
     <text class="date-label">{{ dateLabel }}</text>
 
+    <!-- 补签提示 Banner -->
+    <view v-if="pendingRescueDate" class="rescue-banner" @tap="goRescue">
+      <view class="rescue-banner__left">
+        <text class="rescue-banner__icon">📅</text>
+        <view>
+          <text class="rescue-banner__title">昨天漏打卡了</text>
+          <text class="rescue-banner__sub">你还有 1 次补签机会，连续天数不会中断</text>
+        </view>
+      </view>
+      <text class="rescue-banner__arrow">去补签 →</text>
+    </view>
+
     <!-- 骨架屏（首次加载无缓存时展示） -->
     <SkeletonCard v-if="showSkeleton" />
+
+    <!-- 加载失败 -->
+    <view v-else-if="loadError" class="error-wrap">
+      <text class="error-wrap__emoji">😕</text>
+      <text class="error-wrap__text">题目加载失败</text>
+      <text class="error-wrap__sub">请检查网络后重试</text>
+      <view class="error-wrap__btn" @tap="questionStore.loadToday()">
+        <text>重新加载</text>
+      </view>
+    </view>
 
     <!-- 无题目 -->
     <view class="empty-wrap" v-else-if="!question">
@@ -593,6 +622,82 @@ function goToSubmit() {
   .q-card__dot {
     background: #444;
     &--filled { background: #ccc; }
+  }
+}
+
+// ── 补签 Banner ──────────────────────────────
+.rescue-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: $amber-light;
+  border: 1rpx solid var(--milestone-border);
+  border-radius: $radius-md;
+  padding: 20rpx 24rpx;
+  margin-bottom: $space-md;
+  transition: opacity $duration-fast;
+
+  &:active { opacity: 0.8; }
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 16rpx;
+    flex: 1;
+  }
+
+  &__icon { font-size: 36rpx; flex-shrink: 0; }
+
+  &__title {
+    display: block;
+    font-size: 26rpx;
+    font-weight: 700;
+    color: $amber;
+  }
+
+  &__sub {
+    display: block;
+    font-size: 20rpx;
+    color: $ink-3;
+    margin-top: 4rpx;
+    line-height: 1.4;
+  }
+
+  &__arrow {
+    font-size: 22rpx;
+    font-weight: 700;
+    color: $amber;
+    flex-shrink: 0;
+    margin-left: $space-sm;
+  }
+}
+
+// ── 加载失败内联错误 ──────────────────────────
+.error-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: $space-xl 0;
+  gap: $space-sm;
+
+  &__emoji { font-size: 72rpx; }
+  &__text  { font-size: 28rpx; color: $ink-3; font-weight: 600; }
+  &__sub   { font-size: 24rpx; color: $ink-4; }
+
+  &__btn {
+    margin-top: $space-sm;
+    height: 72rpx;
+    padding: 0 48rpx;
+    background: $ink;
+    border-radius: $radius-md;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26rpx;
+    font-weight: 700;
+    color: $white;
+
+    &:active { opacity: 0.8; }
   }
 }
 </style>
