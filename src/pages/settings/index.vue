@@ -263,6 +263,7 @@ function clearDrafts() {
         <view class="about-footer">
           <text class="about-footer__quote">每天一道思考题，别让脑袋生锈 ✨</text>
           <text class="about-footer__copy">© 2026 别让你的脑生锈</text>
+          <text class="about-footer__icp">鄂ICP备2026027512号</text>
         </view>
       </view>
 
@@ -428,6 +429,12 @@ function clearDrafts() {
   &__copy {
     font-size: 22rpx;
     color: $ink-4;
+  }
+
+  &__icp {
+    font-size: 20rpx;
+    color: $ink-5;
+    letter-spacing: 0.5rpx;
   }
 }
 
